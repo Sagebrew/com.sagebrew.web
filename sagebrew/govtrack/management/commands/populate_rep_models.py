@@ -15,7 +15,7 @@ class Command(BaseCommand):
             url = "https://www.govtrack.us/api/v2/role?" \
                   "current=true&limit=600"
         populate_gt_roles_util(url)
-        print "Created GT Objects"
+        print("Created GT Objects")
 
     def handle(self, *args, **options):
         try:

@@ -74,7 +74,6 @@ STATICFILES_DIRS = (
     '%s/sb_missions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
-    '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
@@ -120,7 +119,8 @@ TEMPLATES = [{
         '%s/help_center/templates/' % PROJECT_DIR,
         '%s/plebs/templates/' % PROJECT_DIR,
         '%s/sagebrew/templates/' % PROJECT_DIR,
-        '%s/sb_solutions/templates/' % PROJECT_DIR,
+        '%s/sb_accounting/templates/' % PROJECT_DIR,
+        '%s/sb_address/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
@@ -134,6 +134,7 @@ TEMPLATES = [{
         '%s/sb_registration/templates/' % PROJECT_DIR,
         '%s/sb_requirements/templates/' % PROJECT_DIR,
         '%s/sb_search/templates/' % PROJECT_DIR,
+        '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_tags/templates/' % PROJECT_DIR,
         '%s/sb_updates/templates/' % PROJECT_DIR,
         '%s/sb_volunteers/templates/' % PROJECT_DIR,
@@ -189,6 +190,7 @@ INSTALLED_APPS = (
     "opbeat.contrib.django",
     'sb_solutions',
     'sb_accounting',
+    'sb_address',
     'sb_badges',
     'sb_base',
     'sb_comments',
@@ -274,6 +276,7 @@ ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
 INTERCOM_API_KEY = environ.get("INTERCOM_API_KEY", '')
 INTERCOM_APP_ID = environ.get("INTERCOM_APP_ID", '')
 INTERCOM_ADMIN_ID_DEVON = environ.get("INTERCOM_ADMIN_ID_DEVON", '')
+INTERCOM_USER_ID_DEVON = "devon_bleibtrey"
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
 WEBHOSE_FREE = True
@@ -283,6 +286,7 @@ STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029
 STRIPE_PAID_ACCOUNT_FEE = .021
 STRIPE_FREE_ACCOUNT_FEE = .041
+STRIPE_API_VERSION = '2016-03-07'
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
@@ -447,8 +451,8 @@ STRIPE_FIELDS_NEEDED = {
     "legal_entity.address.line1": "Street Address",
     "legal_entity.address.postal_code": "ZIP Code",
     "legal_entity.address.state": "State",
-    "legal_entity.business_name": "Business Name",
-    "legal_entity.business_tax_id": "Business EIN",
+    "legal_entity.business_name": "Name of Entity Managing Bank Account",
+    "legal_entity.business_tax_id": "EIN of Managing Bank Account",
     "legal_entity.dob.day": "Birth Day",
     "legal_entity.dob.month": "Birth Month",
     "legal_entity.dob.year": "Birth Year",
@@ -458,7 +462,8 @@ STRIPE_FIELDS_NEEDED = {
     "legal_entity.ssn_last_4": "Last 4 Digits of SSN",
     "legal_entity.type": "Type (Individual or Company)",
     "tos_acceptance.date": "Terms of Service Acceptance Date",
-    "tos_acceptance.ip": "Terms of Service Acceptance IP"
+    "tos_acceptance.ip": "Terms of Service Acceptance IP",
+    "legal_entity.verification.document": "Verification Document"
 }
 
 FREE_MISSIONS = 5
@@ -484,6 +489,107 @@ PRO_QUEST_END_DATE = datetime(2016, 6, 16)
 PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
+REVIEW_FEEDBACK_OPTIONS = [
+    ('too_short', "Add additional content to your Epic. There isn't enough "
+                  "information for donors to understand what their donations "
+                  "will be going towards."),
+    ('no_action_items', "Add actionable tasks that you can accomplish "
+                        "so you can showcase progress to contributors."),
+    ('malicious', "Remove malicious content"),
+    ('porn', "Remove pornography")
+]
+# Titles for onboarding since they must be indexes and they are used in
+# multiple locations to determine what to set to completed.
+# If we change these we'll need to run a query to update all the existing
+# onboarding tasks with that title.
+MISSION_ABOUT_TITLE = "Mission About"
+QUEST_WALLPAPER_TITLE = "Quest Wallpaper"
+BANK_SETUP_TITLE = "Banking Setup"
+QUEST_ABOUT_TITLE = "Quest About"
+MISSION_SETUP_TITLE = "Mission Setup"
+EPIC_TITLE = "Create Epic"
+MISSION_WALLPAPER_TITLE = "Mission Wallpaper"
+SUBMIT_FOR_REVIEW = "Submit For Review"
+ONBOARDING_TASKS = [
+    {
+        "title": MISSION_SETUP_TITLE,
+        "completed_title": "Mission Created",
+        "content": "Define your mission's level, name, and location.",
+        "icon": "fa fa-check-circle",
+        "priority": 1,
+        "url": "%s/missions/%s/%s/manage/general/",
+        'type': 'mission',
+        'completed': True
+    },
+    {
+        "title": BANK_SETUP_TITLE,
+        "completed_title": "Bank Confirmed",
+        "content": "Allow contributors to donate to you.",
+        "icon": "fa fa-university",
+        "priority": 2,
+        "url": "%s/quests/%s/manage/banking/#bank",
+        'type': 'quest'
+    },
+    {
+        "title": EPIC_TITLE,
+        "completed_title": "Epic Published",
+        "content": "Share your platform, goals, and mission with the world.",
+        "icon": "fa fa-font",
+        "priority": 3,
+        "url": "%s/missions/%s/%s/manage/epic/edit/",
+        'type': 'mission'
+    },
+    {
+        "title": SUBMIT_FOR_REVIEW,
+        "completed_title": "Submitted For Review",
+        "content": "Take the final step needed to share your mission "
+                   "with the world.",
+        "icon": "fa fa-star",
+        "priority": 4,
+        "url": "%s/missions/%s/%s/",
+        'type': 'mission'
+    },
+    {
+        "title": MISSION_WALLPAPER_TITLE,
+        "completed_title": "Mission Wallpaper Set",
+        "content": "Replace the default image "
+                   "with one that reflects your Mission.",
+        "icon": "fa fa-picture-o",
+        "priority": 5,
+        "url": "%s/missions/%s/%s/manage/general/#wallpaper",
+        'type': 'mission'
+    },
+    {
+        "title": MISSION_ABOUT_TITLE,
+        "completed_title": "Summary Created",
+        "content": "Attract users at a glance by summarizing your Mission",
+        "icon": "fa fa-font",
+        "priority": 6,
+        "url": "%s/missions/%s/%s/manage/general/#about",
+        'type': 'mission'
+    },
+    {
+        "title": QUEST_WALLPAPER_TITLE,
+        "completed_title": "Quest Wallpaper Set",
+        "content": "Replace the default image with one "
+                   "that reflects yourself or your organization.",
+        "icon": "fa fa-picture-o",
+        "priority": 7,
+        "url": "%s/quests/%s/manage/general/#wallpaper",
+        'type': 'quest'
+    },
+    {
+        "title": QUEST_ABOUT_TITLE,
+        "completed_title": "Quest Summarized",
+        "content": "Build contributor confidence by describing yourself "
+                   "or your organization.",
+        "icon": "fa fa-font",
+        "priority": 8,
+        "url": "%s/quests/%s/manage/general/#about",
+        'type': 'quest'
+    }
+]
 
 VOLUNTEER_ACTIVITIES = [
     ("get_out_the_vote", "Get Out The Vote"),
@@ -560,7 +666,10 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              "Image", "BREAKING", "FORM", "1.", "by",
                              "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
                              '[', ']', '{', '}', '*', 'Related Topics:',
-                             'related topics:', '+', '=']
+                             'related topics:', '+', '=', 'free',
+                             'Continue reading', 'http', 'GODDAMMIT', 'hr',
+                             'min', 'main story', 'main', '(', ')', '/', '\\',
+                             'Advertisement', 'Photo', 'Erectile Dysfunction']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',
@@ -571,11 +680,18 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "Petition:", "petition:", "Petition",
                             "Sex Positions", "sex positions", "Orgasm",
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
-                            "Jizz"]
-
+                            "Jizz", 'free']
+BLOCKED_SITE = ['wnd.com', 'nationalenquirer.com']
 UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
-                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
+                    'CBC', 'CBS', 'NBC', 'NYT', 'PBS', 'abc7.com', 'NPR',
+                    'N.P.R.', 'N.P.R', 'N.Y.T', 'N.Y.T.', 'TYT', 'T.Y.T.',
+                    'FBI', 'F.B.I', 'F.B.I.', 'CIA', 'C.I.A.', 'C.I.A',
+                    'NSA', 'N.S.A', 'N.S.A.', 'NASA', 'N.A.S.A', 'N.A.S.A.',
+                    'FEMA', 'F.E.M.A.', 'F.E.M.A', 'DOJ', 'D.O.J', 'D.O.J.',
+                    'CDC', 'C.D.C', 'C.D.C.', 'HEPA', 'H.E.P.A', 'H.E.P.A.',
+                    'U.S.', 'US', 'USA', 'U.S.A.', 'APC', 'PDP', 'ISIS',
+                    'World War II', 'World War I']
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
@@ -1056,74 +1172,3 @@ COUNTRIES = [
     (u'QA', u'Qatar'),
     (u'MZ', u'Mozambique')
 ]
-
-
-EPIC_TEMPLATE = """
-*Below are some ideas on what you might want to include in your Epic. It's completely up to you if you'd like to use them or take the page in a completely different direction :). You can see a preview of what it'll look like on the front page of your mission by scrolling down.*
-
-## Mission Statement ##
-Start off by grabbing your audience's attention and telling them what you're trying to achieve.
-
-- What are the core pieces of your platform?
-- What's driving you and/or your group?
-- What's this mission all about?
-
-
-## Objectives & Roadmap ##
-Help potential donors and volunteers understand more about your objectives.
-
-- How are you planning on reaching them?
-- What's needed to obtain each objective?
- - Cost estimates
- - Volunteer needs
- - Timing estimates
-- What can donors expect once your objectives have been completed
-
-
-
-### Objective One ###
-Try laying initial objectives that are easily achievable that you can complete while you're getting started with raising funds and finding volunteers. Once you've completed an objective create an Update highlighting what you've done, what it took to achieve the objective, and how much fun you had doing it :).
-
-![Updates][1]
-
-Providing updates on things you've already accomplished is a great way to build confidence with your supporters and help them to get engaged.
-
-### Objective Two ###
-Longer term objectives might not be as fleshed out, but that's okay you can always come back and update them as you gather more information!
-
-
-## In the Press ##
-![press][2]
-
-Has your movement or campaign been featured in a newspaper, in a blog, or by a local organization? If so, showcase the exposure and link users to the relevant articles.
-
-
-## Conversations ##
-The [Conversation Cloud][3] is a great place to start up discussions about your Mission. You can use a conversation to get feedback or vet your solutions with the community. If you already have some conversations opened up, it's a good idea to link to them to build context around your Mission and to show your engagement with others on the topic.
-
-## The Team ##
-
-![teamwork][4]
-
-Your Quest page gives you somewhere to introduce yourself, your team, or your organization but if you want to add some more images or descriptions this would be the place to do it!
-
-## FAQ ##
-Receive the same questions over and over? You might want to include a FAQ that tries to resolve these questions before they get asked again :).
-
-
-
-#### Some Other Tips: ####
-
-- Use images and videos
- - Creating an engaging Epic that captures supporters’ attention means more donations, volunteers, and endorsements
-- An Epic can be as long or as short as you'd like, there isn't a limit on the size but keep your target audience's attention span in mind
-
-
-  [1]: https://s3.amazonaws.com/sagebrew/long_term_static/help/updates.gif
-  [2]: https://s3.amazonaws.com/sagebrew/long_term_static/help/press_release.jpg
-  [3]: https://www.sagebrew.com/conversations/
-  [4]: https://s3.amazonaws.com/sagebrew/long_term_static/help/teamoverview.jpg
-
-
-
-"""

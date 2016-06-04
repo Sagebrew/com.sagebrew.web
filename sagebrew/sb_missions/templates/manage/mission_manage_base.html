@@ -27,7 +27,7 @@
                     </a>
                 </li>
                 <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_edit_epic" mission.id slug %}">
+                    <a href="{% url "mission_epic" mission.id slug %}">
                         Epic
                     </a>
                 </li>
@@ -45,52 +45,6 @@
                     <a href="{% url "mission_volunteers" mission.id slug %}">
                         Volunteers
                     </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="block block-type-nav">
-        <div class="block-title">
-            Mission Setup Checklist
-        </div>
-        <div class="block-content">
-            <ul class="nav nav-list nav-list-vivid">
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Complete the Quest setup checklist as the first step in taking your Mission live"
-                       {% if not quest.active %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}">
-                        <i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Give a short summary of your Mission to get people interested"
-                       {% if not mission.about %}class="red-href"{% endif %} href="{% url "mission_settings" mission.id slug %}#general">
-                        <i class="fa {% if mission.about %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Fill Out About</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Give a more detailed explanation including background, goals, and purpose of your Mission"
-                       {% if not mission.epic %}
-                            class="red-href"
-                       {% endif %} href="{% url "mission_edit_epic" mission.id slug %}">
-                        <i class="fa {% if mission.epic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Fill Out Epic</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Upload a picture which represents your Mission"
-                       {% if not mission.wallpaper_pic != "https://sagebrew.local.dev/static/images/wallpaper_capitol_2.jpg" %}
-                            class="red-href"
-                       {% endif %}
-                       href="{% url "mission_settings" mission.id slug %}">
-                        <i class="fa {% if mission.wallpaper_pic != "https://sagebrew.local.dev/static/images/wallpaper_capitol_2.jpg" %}fa-check{% else %}fa-times{% endif %} quest-rocket">
-                        </i> Upload a Wallpaper</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Take your Mission live to start getting donations"
-                       {% if not mission.active %}class="red-href"{% endif %}
-                       href="#">
-                        <i class="fa {% if mission.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Mission Live</a>
                 </li>
             </ul>
         </div>

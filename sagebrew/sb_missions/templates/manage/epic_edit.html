@@ -1,0 +1,34 @@
+{% extends "layout/hero-one-col.html" %}
+{% load staticfiles %}
+{% block title %}Mission Edit Epic{% endblock title %}
+{% block body_class %}
+    background-color-white
+{% endblock %}
+
+{% block navigation %}
+    {{ block.super }}
+    {% url 'mission_epic' mission.id slug as back_url%}
+    {% include "navigation/navbar_secondary.html" with back_url=back_url nav_title="Edit Epic" last_autosaved=mission.epic_last_autosaved %}
+{% endblock %}
+
+{% block hero %}
+
+    <div class="block min-height-600 margin-top-20">
+        <div class="block-content">
+            <form id="epicForm">
+                <textarea id="epic_editor"
+                          class="font-style-normal editable sb_markdown">
+                    {{ mission.temp_epic|default_if_none:epic_template }}
+                </textarea>
+                <div id="validation-errors"></div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block intercom %}
+    var metadata = {mission_uuid: "{{ mission.id }}", mission_title: "{{ mission.title }}"};
+    Intercom('trackEvent', 'manage-edit-epic', metadata);
+{% endblock %}

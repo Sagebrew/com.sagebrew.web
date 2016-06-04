@@ -1,13 +1,12 @@
 var request = require('api').request,
     moment = require('moment'),
-    Autolinker = require('autolinker'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
 export const meta = {
     controller: "mission/mission-view/updates",
     match_method: "path",
     check: [
-       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/updates"
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/updates"
     ]
 };
 
@@ -49,7 +48,6 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }

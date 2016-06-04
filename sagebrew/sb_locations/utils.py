@@ -34,13 +34,18 @@ def google_maps_query(external_id):
               external_id, settings.GOOGLE_MAPS_API_SERVER)
     response = get(url, headers={
         "content-type": "application/json"})
-    return break_out_structure(response.json()['result']['address_components'])
+    if 'result' in response.json():
+        return break_out_structure(
+            response.json()['result']['address_components'])
+    else:
+        return []
 
 
 def break_out_structure(places):
     us_variants = ['United States', 'USA', 'US']
     country = None
     admin_area_1 = None
+    admin_area_3 = None
     locality = None
     for place in places:
         if 'country' in place['types']:
@@ -49,14 +54,23 @@ def break_out_structure(places):
                 country['long_name'] = "United States of America"
         elif 'administrative_area_level_1' in place['types']:
             admin_area_1 = place
+
         # Taking out county for time being as with the current query it will
         # cause duplicate cities
         # elif 'administrative_area_level_2' in place['types']:
         #    admin_area_2 = place
-        elif ('administrative_area_level_3' in place['types'] or
-                'locality' in place['types']):
+
+        # Some locations have both an admin 3 and a locality location available
+        # For example see Springfield, VA which has
+        # US -> VA -> Lee -> Springfield. In this case we need to ensure we
+        # actually get the locality.
+        elif 'administrative_area_level_3' in place['types']:
+            admin_area_3 = place
+        elif 'locality' in place['types']:
             locality = place
 
+    if locality is None:
+        locality = admin_area_3
     return [country, admin_area_1, locality]
 
 
@@ -153,10 +167,11 @@ def connect_related_element(location, element_id):
     query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)
-    if not res.one:
-        raise KeyError("Could not find Question yet")
-    connection_node = Question.inflate(res.one)
-    connection_node.focus_location.connect(location)
+    if res.one:
+        connection_node = Question.inflate(res.one)
+        connection_node.focus_location.connect(location)
+    else:
+        connection_node = None
 
     return connection_node
 

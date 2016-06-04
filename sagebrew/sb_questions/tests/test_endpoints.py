@@ -113,9 +113,12 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_with_new_tags_no_rep(self):
         self.client.force_authenticate(user=self.user)
+        self.pleb.reputation = 0
+        self.pleb.save()
+        cache.clear()
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tag_name = 'non-existent tag'
         tags = ['taxes', tag_name]
         url = reverse('question-list')
@@ -159,11 +162,12 @@ class QuestionEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
 
-    def test_create_with_h1_first(self):
+    def test_create_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
-        content = "# hello world this is a h1 #\n" \
-                  "## with a h2 after it ##\n" \
-                  "# another h1 #\n" \
+        cache.clear()
+        content = "<h3> hello world this is a h3 </h3><br>" \
+                  "<h2> with a h2 after it </h2><br>" \
+                  "<h3> another h3 </h3><br>" \
                   "and then some text"
         title = "This is a question that must be t is blue216666?"
         tags = ['taxes', 'environment']
@@ -174,22 +178,22 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<h1 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
-                       '<h2>with a h2 after it</h2>\n' \
-                       '<h1>another h1</h1>\n' \
-                       '<p>and then some text</p>'
+        html_content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                       'hello world this is a h3 </h3><br/><h2> with a ' \
+                       'h2 after it </h2><br/><h3> another h3 </h3><br/>' \
+                       'and then some text'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
+        self.assertEqual(response.data['content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
 
     def test_create_with_h2_first(self):
         self.client.force_authenticate(user=self.user)
-        content = "## hello world this is a h2 ##\n" \
-                  "# with a h1 after it #\n" \
-                  "## another h2 ##\n" \
+        cache.clear()
+        content = "<h2> hello world this is a h2 </h2><br>" \
+                  "<h3> with a h3 after it </h3><br>" \
+                  "<h2 another h2 </h2><br>" \
                   "and then some text"
         title = "This is a question that must be t is blue21222?"
         tags = ['taxes', 'environment']
@@ -200,134 +204,12 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<h2 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h2</h2>' \
-                       '\n<h1>with a h1 after it</h1>' \
-                       '\n<h2>another h2</h2>\n<p>' \
-                       'and then some text</p>'
+        html_content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                       'hello world this is a h2 </h2><br/><h3> with a h3 ' \
+                       'after it </h3><br/><h2 another="" h2=""><br/>' \
+                       'and then some text</h2>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_image(self):
-        self.client.force_authenticate(user=self.user)
-        content = "![enter image description here][1] " \
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
-        title = "This is a question that must be t is blue21?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> ' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % \
-                       response.data['id']
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_fake_image(self):
-        self.client.force_authenticate(user=self.user)
-        content = '<img alt="fake image" src="https://sagebrew.com"/>'\
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
-        title = "This is a question that must be t is blue21?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<p>&lt;img alt="fake image" ' \
-                       'src="https://sagebrew.com"/&gt;' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>'
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_multiple_image(self):
-        self.client.force_authenticate(user=self.user)
-        content = "![enter image description here][1] \n" \
-                  "![enter image description here][2] \n" \
-                  "![enter image description here][3] \n" \
-                  "![enter image description here][4] \n" \
-                  "![enter image description here][2]" \
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg\n" \
-                  "[2]: https://i.imgur.com/Q2ZST9f.jpg\n" \
-                  "[3]: bit.ly/1LfIewy\n" \
-                  "[4]: http://vignette4.wikia.nocookie.net/" \
-                  "robber-penguin-agency/images/6/6e/Small-mario.png"
-        title = "This is a question that must be t i222?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> \n' \
-                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
-                       '</a></a> \n<a href="bit.ly/1LfIewy" ' \
-                       'data-lightbox="%s"><img ' \
-                       'alt="enter image description here" ' \
-                       'src="bit.ly/1LfIewy" /></a> \n' \
-                       '<a href="http://vignette4.wikia.nocookie.net/' \
-                       'robber-penguin-agency/images/6/6e/Small-mario.png" ' \
-                       'data-lightbox="%s"><img alt="enter image description' \
-                       ' here" src="http://vignette4.wikia.nocookie.net/' \
-                       'robber-penguin-agency/images/6/6e/Small-mario.png"' \
-                       ' /></a> \n<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' \
-                       % (response.data['id'], response.data['id'],
-                          response.data['id'], response.data['id'],
-                          response.data['id'],)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_script(self):
-        self.client.force_authenticate(user=self.user)
-        content = "<script>alert('hello')</script>"
-        title = str(uuid1())
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
+        self.assertEqual(response.data['content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -338,7 +220,7 @@ class QuestionEndpointTests(APITestCase):
                   "question."
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": str(uuid1()),
             "tags": ['taxes', 'environment'],
             "latitude": 42.5247555,
@@ -353,7 +235,7 @@ class QuestionEndpointTests(APITestCase):
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, data['content'])
         self.assertEqual(question.object_uuid, response.data['object_uuid'])
 
     def test_create_null_focus_area(self):
@@ -362,7 +244,7 @@ class QuestionEndpointTests(APITestCase):
                   "question."
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": str(uuid1()),
             "tags": ['taxes', 'environment'],
             "latitude": None,
@@ -376,7 +258,7 @@ class QuestionEndpointTests(APITestCase):
                                  '"%s"}) RETURN a' %
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, data['content'])
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -441,12 +323,12 @@ class QuestionEndpointTests(APITestCase):
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": title,
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], data['content'])
 
     def test_create_title(self):
         self.client.force_authenticate(user=self.user)
@@ -607,7 +489,7 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.data['title'],
-                         ['Ensure this field has no more than 140 characters.'])
+                         ['Ensure this field has no more than 120 characters.'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_too_many_tags(self):
@@ -827,13 +709,11 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         data = {
-            "content": content
+            "content": "<p>%s</p>" % content
         }
         response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], data['content'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            Question.get(self.question.object_uuid).content, content)
 
     def test_get_profile(self):
         self.client.force_authenticate(user=self.user)
@@ -1311,20 +1191,6 @@ class SBBaseSerializerTests(APITestCase):
                          "You must be logged in to comment on content.")
         self.assertEqual(response.data['can_comment']['short_detail'],
                          "Signup To Comment")
-
-    def test_content_is_none(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-        self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content=None,
-                            owner_username=self.pleb.username).save()
-        question.owned_by.connect(self.pleb)
-        url = reverse('question-detail',
-                      kwargs={'object_uuid': question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['html_content'], "")
 
     def test_is_not_owner(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

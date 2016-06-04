@@ -34,6 +34,7 @@ export function submitSearch() {
                     }
                     searchResults.innerHTML += questSearchTemplate(value._source);
                 } else if (value._type === 'mission') {
+                    value._source.position_mission = value._source.focus_on_type === "position";
                     searchResults.innerHTML += missionSearchTemplate(value._source);
                 }
             });

@@ -1,9 +1,12 @@
+import os
 import stripe
+import urllib
+from uuid import uuid1
+from logging import getLogger
 from stripe.error import InvalidRequestError
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.files.base import ContentFile
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated, IsAdminUser)
@@ -12,7 +15,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser
 
 from neomodel import db
 
@@ -33,6 +35,8 @@ from .serializers import (EditorSerializer, ModeratorSerializer,
                           PositionManagerSerializer, QuestSerializer)
 from .neo_models import Position, Quest
 
+logger = getLogger("loggly_logs")
+
 
 class QuestViewSet(viewsets.ModelViewSet):
     serializer_class = QuestSerializer
@@ -51,6 +55,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         # TODO not sure if in_transit and pending actually work. Need to
         # test these.
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         try:
             in_transit = stripe.Transfer.all(recipient=instance.stripe_id,
                                              status="in_transit")
@@ -368,23 +373,37 @@ class QuestViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'],
-                  permission_classes=(IsAuthenticated,),
-                  parser_classes=(FileUploadParser, ))
+                  permission_classes=(IsAuthenticated,))
     def upload_identification(self, request, owner_username=None):
+        # pragma: no cover
+        # DJB: cannot submit multipart/form-data directly to stripe
+        # during testing and cannot be mocked using requests_mock
+        # validated manually 5/29/2016
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        file_object = request.data.get('img', None)
+        stripe.api_version = settings.STRIPE_API_VERSION
+        image_url = request.data.get('img', None)
         quest = Quest.get(owner_username=owner_username)
-        stripe_response = stripe.FileUpload.create(
-            purpose='identity_document',
-            file=ContentFile(file_object.read()),
-            stripe_account=quest.stripe_customer_id
-        )
+        file_name = "%s.jpg" % str(uuid1())
+        urllib.urlretrieve(image_url, file_name)
+        try:
+            with open(file_name, 'rb') as file_object:
+                stripe_response = stripe.FileUpload.create(
+                    purpose='identity_document',
+                    file=file_object,
+                    stripe_account=quest.stripe_customer_id
+                )
+        except Exception as e:
+            logger.exception(e)
+            os.remove(file_name)
+            return Response({"detail": "Failed to upload image to Stripe"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         account = stripe.Account.retrieve(quest.stripe_id)
         account.legal_entity.verification.document = stripe_response['id']
         account.save()
         quest.stripe_identification_sent = True
         quest.save()
         cache.delete("%s_quest" % quest.owner_username)
+        os.remove(file_name)
         return Response({"detail": "success"}, status=status.HTTP_200_OK)
 
 

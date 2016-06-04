@@ -13,6 +13,8 @@ from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
 
+from elasticsearch import exceptions as es_exceptions
+
 from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
 from neomodel.exception import CypherException, DoesNotExist
 from neomodel import db
@@ -71,6 +73,11 @@ def custom_exception_handler(exc, context):
     if isinstance(exc, stripe.APIError):
         data = errors.STRIPE_CONNECTION_ERROR
         logger.exception("%s Stripe API Error" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if isinstance(exc, es_exceptions.NotFoundError):
+        data = errors.ELASTICSEARCH_NOT_FOUND_ERROR
+        logger.exception("%s Elasticsearch Not Found Error" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if isinstance(exc, DoesNotExist):

@@ -1,4 +1,3 @@
-import us
 import stripe
 from datetime import date
 from unidecode import unidecode
@@ -28,16 +27,16 @@ from py2neo.cypher.error.schema import ConstraintViolation
 from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data, SBUniqueValidator
+from api.utils import (smart_truncate, spawn_task,
+                       gather_request_data, SBUniqueValidator)
+from sb_address.serializers import AddressSerializer, AddressExportSerializer
 from sb_base.serializers import (IntercomMessageSerializer,
                                  IntercomEventSerializer)
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb
-from .tasks import (determine_pleb_reps,
-                    update_address_location, create_wall_task,
-                    generate_oauth_info)
+from .neo_models import Pleb
+from .tasks import create_wall_task, generate_oauth_info
 
 
 class EmailAuthTokenGenerator(object):
@@ -281,10 +280,10 @@ class PlebSerializerNeo(SBSerializer):
     last_name = serializers.CharField()
     username = serializers.CharField(read_only=True)
     password = serializers.CharField(max_length=128, required=True,
-                                     write_only=True,
+                                     write_only=True, min_length=8,
                                      style={'input_type': 'password'})
     new_password = serializers.CharField(max_length=128, required=False,
-                                         write_only=True,
+                                         write_only=True, min_length=8,
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
                                    validators=[SBUniqueValidator(
@@ -298,7 +297,6 @@ class PlebSerializerNeo(SBSerializer):
                                           max_length=240)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
-    completed_profile_info = serializers.BooleanField(read_only=True)
     customer_token = serializers.CharField(write_only=True, required=False)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
@@ -328,6 +326,8 @@ class PlebSerializerNeo(SBSerializer):
     url = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
+    has_address = serializers.SerializerMethodField()
+    name_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -347,10 +347,10 @@ class PlebSerializerNeo(SBSerializer):
                     first_name=user.first_name.title(),
                     last_name=user.last_name.title(),
                     username=user.username,
-                    date_of_birth=birthday)
-        pleb.occupation_name = validated_data.get('occupation_name', None)
-        pleb.employer_name = validated_data.get('employer_name', None)
-        pleb.mission_signup = mission_signup
+                    date_of_birth=birthday,
+                    occupation_name=validated_data.get('occupation_name', None),
+                    employer_name=validated_data.get('employer_name', None),
+                    mission_signup=mission_signup).save()
         if mission_signup is None:
             mission_signup = "no"
         # Save so Intercom Event can pass validators, don't just pass the
@@ -364,7 +364,6 @@ class PlebSerializerNeo(SBSerializer):
         })
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
@@ -379,6 +378,13 @@ class PlebSerializerNeo(SBSerializer):
         serializer.save()
         pleb.initial_verification_email_sent = True
         pleb.save()
+        interests_serializer = TopicInterestsSerializer(
+            data={
+                'interests': [
+                    interest[0] for interest in settings.TOPICS_OF_INTEREST]},
+            context={"request": request})
+        interests_serializer.is_valid(raise_exception=True)
+        interests_serializer.save()
         spawn_task(task_func=create_wall_task,
                    task_param={"username": user.username})
         spawn_task(task_func=generate_oauth_info,
@@ -400,7 +406,21 @@ class PlebSerializerNeo(SBSerializer):
         :return:
         """
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         request, _, _, _, _ = gather_request_data(self.context)
+        address = request.data.get('address')
+        if address is not None:
+            address_serializer = AddressSerializer(
+                data=address, context={"request": request})
+            address_serializer.is_valid(raise_exception=True)
+            address = address_serializer.save()
+            query = 'MATCH (a:Pleb) ' \
+                    'OPTIONAL MATCH (a)-[r:LIVES_IN]-(:Address) ' \
+                    'DELETE r'
+            res, _ = db.cypher_query(query)
+            instance.address.connect(address)
+            instance.determine_reps()
+
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)
         last_name = validated_data.get('last_name', instance.last_name)
@@ -465,6 +485,7 @@ class PlebSerializerNeo(SBSerializer):
             'stripe_default_card_id', instance.stripe_default_card_id)
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
+
         instance.save()
         instance.update_quest()
         cache.delete(instance.username)
@@ -520,85 +541,23 @@ class PlebSerializerNeo(SBSerializer):
             return obj.is_following(request.user.username)
         return False
 
+    def get_has_address(self, obj):
+        # We provide has_address rather than a full address to allow apps
+        # to know if the user has an address or not without compromising
+        # our customer's privacy and address.
+        query = 'MATCH (p:Pleb {username: "%s"}) ' \
+                'OPTIONAL MATCH (p)-[r:LIVES_AT]->(b:Address) ' \
+                'RETURN r IS NOT NULL as has_address' % obj.username
+        res, _ = db.cypher_query(query)
 
-class AddressSerializer(SBSerializer):
-    object_uuid = serializers.CharField(read_only=True)
-    href = serializers.SerializerMethodField()
-    street = serializers.CharField(max_length=128)
-    street_additional = serializers.CharField(required=False, allow_blank=True,
-                                              allow_null=True, max_length=128)
-    city = serializers.CharField(max_length=150)
-    state = serializers.CharField(max_length=50)
-    postal_code = serializers.CharField(max_length=15)
-    country = serializers.CharField(allow_null=True, required=False)
-    latitude = serializers.FloatField()
-    longitude = serializers.FloatField()
-    congressional_district = serializers.IntegerField()
-    validated = serializers.BooleanField(required=False)
+        return res.one
 
-    def create(self, validated_data):
-        request = self.context.get('request', None)
-        validated_data['state'] = us.states.lookup(
-            validated_data['state']).name
-        if not validated_data.get('country', False):
-            validated_data['country'] = "USA"
-        address = Address(**validated_data).save()
-        address.set_encompassing()
-        pleb = Pleb.get(username=request.user.username, cache_buster=True)
-        address.owned_by.connect(pleb)
-        pleb.completed_profile_info = True
-        pleb.save()
-        cache.delete(pleb.username)
-        pleb.determine_reps()
-        spawn_task(task_func=update_address_location,
-                   task_param={"object_uuid": address.object_uuid})
-        return address
-
-    def update(self, instance, validated_data):
-        request = self.context.get('request', None)
-        instance.street = validated_data.get('street', instance.street)
-        instance.street_additional = validated_data.get(
-            'street_additional', instance.street_additional)
-        instance.city = validated_data.get("city", instance.city)
-        instance.state = us.states.lookup(
-            validated_data.get("state", instance.state)).name
-        instance.postal_code = validated_data.get("postal_code",
-                                                  instance.postal_code)
-        instance.country = validated_data.get("country", instance.country)
-        instance.congressional_district = validated_data.get(
-            "congressional_district", instance.congressional_district)
-        instance.latitude = validated_data.get("latitude", instance.latitude)
-        instance.longitude = validated_data.get("longitude",
-                                                instance.longitude)
-        instance.save()
-        cache.delete('%s_possible_house_representatives' %
-                     request.user.username)
-        cache.delete('%s_possible_senators' % request.user.username)
-        spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": self.context['request'].user.username,
-        })
-        spawn_task(task_func=update_address_location,
-                   task_param={"object_uuid": instance.object_uuid})
-        return instance
-
-    def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        return reverse(
-            "address-detail", kwargs={'object_uuid': obj.object_uuid},
-            request=request)
-
-
-class AddressExportSerializer(serializers.Serializer):
-    street = serializers.CharField(max_length=125)
-    street_additional = serializers.CharField(required=False, allow_blank=True,
-                                              allow_null=True, max_length=125)
-    city = serializers.CharField(max_length=150)
-    state = serializers.CharField(max_length=50)
-    postal_code = serializers.CharField(max_length=15)
-    country = serializers.CharField(allow_null=True, required=False)
-    latitude = serializers.FloatField()
-    longitude = serializers.FloatField()
-    congressional_district = serializers.IntegerField()
+    def get_name_summary(self, obj):
+        full_name = "%s %s" % (obj.first_name, obj.last_name)
+        if full_name is not None:
+            if len(full_name) > 20:
+                return smart_truncate(full_name, 20)
+        return full_name
 
 
 class FriendRequestSerializer(SBSerializer):

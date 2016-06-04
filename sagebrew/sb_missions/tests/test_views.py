@@ -8,17 +8,21 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
+from neomodel import db
+
 from sb_registration.utils import create_user_util_test
 from sb_quests.neo_models import Quest
 from plebs.neo_models import Pleb
 from sb_updates.neo_models import Update
 
 from sb_missions.neo_models import Mission
+from sb_missions.utils import setup_onboarding
 
 
 class MissionViewTests(TestCase):
 
     def setUp(self):
+        db.cypher_query('MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
@@ -26,7 +30,6 @@ class MissionViewTests(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
         cache.clear()
@@ -136,6 +139,39 @@ class MissionViewTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_mission_settings(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_settings',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_mission_settings_completed_wallpaper(self):
+        self.quest.wallpaper_pic = "helloworld.png"
+        self.quest.save()
+        setup_onboarding(self.quest, self.mission)
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_settings',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_mission_settings_completed_verification(self):
+        self.quest.account_verified = "verified"
+        self.quest.save()
+        setup_onboarding(self.quest, self.mission)
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_settings',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_mission_settings_completed_about(self):
+        self.quest.about = "some short summary"
+        self.quest.save()
+        setup_onboarding(self.quest, self.mission)
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('mission_settings',
                       kwargs={'object_uuid': self.mission.object_uuid,

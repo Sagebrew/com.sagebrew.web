@@ -1,15 +1,12 @@
 var request = require('api').request,
-    markdown = require('common/markdown').addMarkdown,
-    validators = require('common/validators'),
-    Autolinker = require('autolinker'),
-    moment = require('moment'),
-    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
+    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
+    moment = require('moment');
 
 export const meta = {
     controller: "mission/mission-manage/updates",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates$"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/manage\/updates$"
     ]
 };
 
@@ -26,36 +23,9 @@ export function init() {
  */
 export function load() {
     require('plugin/contentloader');
-    var $app = $(".app-sb"),
-        missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+    var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper");
-    markdown($("textarea.markdown-input"));
-    $app
-        .on('click', '#submit', function(event) {
-            event.preventDefault();
-            var form = document.getElementById('updateForm');
-            var data = {};
-            for (var i = 0, ii = form.length; i < ii; ++i) {
-                var input = form[i];
-                // Don't check the value because if the use has entered a value
-                // we prepopulate it. So if they remove it we want to set it to
-                // an empty string in the backend.
-                if (input.name) {
-                    data[input.name] = input.value;
-                }
-            }
-            data.about_type = "mission";
-            data.about_id = missionId;
-            if('content' in data && 'title' in data){
-                request.post({url: "/v1/missions/" + missionId + "/updates/",
-                    data: JSON.stringify(data)
-                }).done(function (){
-                    window.location.reload();
-                });
-            }
 
-        });
-    validators.updateValidator($("#updateForm"));
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',
@@ -78,7 +48,6 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }

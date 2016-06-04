@@ -1,0 +1,12 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+    <p>
+        Hi Team,<br />
+        {{ username }} has updated their Mission, "{{ title }}",
+        which we had previously signified problems with.
+    </p>
+    <p>
+        Please review the updates in the
+        <a href="{{ council_url }}">council area</a>.
+    </p>
+{% endblock email_content %}

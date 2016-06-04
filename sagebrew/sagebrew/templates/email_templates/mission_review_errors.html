@@ -1,0 +1,19 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+    <p>
+        Hi {{ first_name }}, <br />
+        We started the review of your Mission, "{{ title }}",
+        and found a few areas that need improvement.
+        Please correct the following issues so you can start
+        taking donations:
+    </p>
+    <ul>
+        {% for feedback in problems %}
+            <li>{{ feedback }}</li>
+        {% endfor %}
+    </ul>
+    <p>
+        You can make these modifications by
+        <a href="{{ epic_link }}">editing your Epic</a>.
+    </p>
+{% endblock email_content %}

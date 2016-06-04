@@ -11,7 +11,13 @@
                     <a href="{{ this.url }}">{{ this.title }}</a>
                 </h3>
                 <div class="block-content">
-                    <small>{{ this.about }}</small>
+                    <small>
+                        {{#if about }}
+                            {{about}}
+                        {{else}}
+                            A {{level}} level {{focus_on_type}} mission.
+                        {{/if}}
+                    </small>
                 </div>
             </div>
         </div>

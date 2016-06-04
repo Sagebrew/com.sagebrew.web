@@ -6,6 +6,7 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
+    Autolinker = require('autolinker'),
     content = require('common/content'),
     postNewsTemplate = require('../templates/post_news.hbs');
 
@@ -74,8 +75,8 @@ export function init () {
             greyPage.classList.remove('sb_hidden');
             var $form = $(this),
                 $preview = $(".post-image-preview-container", $(this)),
-                $input = $("#post_input_id", $(this));
-            var parsedText = content.expandContent($input.val()),
+                $input = $("#post_input_id", $(this)),
+                parsedText = content.expandContent($input.val()),
                 images,
                 imageIds = [],
                 finalURLs = content.extractUrls($input.val());
@@ -99,6 +100,7 @@ export function init () {
                     $preview.hide();
                     $input.css('margin-bottom', 0);
                     $input.val("");
+                    data.html_content = Autolinker.link(data.content);
                     $("#wall_app").prepend(postNewsTemplate(helpers.votableContentPrep([data])[0]));
                     var placeHolder = $(".list-empty");
                     if (placeHolder !== undefined) {
@@ -210,10 +212,9 @@ export function load () {
                 url: "/v1/posts/" + this.dataset.id + "/",
                 data: JSON.stringify(update)
             }).done(function (data) {
-                document.getElementById("js-post-" + data.id).innerHTML = "<p>" + data.html_content + "</p>";
-                $('#js-edit-container-' + objectID).hide();
-                $("#js-post-" + objectID).show();
-            }).fail(function () {
+                // The surrounding <p> tag is necessary to ensure consistent
+                // formatting for text.
+                document.getElementById("js-post-" + data.id).innerHTML = '<p>' + Autolinker.link(data.content) + '</p>';
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
             });

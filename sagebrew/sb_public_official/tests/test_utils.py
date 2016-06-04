@@ -27,7 +27,7 @@ class TestPublicOfficialUtils(TestCase):
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
                                congressional_district="11").save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
 
     def test_determine_reps(self):
         res = determine_reps(self.pleb)

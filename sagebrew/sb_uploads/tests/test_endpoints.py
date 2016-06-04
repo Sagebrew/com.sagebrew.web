@@ -93,6 +93,15 @@ class UploadEndpointTests(APITestCase):
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_create_editor(self):
+        self.client.force_authenticate(user=self.user)
+        uuid = str(uuid1())
+        with open(self.image_path, 'rb') as image:
+            data = {"img": image}
+            url = reverse('upload-list') + "?random=" + uuid + "&editor=true"
+            response = self.client.post(url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_delete(self):
         self.client.force_authenticate(user=self.user)
         uuid = str(uuid1())
@@ -305,6 +314,16 @@ class URLContentEndpointTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertIn('.s3.amazonaws.com/media/',
                           response.data['selected_image'])
+
+    def test_create_ssl_error(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "https://requestb.in/"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data['selected_image'])
 
     @requests_mock.mock()
     def test_create_not_og(self, m):

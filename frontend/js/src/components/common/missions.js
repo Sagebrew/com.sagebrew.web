@@ -1,9 +1,12 @@
 var request = require('api').request,
-    positionHolderTemplate = require('controller/mission/political-mission/templates/position_holder.hbs'),
+    positionHolderTemplate = require('controller/mission/registration/political-mission/templates/position_holder.hbs'),
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
+    missionShowTemplate = require('controller/mission/templates/show_more_missions.hbs'),
     settings = require('settings').settings;
 
-export function populateMissions(loadElement, questID, template, emptyMessage){
+export function populateMissions(loadElement, questID, template, emptyMessage,
+                                 continuousLoad, additionalMissionElement, 
+                                 additionalMissionWrapper, nextPage){
     require('common/handlebars_helpers');
     require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
@@ -11,6 +14,9 @@ export function populateMissions(loadElement, questID, template, emptyMessage){
     }
     if(template === undefined || template === "undefined" || template === null){
         template = missionSummaryTemplate;
+    }
+    if(continuousLoad === undefined || continuousLoad === "undefined" || continuousLoad === null) {
+        continuousLoad = true;
     }
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
@@ -20,6 +26,7 @@ export function populateMissions(loadElement, questID, template, emptyMessage){
         url: '/v1/quests/' + questID + '/missions/',
         loadingMoreItemsMessage: " ",
         itemsPerPage: 3,
+        continuousLoad: continuousLoad,
         loadMoreMessage: " ",
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
@@ -35,16 +42,28 @@ export function populateMissions(loadElement, questID, template, emptyMessage){
         renderCallback: function($container, data) {
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
+                data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
             }
             $container.append(template({
                 missions: data.results,
                 static_url: settings.static_url
             }));
+            if(continuousLoad === false) {
+                if (additionalMissionElement !== null && data.next === null) {
+                    additionalMissionWrapper.remove();
+                } else {
+                    additionalMissionWrapper.remove();
+                    loadElement.append(
+                        missionShowTemplate({page: nextPage, show: "mission"}));
+                }
+            }
         }
     });
 }
 
-export function populateEndorsements(loadElement, questID, template, emptyMessage, endorserType){
+export function populateEndorsements(loadElement, questID, template, emptyMessage, endorserType,
+                                    continuousLoad, additionalEndorsementElement,
+                                    additionalEndorsementWrapper, nextPage){
     require('common/handlebars_helpers');
     require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
@@ -56,6 +75,9 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
     }
+    if(continuousLoad === undefined || continuousLoad === "undefined" || continuousLoad === null) {
+        continuousLoad = true;
+    }
     if(endorserType === undefined || endorserType === "undefined" || endorserType === null) {
         endorserType = "profiles";
     }
@@ -64,6 +86,7 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
         url: '/v1/' + endorserType + '/' + questID + '/endorsed/',
         loadingMoreItemsMessage: " ",
         itemsPerPage: 3,
+        continuousLoad: continuousLoad,
         loadMoreMessage: " ",
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
@@ -79,11 +102,21 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
         renderCallback: function($container, data) {
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
+                data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
             }
             $container.append(template({
                 missions: data.results,
                 static_url: settings.static_url
             }));
+            if(continuousLoad === false) {
+                if (additionalEndorsementElement !== null && data.next === null) {
+                    additionalEndorsementWrapper.remove();
+                } else {
+                    additionalEndorsementWrapper.remove();
+                    loadElement.append(
+                        missionShowTemplate({page: nextPage, show: "endorsement"}));
+                }
+            }
         }
     });
 }

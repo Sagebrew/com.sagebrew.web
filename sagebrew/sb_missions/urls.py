@@ -1,25 +1,42 @@
 from django.conf.urls import patterns, url
+from django.views.generic.base import TemplateView
+from django.contrib.auth.decorators import login_required
 
 from sb_contributions.views import ContributionMissionView
 
-from .views import (public_office_mission, advocate_mission, select_mission,
-                    mission_redirect_page, mission_updates,
-                    MissionSettingsView, MissionBaseView, mission_list,
+from .views import (mission_redirect_page, mission_updates,
+                    MissionSettingsView, MissionBaseView,
                     mission_edit_updates, mission_endorsements)
 
 
 urlpatterns = patterns(
     'sb_missions.views',
     # List
-    url(r'^$', mission_list, name='mission_list'),
+    url(r'^$', TemplateView.as_view(template_name="mission/list.html"),
+        name='mission_list'),
 
     # Setup
-    url(r'^select/$', select_mission, name="select_mission"),
-    url(r'^public_office/$', public_office_mission,
+    url(r'^select/$', login_required(
+        TemplateView.as_view(template_name="mission/selector.html")),
+        name="select_mission"),
+    url(r'^public_office/$', login_required(
+        TemplateView.as_view(template_name="mission/public_office.html")),
         name="public_office"),
-    url(r'^advocate/$', advocate_mission, name="advocate"),
+    url(r'^advocate/$', login_required(
+        TemplateView.as_view(template_name="mission/advocate.html")),
+        name="advocate"),
+    url(r'^account/$', login_required(
+        TemplateView.as_view(template_name="mission/account_setup.html")),
+        name="account_setup"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/review/$',
+        TemplateView.as_view(template_name="manage/submit_for_review.html"),
+        name='submit_mission_for_review'),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'finish_epic/$',
+        TemplateView.as_view(template_name="manage/must_finish_epic.html"),
+        name='must_finish_epic'),
 
     # Manage
     url(r'^settings/$', MissionSettingsView.as_view(),
@@ -30,11 +47,19 @@ urlpatterns = patterns(
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/epic/$',
         MissionSettingsView.as_view(template_name='manage/epic.html'),
+        name="mission_epic"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/epic/edit/$',
+        MissionSettingsView.as_view(template_name='manage/epic_edit.html'),
         name="mission_edit_epic"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/$',
         MissionSettingsView.as_view(template_name='manage/updates.html'),
         name="mission_update_settings"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/updates/create/$',
+        MissionSettingsView.as_view(template_name='updates/create.html'),
+        name="mission_update_create"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',
         mission_edit_updates,

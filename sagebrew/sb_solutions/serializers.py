@@ -1,5 +1,5 @@
-import bleach
 import pytz
+from bs4 import BeautifulSoup
 
 from uuid import uuid1
 from datetime import datetime
@@ -7,8 +7,9 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import gather_request_data, spawn_task, smart_truncate
-from sb_base.serializers import MarkdownContentSerializer, validate_is_owner
+from api.utils import (gather_request_data, spawn_task, smart_truncate,
+                       render_content)
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 
 
@@ -16,7 +17,7 @@ from .tasks import create_solution_summary_task
 from .neo_models import Solution
 
 
-class SolutionSerializerNeo(MarkdownContentSerializer):
+class SolutionSerializerNeo(ContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
                                                 lookup_field="object_uuid")
@@ -28,15 +29,16 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         request = self.context["request"]
         question = validated_data.pop('question', None)
         owner = Pleb.get(request.user.username)
-        validated_data['content'] = bleach.clean(validated_data.get(
-            'content', ""))
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
+        validated_data['content'] = render_content(
+            validated_data.get('content', ""))
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
+        soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
                             parent_id=question.object_uuid,
-                            summary=smart_truncate(validated_data['content']),
+                            summary=smart_truncate(soup),
                             **validated_data).save()
         solution.owned_by.connect(owner)
         question.solutions.connect(solution)
@@ -47,8 +49,8 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
 
     def update(self, instance, validated_data):
         validate_is_owner(self.context.get('request', None), instance)
-        instance.content = bleach.clean(validated_data.get('content',
-                                                           instance.content))
+        instance.content = render_content(
+            validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         spawn_task(task_func=create_solution_summary_task, task_param={

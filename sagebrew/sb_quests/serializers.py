@@ -16,9 +16,12 @@ from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
-                       empty_text_to_none)
+                       empty_text_to_none, smart_truncate)
+from sb_address.serializers import AddressSerializer
+from sb_address.neo_models import Address
 from sb_base.serializers import IntercomEventSerializer
 from plebs.neo_models import Pleb
+
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 from sb_search.utils import remove_search_object
@@ -29,7 +32,7 @@ from .neo_models import (Position, Quest)
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
     title = serializers.CharField(required=False, allow_blank=True,
-                                  max_length=240)
+                                  max_length=70)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
     facebook = serializers.URLField(required=False, allow_blank=True)
@@ -72,7 +75,9 @@ class QuestSerializer(SBSerializer):
     # verification of the managed account
     # ex. ["legal_entity.type", "legal_entity.business_name"]
     account_verification_fields_needed = serializers.ListField(read_only=True)
-
+    verification_document_needed = serializers.BooleanField(read_only=True)
+    verification_due_date = serializers.BooleanField(read_only=True)
+    verification_disabled_reason = serializers.CharField(read_only=True)
     # https://stripe.com/docs/connect/identity-verification
     # #confirming-id-verification
     # verification_details is a user readable string that will contain a string
@@ -92,9 +97,13 @@ class QuestSerializer(SBSerializer):
     endorsed = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
     fields_needed_human_readable = serializers.SerializerMethodField()
+    identification_sent = serializers.SerializerMethodField()
+    has_address = serializers.SerializerMethodField()
+    title_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         request = self.context.get('request', None)
         account_type = validated_data.get('account_type', "free")
         tos_acceptance = validated_data.get('tos_acceptance', False)
@@ -125,7 +134,6 @@ class QuestSerializer(SBSerializer):
         if tos_acceptance:
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
-            quest.account_verified_date = datetime.now(pytz.utc)
             quest.tos_acceptance = True
         quest.save()
         account.save()
@@ -159,8 +167,22 @@ class QuestSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
-        validate_is_owner(self.context.get('request', None), instance)
+        request = self.context.get('request', None)
+        validate_is_owner(request, instance, self.context.get('secret'))
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
+        address = request.data.get('address')
+        if address is not None:
+            address_serializer = AddressSerializer(data=address,
+                                                   context={'request', request})
+            address_serializer.is_valid(raise_exception=True)
+            address = address_serializer.save()
+            query = 'MATCH (a:Quest {object_uuid: "%s"}) ' \
+                    'OPTIONAL MATCH (a)-[r:LOCATED_AT]-(:Address) ' \
+                    'DELETE r' % instance.object_uuid
+            res, _ = db.cypher_query(query)
+            instance.address.connect(address)
+
         stripe_token = validated_data.pop('stripe_token', None)
         promotion_key = validated_data.pop('promotion_key', None)
         customer_token = validated_data.pop('customer_token',
@@ -189,6 +211,12 @@ class QuestSerializer(SBSerializer):
             # hold up the quest activation process
             if serializer.is_valid():
                 serializer.save()
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.BANK_SETUP_TITLE))
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))
@@ -207,8 +235,22 @@ class QuestSerializer(SBSerializer):
             'website', instance.website))
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
+        if instance.about is not None:
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.QUEST_ABOUT_TITLE))
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.QUEST_WALLPAPER_TITLE))
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         owner = Pleb.get(username=instance.owner_username)
@@ -283,6 +325,19 @@ class QuestSerializer(SBSerializer):
                 instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
 
             instance.account_type = account_type
+        # ** Stripe update Address **
+        if address is not None:
+            account = stripe.Account.retrieve(instance.stripe_id)
+            street_additional = empty_text_to_none(
+                address.street_additional)
+
+            account.legal_entity.address.line1 = address.street
+            account.legal_entity.address.line2 = street_additional
+            account.legal_entity.address.city = address.city
+            account.legal_entity.address.state = address.state
+            account.legal_entity.address.postal_code = address.postal_code
+            account.legal_entity.address.country = "US"
+            account.save()
 
         # ** Managed Account Setup **
         if stripe_token is not None:
@@ -294,14 +349,19 @@ class QuestSerializer(SBSerializer):
                 account = stripe.Account.retrieve(instance.stripe_id)
 
             try:
-                account.external_accounts.create(external_account=stripe_token)
+                account.external_accounts.create(
+                    external_account=stripe_token, default_for_currency=True)
             except InvalidRequestError:
                 raise serializers.ValidationError(
                     detail={"detail": "Looks like we're having server "
-                                      "issus, please contact us using the "
+                                      "issues, please contact us using the "
                                       "bubble in the bottom right",
                             "status_code": status.HTTP_400_BAD_REQUEST})
-            owner_address = owner.get_address()
+            query = 'MATCH (a:Quest {owner_username: "%s"})' \
+                    '-[:LOCATED_AT]->(b:Address) ' \
+                    'RETURN b' % instance.owner_username
+            res, _ = db.cypher_query(query)
+            account_address = Address.inflate(res.one)
             if not instance.tos_acceptance:
                 request = self.context.get('request', None)
                 if request is not None:
@@ -312,7 +372,6 @@ class QuestSerializer(SBSerializer):
                         ip = request.META.get('REMOTE_ADDR')
                     account.tos_acceptance.ip = ip
                     account.tos_acceptance.date = int(time.time())
-                    instance.account_verified_date = datetime.now(pytz.utc)
                     instance.tos_acceptance = True
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
@@ -328,37 +387,27 @@ class QuestSerializer(SBSerializer):
             if stripe_account_type == "business":
                 stripe_account_type = 'company'
             account.legal_entity.type = stripe_account_type
-            account.legal_entity.dob = dict(
-                day=owner.date_of_birth.day,
-                month=owner.date_of_birth.month,
-                year=owner.date_of_birth.year
-            )
             street_additional = empty_text_to_none(
-                owner_address.street_additional)
+                account_address.street_additional)
 
-            account.legal_entity.address.line1 = owner_address.street
+            account.legal_entity.address.line1 = account_address.street
             account.legal_entity.address.line2 = street_additional
-            account.legal_entity.address.city = owner_address.city
-            account.legal_entity.address.state = owner_address.state
+            account.legal_entity.address.city = account_address.city
+            account.legal_entity.address.state = account_address.state
             account.legal_entity.address.postal_code = \
-                owner_address.postal_code
+                account_address.postal_code
             account.legal_entity.address.country = "US"
-            account.legal_entity.personal_address.line1 = owner_address.street
-            account.legal_entity.personal_address.line2 = street_additional
-            account.legal_entity.personal_address.city = owner_address.city
-            account.legal_entity.personal_address.state = owner_address.state
-            account.legal_entity.personal_address.postal_code = \
-                owner_address.postal_code
-            account.legal_entity.personal_address.country = \
-                owner_address.country
+            owner = Pleb.get(username=request.user.username)
+            account.legal_entity.dob.day = owner.date_of_birth.day
+            account.legal_entity.dob.month = owner.date_of_birth.month
+            account.legal_entity.dob.year = owner.date_of_birth.year
             account = account.save()
             # Default to pending to make sure customer doesn't think nothing
             # is happening on a slow update from Stripe. We can revert back
             # to unverified if Stripe alerts us to it.
             verification = "pending"
-            if account['legal_entity']['verification']['status'] == "verified":
-                verification = account['legal_entity'][
-                    'verification']['status']
+            if account.legal_entity.verification.status == "verified":
+                verification = account.legal_entity.verification.status
             instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()
@@ -395,8 +444,10 @@ class QuestSerializer(SBSerializer):
         return updates
 
     def get_completed_stripe(self, obj):
-        # Whether or not stripe has verified the account information and
-        # the Quest can start accepting donations.
+        # Whether or not the user has completed the initial registration with
+        # Stripe or not. This doesn't have anything to do with verification
+        # it just indicates that the user submitted data to Stripe and
+        # has started the process
         if obj.stripe_id == "Not Set":
             return False
         return True
@@ -465,9 +516,27 @@ class QuestSerializer(SBSerializer):
 
     def get_fields_needed_human_readable(self, obj):
         if obj.account_verification_fields_needed is not None:
-            return ', '.join(
+            return (', '.join(
                 [settings.STRIPE_FIELDS_NEEDED[field_needed]
-                 for field_needed in obj.account_verification_fields_needed])
+                 for field_needed in obj.account_verification_fields_needed]))
+        else:
+            return None
+
+    def get_identification_sent(self, obj):
+        return obj.stripe_identification_sent
+
+    def get_has_address(self, obj):
+        query = 'MATCH (p:Quest {owner_username: "%s"}) ' \
+                'OPTIONAL MATCH (p)-[r:LOCATED_AT]->(b:Address) ' \
+                'RETURN r IS NOT NULL as has_address' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def get_title_summary(self, obj):
+        if obj.title is not None:
+            if len(obj.title) > 20:
+                return smart_truncate(obj.title, 20)
+        return obj.title
 
 
 class EditorSerializer(serializers.Serializer):

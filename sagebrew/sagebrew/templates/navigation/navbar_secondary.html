@@ -1,0 +1,50 @@
+<div class="app-navbar-secondary">
+    <header class="navbar-secondary navbar-static-top navbar-fixed-top hidden-xs">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <i class="fa fa-bars"></i>
+                </button>
+                <a href="{{ back_url }}" class="navbar-brand navbar-brand-secondary color-sb-green">{{ nav_title }}</a>
+            </div>
+            <div class="collapse navbar-collapse navbar-collapse-secondary">
+                <ul class="nav navbar-nav navbar-right padding-right-40">
+                    {% if last_autosaved %}
+                    <li>
+                        <span class="ten-margin-right line-height-three">
+                            <small>Last autosaved
+                                <span id="livestamp"
+                                      data-livestamp="{{ last_autosaved }}"></span>
+                            </small>
+                        </span>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href=""
+                           id="cancel"
+                           class="red-href"><i class="fa fa-ban" aria-hidden="true"></i></a>
+                    </li>
+                    <li>
+                        <a href=""
+                           id="submit"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <!-- Movile Nav -->
+    <header class="navbar-secondary navbar-inverse navbar-static-top navbar-fixed-top hidden-sm hidden-md hidden-lg sb-nav-mobile">
+        <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header text-center">
+                <a href=""
+                   id="cancel"
+                   class="red-href"><i class="fa fa-ban navbar-secondary-mobile-buttons" aria-hidden="true"></i></a>
+                <a href=""
+                   id="submit"><i class="fa fa-floppy-o navbar-secondary-mobile-buttons" aria-hidden="true"></i></a>
+
+            </div>
+        </div>
+    </header>
+</div>

@@ -5,7 +5,8 @@
 
 var settings = require('./../settings').settings,
     moment = require('moment'),
-    requests = require('api').request;
+    requests = require('api').request,
+    errorDisplay = require('common/resourcemethods').errorDisplay;
 
 /**
  * Get cookie based by name.
@@ -382,7 +383,13 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
         // either via the browse button, or via drag/drop
         add: function (e, data) {
             var img = new Image(),
-                allowSubmit = true;
+                allowSubmit = true,
+                    uploadFile = data.files[0];
+            if (!(/\.(gif|jpg|jpeg|png)$/i).test(uploadFile.name)) {
+                $.notify({message: "You must upload an image file. Supported types are jpg, jpeg, png and gif."}, {type: "danger"});
+                $greyOut.addClass('sb_hidden');
+                return;
+            }
             window.URL = window.URL || window.webkitURL;
             $greyOut.removeClass("sb_hidden");
             $previewContainer.addClass('hidden');
@@ -442,8 +449,25 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
             }
 
         },
-        fail: function(){
+        fail: function(e, data){
+            errorDisplay(data.jqXHR);
             $greyOut.addClass('sb_hidden');
         }
     });
+}
+
+/*
+ * Attempt to go back one step in the browser history, if unable redirect to passed url
+ */
+export function historyBackFallback(fallbackUrl) {
+    fallbackUrl = fallbackUrl || '/';
+    var prevPage = window.location.href;
+
+    window.history.go(-1);
+    setTimeout(function(){
+        if (window.location.href === prevPage)
+            {
+                window.location.href = fallbackUrl;
+            }
+    }, 500);
 }

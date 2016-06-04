@@ -1,0 +1,58 @@
+{% extends "layout/hero-one-col.html" %}
+{% load staticfiles %}
+{% block title %}Mission Account Setup{% endblock %}
+{% block hero %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Donation Account Setup</h1>
+    </div>
+{% endblock hero %}
+{% block live %}
+    <div class="block">
+        <div class="block-title">Address</div>
+        <div class="block-content no-top-bottom-padding">
+            <small>This should be the address associated with the owner of the bank
+                account you want donations routed to. This could be a personal address,
+                campaign headquarters, or business address.</small>
+        </div>
+        <div class="block-content">
+            {% include "address_form.html" %}
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-title">Bank Account Information</div>
+        <div class="block-content no-top-bottom-padding">
+            <small>This is the account we'll transfer donations to. It can be an individual
+            or business bank account.</small>
+        </div>
+        <div class="block-content">
+            {% include "accounting_form.html" %}
+            <div class="row">
+                <div id="js-validation-errors"></div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <button type="button" class="btn btn-primary sb_btn sb_btn_fill"
+                            id="js-continue-btn">
+                        Submit
+                    </button>
+                </div>
+            </div>
+            {% if quest.tos_acceptance == False %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <small>By completing the form,
+                            you agree to the <a href="https://stripe.com/connect/account-terms">
+                                Stripe Connected Account Agreement</a>.</small>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}
+
+{% block intercom %}
+   Intercom('trackEvent', 'visited-mission-account-setup');
+{% endblock %}

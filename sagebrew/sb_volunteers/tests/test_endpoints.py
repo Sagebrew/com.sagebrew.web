@@ -36,6 +36,7 @@ class VolunteerEndpointTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.stripe.api_version = settings.STRIPE_API_VERSION
         self.mission = Mission(owner_username=self.pleb.username,
                                title=str(uuid1()),
                                focus_name="advocacy").save()

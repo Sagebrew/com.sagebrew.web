@@ -50,12 +50,11 @@ export function init () {
             data.results = helpers.votableContentPrep(data.results);
             for (var i = 0; i < data.results.length; i++) {
                 if (data.results[i].type === "news_article") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    data.results[i].content = Autolinker.link(data.results[i].content);
                     data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
                     data.results[i].html = newsTemplate(data.results[i]);
                 } else if (data.results[i].type === "mission") {
                     data.results[i].title = missions.determineTitle(data.results[i]);
-                    data.results[i].rendered_epic = Autolinker.link(data.results[i].rendered_epic);
                     // TODO this should probably be done in the backend and saved off since it's just repeated all the time
                     if (data.results[i].focus_on_type === "position"){
                         if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){
@@ -70,19 +69,19 @@ export function init () {
                     }
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = questionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "solution") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "post") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    // This needs to remain html_content otherwise when you go to edit the
+                    // post the content has an <a> tag in it. The user should never see
+                    // html tags
+                    data.results[i].html_content = Autolinker.link(data.results[i].content);
                     data.results[i].html = postNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "update") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
                 }
                 $container.append(data.results[i].html);

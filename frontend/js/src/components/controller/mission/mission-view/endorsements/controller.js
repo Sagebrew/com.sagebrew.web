@@ -9,7 +9,7 @@ export const meta = {
     controller: "mission/mission-view/endorsements",
     match_method: "path",
     check: [
-       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/endorsements$"
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/endorsements$"
     ]
 };
 
@@ -62,6 +62,7 @@ export function load() {
                     } else if(data.results[i].type === "quest") {
                         $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
                     } else {
+                        data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
                         $endorsmentContainer.append(missionSummaryTemplate(data.results[i]));
                     }
                 }

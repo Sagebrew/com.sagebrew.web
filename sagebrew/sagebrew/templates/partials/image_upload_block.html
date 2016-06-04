@@ -15,9 +15,11 @@
         </div>
 
         <div class="row">
-
+            <div class="col-xs-12">
+                <small>Images must be at least {{ required_width|default:500 }}x{{ required_height|default:500 }}
+                    pixels. {{ extra_requirements|default:"" }}</small>
+            </div>
             <div class="col-lg-4 col-md-6">
-                <small>Images must be at least {{ required_width|default:500 }}x{{ required_height|default:500 }} pixels</small>
                 <button class="btn btn-primary sb_btn sb_btn_fill disabled" id="{{ submit_button|default:"js-submit-profile-picture" }}" disabled>{{ save_button_text }}</button>
             </div>
         </div>

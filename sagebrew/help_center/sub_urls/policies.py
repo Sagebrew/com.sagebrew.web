@@ -67,18 +67,6 @@ urlpatterns = patterns(
             "category": "policies"
     },
         name="finding_topics_of_interest"),
-    url(r'^markdown-formatting/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "Markdown Formatting",
-            "description": "Sagebrew gives users the capability to format their"
-                           " content in a clean and organized way utilizing an "
-                           "open standard called Markdown.",
-            "content_path":
-                "%smarkdown_formatting.html" % settings.HELP_DOCS_PATH,
-            "category": "policies"
-    },
-        name="markdown_formatting"),
     url(r'^support/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -116,17 +104,6 @@ urlpatterns = patterns(
             "category": "policies"
     },
         name="user_behavior"),
-    url(r'^what-is-markdown/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What is Markdown?",
-            "description": "Markdown is just an easy way for us to enable "
-                           "users to structure their thoughts cleanly.",
-            "content_path":
-                "%swhat_is_markdown.html" % settings.HELP_DOCS_PATH,
-            "category": "policies"
-    },
-        name="what_is_markdown"),
     url(r'^be_nice/$', RedirectView.as_view(
         url='/help/policies/be-nice/', permanent=True),
         name='be_nice_redirect'),

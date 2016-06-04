@@ -23,8 +23,7 @@ link.
 Once you've reached the Epic management console you can use the input box 
 to create a page that outlines what makes your Mission 
 important. You can include links, quotes, images, videos, headers, lists, and 
-set text to be bold or italic. We describe how to use Markdown more extensively in our 
-article describing [Markdown Formatting][3].
+set text to be bold or italic.
 
 ![edit epic][4]
 
@@ -47,7 +46,6 @@ the ![Chat Bubble][5] and we'll help get them resolved.
 
 [1]: https://s3.amazonaws.com/sagebrew/long_term_static/help/default_epic.png
 [2]: https://s3.amazonaws.com/sagebrew/long_term_static/help/select_settings_epic.gif
-[3]: /help/policies/markdown-formatting/
 [4]: https://s3.amazonaws.com/sagebrew/long_term_static/help/edit_epic.gif
 [5]: https://s3.amazonaws.com/sagebrew/long_term_static/help/chat_bubble.png
 [6]: /help/quest/update-management/

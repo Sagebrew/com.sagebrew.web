@@ -3,6 +3,7 @@
 {% block title %}Mission Settings{% endblock title %}
 
 {% block live %}
+    <a name="wallpaper"></a>
     {% include "partials/image_upload_block.html" with title_text="Mission Wallpaper" save_button_text="Save Wallpaper" current_image=mission.wallpaper_pic required_width=450 required_height=450 %}
     <div class="block">
         <h3 class="block-title">
@@ -16,10 +17,11 @@
                         <label for="">Title</label>
                         <input type="text"
                            name="title"
+                           id="title"
                            placeholder="Mission Title (Defaults to the position you're running for or the focus of your advocacy)"
                            value="{{ mission.title|default_if_none:'' }}"
                            class="form-control">
-                        <small id="js-title-char-count" class="help-block">240 Characters Remaining</small>
+                        <small id="js-title-char-count" class="help-block">70 Characters Remaining</small>
                     </div>
                 {% endif %}
                 <div class="form-group">
@@ -45,7 +47,7 @@
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
-                       placeholder="ex. https://www.facebook.com/"
+                       placeholder="ex. https://www.facebook.com/{{ mission.owner_username }}"
                        value="{{ mission.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -55,7 +57,7 @@
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
-                       placeholder="ex. https://www.twitter.com/"
+                       placeholder="ex. https://www.twitter.com/{{ mission.owner_username }}"
                        value="{{ mission.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -65,7 +67,7 @@
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
-                       placeholder="ex. https://www.linkedin.com/"
+                       placeholder="ex. https://www.linkedin.com/in/{{ mission.owner_username }}"
                        value="{{ mission.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -75,7 +77,7 @@
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
-                       placeholder="ex. https://www.youtube.com/"
+                       placeholder="ex. https://www.youtube.com/channel/{{ mission.owner_username }}"
                        value="{{ mission.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>

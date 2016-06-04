@@ -8,11 +8,12 @@ from neomodel.exception import DoesNotExist
 
 from neomodel import db
 
-from api.utils import gather_request_data, spawn_task
+from api.utils import gather_request_data
 from api.serializers import SBSerializer
 
 from .neo_models import Location
-from .tasks import create_location_tree
+from .utils import (parse_google_places, connect_related_element,
+                    google_maps_query)
 
 
 class LocationSerializer(SBSerializer):
@@ -63,15 +64,26 @@ class LocationSerializer(SBSerializer):
 class LocationExternalIDSerializer(serializers.Serializer):
     place_id = serializers.CharField(max_length=120, required=True,
                                      write_only=True)
+    address_components = serializers.ListField(write_only=True,
+                                               required=False)
+
+    def validate_place_id(self, value):
+        location_list = google_maps_query(value)
+        if not location_list:
+            raise serializers.ValidationError('We could not find that Place ID')
+        return value
 
     def create(self, validated_data):
+        request = self.context.get('request')
         query = 'MATCH (a:Location {external_id: "%s"}) RETURN a' % (
                 validated_data.get('place_id'))
         res, _ = db.cypher_query(query)
         if res.one is None:
-            spawn_task(task_func=create_location_tree, task_param={
-                "external_id": validated_data.get('place_id')})
-        return res
+            end_node = parse_google_places(request.data['address_components'],
+                                           validated_data.get('place_id'))
+            connect_related_element(end_node, validated_data.get('place_id'))
+            return end_node
+        return Location.inflate(res.one)
 
 
 class LocationManagerSerializer(SBSerializer):

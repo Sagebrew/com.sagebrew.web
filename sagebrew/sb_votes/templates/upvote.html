@@ -17,15 +17,6 @@
            data-title="Please Verify Your Email">
             <span class="fa fa-chevron-up sb_restricted upvote_restriction"></span>
         </button>
-    {% elif not request_profile.completed_profile_info %}
-        <button class="btn sb_btn sb_btn_vote vote_up"
-           id="upvote_{{ object_uuid }}"
-           data-vote_type=true
-           data-toggle="tooltip"
-           data-placement="top"
-           data-title="Please Complete Registration">
-            <span class="fa fa-chevron-up sb_restricted upvote_restriction"></span>
-        </button>
     {% elif type == 'solution' and 'newsfeed' in request.path %}
         <button class="btn sb_btn sb_btn_vote vote_up"
            id="upvote_{{ object_uuid }}"

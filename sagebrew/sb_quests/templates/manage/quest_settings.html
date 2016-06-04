@@ -3,6 +3,7 @@
 {% block title %}Quest Settings{% endblock title %}
 
 {% block live %}
+    <a name="wallpaper"></a>
     {% include "partials/image_upload_block.html" with title_text="Quest Wallpaper" save_button_text="Save Picture" current_image=quest.wallpaper_pic %}
     <div class="block">
         <h3 class="block-title">
@@ -18,7 +19,7 @@
                        name="title" class="form-control"
                        placeholder="Name of your group, organization, or what you'd like to be called instead of your first and last name."
                        value="{{ quest.title }}">
-                    <small id="js-title-char-count" class="help-block">240 Characters Remaining</small>
+                    <small id="js-title-char-count" class="help-block">70 Characters Remaining</small>
                 </div>
                 <div class="form-group">
                     <label for="about">About</label>
@@ -43,7 +44,7 @@
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
-                       placeholder="ex. https://www.facebook.com/"
+                       placeholder="ex. https://www.facebook.com/{{ quest.owner_username }}"
                        value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -53,7 +54,7 @@
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
-                       placeholder="ex. https://www.twitter.com/"
+                       placeholder="ex. https://www.twitter.com/{{ quest.owner_username }}"
                        value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -63,7 +64,7 @@
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
-                       placeholder="ex. https://www.linkedin.com/"
+                       placeholder="ex. https://www.linkedin.com/in/{{ quest.owner_username }}"
                        value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -73,7 +74,7 @@
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
-                       placeholder="ex. https://www.youtube.com/"
+                       placeholder="ex. https://www.youtube.com/channel/{{ quest.owner_username }}"
                        value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>

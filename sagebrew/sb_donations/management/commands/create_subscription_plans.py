@@ -12,6 +12,7 @@ class Command(BaseCommand):
 
     def create_subscription_plans(self):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         try:
             stripe.Plan.create(
                 amount=10000,

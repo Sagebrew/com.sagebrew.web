@@ -26,8 +26,9 @@ def create_location_tree(external_id):
 
 @shared_task()
 def connect_location_to_element(location, element_id):
-    try:
-        return connect_related_element(location, element_id)
-    except KeyError as e:
-        raise connect_location_to_element.retry(exc=e, countdown=10,
-                                                max_retries=None)
+    connected = connect_related_element(location, element_id)
+    if connected is None:
+        raise connect_location_to_element.retry(
+            exc=KeyError("failed to connect"), countdown=10,
+            max_retries=None)
+    return connected

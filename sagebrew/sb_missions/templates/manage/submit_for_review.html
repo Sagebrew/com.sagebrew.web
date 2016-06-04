@@ -1,0 +1,34 @@
+{% extends "layout/one-col.html" %}
+{% load staticfiles %}
+{% block title %} Submit Mission For Review {% endblock %}
+{% block live %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Way To Go {{ request_profile.first_name }}! One Last Step Before Kicking Off Your Mission!</h1>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            All that's left is submitting your Mission for review. Upon submission a
+            Mission expert will:
+            <ul>
+                <li>Verify your account is in order</li>
+                <li>Double check your Epic is all set to go</li>
+                <li>Provide feedback if any additional information is necessary</li>
+                <li>Publish your Mission, enabling people to donate, volunteer,
+                    and endorse it</li>
+            </ul>
+            <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="href-submit-for-review">Submit</button>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <a class="btn btn-primary sb_btn_fill btn-save-for-later" id="js-save-for-later">Save For Later</a>
+            </div>
+        </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+{% block intercom %}
+   Intercom('trackEvent', 'visited-mission-submit-review-page');
+{% endblock %}

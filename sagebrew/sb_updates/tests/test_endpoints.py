@@ -29,7 +29,6 @@ class UpdateEndpointsTest(APITestCase):
                            owner_username=self.pleb.username).save()
         self.mission = Mission(owner_username=self.pleb.username).save()
         self.update = Update(title="Test Title", content="Test Content",
-                             html_content="HTML Content",
                              owner_username=self.pleb.username,
                              about_type="mission",
                              about_id=self.mission.object_uuid).save()
@@ -259,7 +258,7 @@ class UpdateEndpointsTest(APITestCase):
         url = reverse('update-detail',
                       kwargs={'object_uuid': self.update.object_uuid})
         data = {
-            'content': 'testing update'
+            'content': "<p>%s</p>" % 'testing update'
         }
         response = self.client.patch(url, data=data, format='json')
 

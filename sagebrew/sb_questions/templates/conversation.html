@@ -69,16 +69,16 @@
     <div id="js-conversation-solutions">
         <div class="loader"></div>
     </div>
-    {% if not question.is_closed and not request.user.is_anonymous and request_profile.email_verified and request_profile.completed_profile_info %}
+    {% if not question.is_closed and not request.user.is_anonymous and request_profile.email_verified %}
     <div class="block">
         <h4 class="block-title">Provide a Solution</h4>
         <div class="sb_markdown sb_solution">
             <div class="block-content">
                 <form id="solutionSubmitForm" data-parent_id="{{ question.id }}">
-                        <textarea class="form-control sb_solution_input_area markdown-input"
+                        <textarea class="sb_markdown editable min-height-600"
                                   id="js-solution-markdown"
                                   name="content"
-                                  placeholder="Write your solution..."></textarea>
+                                  placeholder="Write your solution...">{{ solution_placeholder }}</textarea>
                         <button class="btn btn-primary sb_btn sb_btn_fill" id="js-solution-submit" type="submit">
                             Submit
                         </button>
@@ -105,17 +105,6 @@
                         data-toggle="tooltip"
                         data-placement="top"
                         data-title="Please Verify Your Email">
-                    Submit Solution
-                </button>
-            </div>
-        </div>
-    {% elif not request_profile.completed_profile_info %}
-        <div class="block">
-            <div class="block-content">
-                <button class="btn sb_restricted sb_btn_disabled"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        data-title="Please Complete Registration">
                     Submit Solution
                 </button>
             </div>

@@ -2,6 +2,8 @@ import stripe
 
 from django.conf import settings
 from django.core.cache import cache
+from django.template.loader import get_template
+from django.template import Context
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -10,6 +12,7 @@ from neomodel import db
 
 from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
+from sb_base.serializers import IntercomMessageSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
 from sb_privileges.tasks import check_privileges
@@ -76,6 +79,7 @@ class DonationSerializer(SBSerializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         mission = validated_data.pop('mission', None)
         quest = validated_data.pop('quest', None)
         donor = validated_data.pop('donor', None)
@@ -88,9 +92,7 @@ class DonationSerializer(SBSerializer):
 
         quest_desc = quest.title \
             if quest.title else "%s %s" % (quest.first_name, quest.last_name)
-        mission_desc = mission.title \
-            if mission.title else mission.focus_name.title().\
-            replace('-', ' ').replace('_', ' ')
+        mission_desc = mission.get_mission_title()
         description = "Donation to %s's mission for %s" % (quest_desc,
                                                            mission_desc)
         payment_method = payment_method if payment_method is not None \
@@ -110,6 +112,34 @@ class DonationSerializer(SBSerializer):
         donation.stripe_charge_id = stripe_res['id']
         donation.completed = True
         donation.save()
+        message_data = {
+            'message_type': 'email',
+            'subject': 'New Donation',
+            'body': get_template('donations/email/new_donation.html').render(
+                Context({
+                    'first_name': quest.first_name,
+                    'mission_title': mission_desc,
+                    "amount": "%0.2f" % (donation.amount / 100.0),
+                    "donor_first_name": donor.first_name,
+                    "donor_last_name": donor.last_name,
+                    "quest_donation_page": reverse(
+                        'quest_stats',
+                        kwargs={'username': quest.owner_username},
+                        request=self.context.get('request'))
+                })),
+            'template': "personal",
+            'from_user': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON
+            },
+            'to_user': {
+                'type': "user",
+                'user_id': quest.owner_username
+            }
+        }
+        serializer = IntercomMessageSerializer(data=message_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         cache.delete("%s_total_donated" % mission.object_uuid)
         cache.delete("%s_total_donated" % quest.object_uuid)
         return donation
@@ -173,26 +203,16 @@ class DonationExportSerializer(serializers.Serializer):
         ('question', "Question")])
     amount = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
-    employer = serializers.SerializerMethodField()
-    occupation_name = serializers.SerializerMethodField()
 
     def get_owned_by(self, obj):
-        return PlebExportSerializer(Pleb.get(obj.owner_username)).data
+        serialized = PlebExportSerializer(Pleb.get(obj.owner_username)).data
+        if obj.mission_type != "position":
+            serialized.pop('occupation_name', None)
+            serialized.pop('employer_name', None)
+        return serialized
 
     def get_amount(self, obj):
         return obj.amount
-
-    def get_employer(self, obj):
-        if obj.mission_type == "position":
-            return Pleb.get(username=obj.owner_username).employer_name
-        else:
-            return None
-
-    def get_occupation_name(self, obj):
-        if obj.mission_type == "position":
-            return Pleb.get(username=obj.owner_username).occupation_name
-        else:
-            return None
 
 
 class SBDonationSerializer(DonationSerializer):
@@ -203,6 +223,7 @@ class SBDonationSerializer(DonationSerializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         donor = Pleb.get(request.user.username)
         token = validated_data.pop('token', None)
         # TODO add payment_method selection support to direct donations

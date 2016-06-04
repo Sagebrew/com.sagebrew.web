@@ -74,23 +74,31 @@
      content:" ";
   }
 }
+
 .sb-signup-btn{
-  margin-left: 15px !important;
+  button {
+    margin-right: 10px !important;
+  }
 }
 .sb_login{
   &:extend(.sb_search);
+  margin-right: 0 !important;
   li {
+    @media only screen and (min-width: 992px){
+      input {
+        width: 130px;
+      }
+    }
     @media only screen and (max-width: 992px){
-      width: 95px;
       input {
         width: 90px;
       }
     }
   }
   input{
-    line-height: 25px;
     margin-right: 10px;
     margin-top: 10px;
+    padding: 0 10px;
   }
   ul{
     margin-bottom: 14px;
@@ -103,7 +111,6 @@
     padding-top: 2px;
     padding-bottom: 3px;
     margin-top: 10px;
-    margin-right: 5px;
   }
 }
 
@@ -175,4 +182,33 @@
         padding: 15px 16px;
     }
   }
+}
+
+.navbar-secondary {
+  &:extend(.navbar);
+  margin-top: 53px;
+  height: 20px;
+  z-index: 999;
+  background-color: #D8D8D8;
+  border-color: #D8D8D8 !important;
+}
+
+.navbar-brand-secondary {
+  &:extend(.navbar-brand);
+  line-height: 1.5 !important;
+}
+
+.navbar-collapse-secondary {
+  background-color: #D8D8D8 !important;
+  border-color: #D8D8D8 !important;
+}
+
+.collapse-secondary {
+  background-color: #D8D8D8 !important;
+}
+
+.navbar-secondary-mobile-buttons {
+  padding-top: 20px !important;
+  padding-right: 40px !important;
+  padding-left: 40px !important;
 }

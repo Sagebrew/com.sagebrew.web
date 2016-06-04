@@ -15,7 +15,8 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
-from .serializers import MissionSerializer
+
+from .serializers import MissionSerializer, MissionReviewSerializer
 from .neo_models import Mission
 
 
@@ -25,6 +26,8 @@ class MissionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
+        query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
+                '(quest:Quest {active: true})'
         if self.request.query_params.get('affects', "") == "me":
             query = '(pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
@@ -38,9 +41,12 @@ class MissionViewSet(viewsets.ModelViewSet):
                     '(location:Location)<-[:WITHIN]-' \
                     '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true})' % self.request.user.username
-        else:
-            query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true})'
+        elif self.request.query_params.get(
+                'submitted_for_review', "") == "true":
+            active = self.request.query_params.get('active', '')
+            if active == 'true' or active == 'false':
+                query = '(res:Mission {submitted_for_review:true, ' \
+                        'active:%s})' % active
         return NeoQuerySet(
             Mission, query=query, distinct=True, descending=True) \
             .filter('WHERE NOT ((res)-[:FOCUSED_ON]->'
@@ -74,7 +80,6 @@ class MissionViewSet(viewsets.ModelViewSet):
         keys = []
         donation_info = DonationExportSerializer(
             Mission.get_donations(object_uuid=object_uuid), many=True).data
-
         quest = Mission.get_quest(mission.object_uuid)
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
@@ -114,8 +119,10 @@ class MissionViewSet(viewsets.ModelViewSet):
                 {"first_name": row.plebs["first_name"],
                  "last_name": row.plebs["last_name"],
                  "email": row.plebs["email"],
-                 "city": row.address["city"],
-                 "state": row.address["state"],
+                 "city": row.address['city']
+                    if row.address is not None else "N/A",
+                 "state": row.address['state']
+                    if row.address is not None else "N/A",
                  "activities": [
                      {item[0]: "x"} if item[0] in res[index].activities
                      else {item[0]: ""}
@@ -168,3 +175,26 @@ class MissionViewSet(viewsets.ModelViewSet):
             if "Quest" in node.labels:
                 serialized.append(QuestSerializer(Quest.inflate(node.e)).data)
         return self.get_paginated_response(serialized)
+
+    @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
+                                                        IsOwnerOrModerator,))
+    def reset_epic(self, request, object_uuid=None):
+        Mission.reset_epic(object_uuid)
+        return Response({"detail": "Successfully Reset Epic",
+                         "status_code": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['PATCH'], permission_classes=(IsAuthenticated,),
+                  serializer_class=MissionReviewSerializer)
+    def review(self, request, object_uuid=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        serializer = self.get_serializer(Mission.inflate(res.one),
+                                         data=request.data, partial=True,
+                                         context={'request': request})
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)

@@ -7,8 +7,8 @@
     {% if mission.is_editor or mission.is_moderator or request.user.username == quest.owner_username %}
         <div class="block-content block-holder-lg sb_markdown" id="epic-parent">
             {% autoescape off %}
-                {% if mission.rendered_epic %}
-                    {{ mission.rendered_epic }}
+                {% if mission.epic %}
+                    {{ mission.epic }}
                 {% else %}
                     <p>This is your Epic, the front page to your mission. This is a public page that
                         we recommend using to share your: </p>
@@ -25,9 +25,9 @@
     {% else %}
         {% if mission.active == True and quest.active == True %}
             <div class="block-content block-holder-lg sb_markdown" id="epic-parent">
-                {% if mission.rendered_epic %}
+                {% if mission.epic %}
                     {% autoescape off %}
-                        {{ mission.rendered_epic }}
+                        {{ mission.epic }}
                     {% endautoescape %}
                 {% else %}
                     {% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}

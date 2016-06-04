@@ -11,17 +11,16 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
-from plebs.neo_models import Address
+from plebs.neo_models import Pleb
+from sb_address.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
-
 from sb_volunteers.neo_models import Volunteer
-
 from sb_quests.neo_models import Quest
 
 
@@ -30,6 +29,7 @@ class MissionEndpointTests(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
+        cache.clear()
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
@@ -53,10 +53,11 @@ class MissionEndpointTests(APITestCase):
             country="USA", county="Oakland",
             congressional_district=11, validated=True).save()
         self.address.encompassed_by.connect(self.d11)
-        self.address.owned_by.connect(self.pleb)
+        self.quest.address.connect(self.address)
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         self.mission = Mission(owner_username=self.pleb.username,
                                title=str(uuid1()),
                                focus_name="advocacy",
@@ -611,15 +612,15 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, ['Only the owner can edit this'])
 
-    def test_update_epic_with_h1_first(self):
+    def test_update_epic_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "# hello world this is a h1 #\n" \
-                  "## with a h2 after it ##\n" \
-                  "# another h1 #\n" \
+        content = "<h3> hello world this is a h3 </h3>\n" \
+                  "<h2> with a h2 after it </h2>\n" \
+                  "<h3> another h3 </h3>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -631,16 +632,16 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h3 </h3>\n' \
+                  '<h2> with a h2 after it </h2>\n' \
+                  '<h3> another h3 </h3>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
-        html_content = '<h1 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
-                       '<h2>with a h2 after it</h2>\n' \
-                       '<h1>another h1</h1>\n' \
-                       '<p>and then some text</p>'
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['rendered_epic'], html_content)
+        self.assertEqual(response.data['epic'], content)
 
     def test_update_epic_with_h2_first(self):
         self.client.force_authenticate(user=self.user)
@@ -648,9 +649,9 @@ class MissionEndpointTests(APITestCase):
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "## hello world this is a h2 ##\n" \
-                  "# with a h1 after it #\n" \
-                  "## another h2 ##\n" \
+        content = "<h2> hello world this is a h2 </h2>\n" \
+                  "<h1> with a h1 after it </h1>\n" \
+                  "<h2> another h2 </h2>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -662,47 +663,16 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h2 </h2>\n' \
+                  '<h1> with a h1 after it </h1>\n' \
+                  '<h2> another h2 </h2>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
-        html_content = '<h2 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h2</h2>' \
-                       '\n<h1>with a h1 after it</h1>' \
-                       '\n<h2>another h2</h2>\n<p>' \
-                       'and then some text</p>'
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['rendered_epic'], html_content)
-
-    def test_update_take_active(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": True,
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertTrue(response.data['active'])
-        mission.refresh()
-        self.assertTrue(mission.active)
-
-    def test_update_take_inactive(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username,
-                          active=True).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": False
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertFalse(response.data['active'])
-        mission.refresh()
-        self.assertFalse(mission.active)
+        self.assertEqual(response.data['epic'], content)
 
     def test_update_website(self):
         self.client.force_authenticate(user=self.user)
@@ -727,7 +697,24 @@ class MissionEndpointTests(APITestCase):
                             status_code=status.HTTP_200_OK)
         mission.refresh()
         self.assertEqual(mission.website, data['website'])
-        self.assertFalse(mission.active)
+
+    def test_update_temp_epic(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username,
+                          active=True,
+                          temp_epic="this is a temp epic").save()
+        self.quest.missions.connect(mission)
+        data = {
+            "temp_epic": "<p>%s</p>" % str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data=data, format='json')
+        self.assertContains(response, data['temp_epic'],
+                            status_code=status.HTTP_200_OK)
+        mission.refresh()
+        self.assertEqual(mission.temp_epic, data['temp_epic'])
 
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -777,7 +764,7 @@ class MissionEndpointTests(APITestCase):
             postal_code="48382",
             country="USA", county="Oakland",
             congressional_district=12, validated=True).save()
-        address.owned_by.connect(self.pleb2)
+        self.quest.address.connect(address)
         d12 = Location(name="12", sector="state_lower").save()
         d13 = Location(name="13", sector="state_lower").save()
         d12.encompassed_by.connect(self.michigan)
@@ -817,6 +804,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -855,6 +843,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -902,6 +891,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -932,6 +922,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -971,6 +962,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
 
         quest_token = stripe.Account.create(
             managed=True,
@@ -1003,6 +995,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -1014,6 +1007,7 @@ class MissionEndpointTests(APITestCase):
         )
         self.pleb.stripe_default_card_id = token['id']
         self.pleb.save()
+        cache.clear()
         quest_token = stripe.Account.create(
             managed=True,
             country="US",
@@ -1045,6 +1039,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -1110,13 +1105,29 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        address.owned_by.connect(self.pleb2)
+        self.pleb2.address.connect(address)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("test,test,bounce@simulator.amazonses.com,"
                       "Walled Lake,Michigan,x,,,,,,,,,,,", response.content)
+
+    def test_volunteer_no_address_export(self):
+        self.client.force_authenticate(user=self.user)
+        volunteer = Volunteer(activities=["get_out_the_vote"],
+                              mission_id=self.mission.object_uuid,
+                              owner_username=self.pleb2.username).save()
+        volunteer.mission.connect(self.mission)
+        volunteer.volunteer.connect(self.pleb2)
+        for address in self.pleb2.address.all():
+            self.pleb2.address.disconnect(address)
+        url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("test,test,bounce@simulator.amazonses.com,"
+                      "N/A,N/A,x,,,,,,,,,,,", response.content)
 
     def test_volunteer_export_dne(self):
         self.client.force_authenticate(user=self.user)
@@ -1183,3 +1194,138 @@ class MissionEndpointTests(APITestCase):
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['results'][0]['id'], self.quest.object_uuid)
+
+    def test_reset_epic(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.temp_epic = "SOMETHING DIFFERENT THAN EPIC"
+        self.mission.epic = "THIS IS MY EPIC!"
+        self.mission.save()
+        url = "/v1/missions/%s/reset_epic/" % self.mission.object_uuid
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(mission.epic, mission.temp_epic)
+
+    def test_review_mission(self):
+        self.user.username = "tyler_wiersing"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": ["porn", "too_short"]
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("porn", self.mission.review_feedback)
+        self.assertIn("too_short", self.mission.review_feedback)
+
+    def test_review_mission_take_active(self):
+        self.user.username = "tyler_wiersing"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual([], self.mission.review_feedback)
+        self.assertTrue(self.mission.active)
+
+    def test_review_mission_not_authorized(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
+    def test_review_mission_invalid_data(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            str(uuid1()): []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
+    def test_get_submitted_for_review(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=false"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+
+    def test_get_submitted_for_review_active(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.active = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=true"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.active = False
+        self.mission.save()
+
+    def test_submit_for_review(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "submitted_for_review": True
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data['submitted_for_review'])
+        pleb2.delete()
+        cache.clear()
+
+    def test_update_epic_with_problems(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.review_feedback = ['too_short']
+        self.mission.active = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "epic": "<p>This is an epic update!</p>"
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['epic'], data['epic'])
+        pleb2.delete()
+        cache.clear()

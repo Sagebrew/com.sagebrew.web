@@ -2,19 +2,7 @@
 {% load staticfiles %}
 
 {% block hero %}
-    <div class="block block-type-title">
-        <div class="block-content type-nav clearfix">
-            <h1>Council Area</h1>
-            <ul class="nav nav-pills">
-                <li class="{% if "/positions/" not in request.path %}active{% endif %}">
-                    <a href="/council/">Flagged Objects</a>
-                </li>
-                <li class="{% if "/positions/" in request.path %}active{% endif %}">
-                    <a href="/council/positions/">Positions</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+    {% include 'council/nav.html' %}
 {% endblock %}
 
 {% block sidebar_left %}

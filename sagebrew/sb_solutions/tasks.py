@@ -16,7 +16,8 @@ def create_solution_summary_task(object_uuid):
         raise create_solution_summary_task.retry(exc=e, countdown=5,
                                                  max_retries=None)
     summary = generate_summary(solution.content)
-    solution.summary = summary
+    if summary is not None and summary != "":
+        solution.summary = summary
     solution.save()
     cache.delete(solution.object_uuid)
 

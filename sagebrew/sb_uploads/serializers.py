@@ -93,8 +93,10 @@ class UploadSerializer(SBSerializer):
         request = self.context.get('request')
         if request is not None:
             object_uuid = request.query_params.get('random', None)
+            editor = request.query_params.get('editor', 'false').lower()
         else:
             object_uuid = None
+            editor = 'false'
         verify_unique = self.context.get('verify_unique', False)
         check_hamming = self.context.get('check_hamming', False)
         file_object = data.get('file_object')
@@ -133,10 +135,11 @@ class UploadSerializer(SBSerializer):
                                   "Valid types are jpeg, jpg, and png")
         if self.context.get('file_name', None) is not None:
             file_name = self.context.get('file_name')
-        if data['width'] < 100:
-            raise ValidationError("Must be at least 100 pixels wide")
-        if data['height'] < 100:
-            raise ValidationError("Must be at least 100 pixels tall")
+        if editor != 'true':
+            if data['width'] < 100:
+                raise ValidationError("Must be at least 100 pixels wide")
+            if data['height'] < 100:
+                raise ValidationError("Must be at least 100 pixels tall")
         if file_size > settings.ALLOWED_IMAGE_SIZE:
             raise ValidationError(
                 "Your file cannot be larger than 20mb. Please select "
@@ -254,10 +257,12 @@ class URLContentSerializer(SBSerializer):
         try:
             response = requests.get(validated_data['url'],
                                     headers={'content-type': 'html/text'},
-                                    timeout=5, verify=False)
+                                    timeout=5, verify=True)
         except requests.Timeout:
             return URLContent(url=validated_data['url']).save()
         except requests.ConnectionError:
+            return URLContent(url=validated_data['url']).save()
+        except requests.exceptions.SSLError:
             return URLContent(url=validated_data['url']).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=validated_data['url']).save()

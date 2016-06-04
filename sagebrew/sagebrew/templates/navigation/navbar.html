@@ -5,20 +5,15 @@
     <header class="navbar navbar-static-top navbar-fixed-top hidden-xs">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-
-                {% if request_profile.completed_profile_info or user.is_anonymous %}
-                    <a href="{% url 'root_profile_page' %}" class="navbar-brand">
-                        <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
-                    </a>
-                {% else %}
-                    <span class="navbar-brand">
-                        <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
-                    </span>
-                {% endif %}
+                <a href="{% url 'root_profile_page' %}" class="navbar-brand">
+                    <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/><span class="hidden-sm">Sagebrew</span>
+                </a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 {% if "registration" not in request.path %}
@@ -31,7 +26,7 @@
                         </li>
                     </ul>
                 {% endif %}
-                <div class="navbar-right">
+                <div class="navbar-right margin-right-0">
                     {% if user.is_authenticated and "/registration/" not in request.path %}
                         {% include "navigation/auth-user-menu.html" %}
                     {% elif user.is_anonymous %}
@@ -47,11 +42,14 @@
         <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1"
+                        aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-                {% if request_profile.completed_profile_info or user.is_anonymous %}<a class="navbar-brand" href="{% url 'root_profile_page' %}">{% else %}<a class="navbar-brand" href="#">{% endif %}Sagebrew</a>
+                <a class="navbar-brand" href="{% url 'root_profile_page' %}">Sagebrew</a>
             </div>
 
             {% if user.is_authenticated %}
@@ -60,11 +58,12 @@
                         <li {% if "/newsfeed/" in request.path %}class="active"{% endif %}><a href="{% url 'newsfeed' %}">Newsfeed</a></li>
                         <li {% if "/user/" in request.path and "/settings/" not in request.path and "/newsfeed/" not in request.path %}class="active"{% endif %}><a href="{% url 'profile_page' request.user.username %}">Profile</a></li>
                         <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
-                        <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
+                        <li {% if "/missions/" in request.path and "/manage/" not in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                         <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
                         {% if request_profile.quest %}
-                            <li {% if "/manage/general/" in request.path %}class="active"{% endif %}><a href="{% url "quest_manage_settings" request_profile.username %}">Quest Settings</a></li>
+                            <li {% if "/quests/" in request.path and "/manage/general/" not in request.path and "/missions/" not in request.path %}class="active"{% endif %}><a href="{% url 'quest' request.user.username %}">Quest Page</a></li>
+                            <li {% if "/manage/general/" in request.path and "/missions/" not in request.path %}class="active"{% endif %}><a href="{% url "quest_manage_settings" request.user.username %}">Quest Settings</a></li>
                         {% endif %}
                         <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
                         <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>

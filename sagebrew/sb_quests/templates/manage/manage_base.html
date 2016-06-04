@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block hero %}
-    {% include "manage/activate_partial.html" %}
+    {% include "manage/onboarding_block.html" %}
     <div class="block block-type-title">
         <div class="block-content type-nav clearfix">
             <h1>{% block settings_header %}Manage Quest{% endblock settings_header %}</h1>
@@ -10,7 +10,7 @@
                 <li {% if "/quests/" in request.path %}class="active"{% endif %}><a href="{% url 'quest_manage_settings' quest.id %}">Quest Settings</a></li>
                 <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_settings_redirect' %}">Missions</a></li>
             </ul>
-            <div class="title-important-actions">
+            <div class="title-important-actions hidden-xs">
                 {% block important_actions %}
                     <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-lg sb_btn">View Quest</a>
                 {% endblock important_actions %}
@@ -76,62 +76,6 @@
             </li>
         </ul>
 
-        </div>
-    </div>
-    <div class="block block-type-nav">
-        <div class="block-title">
-            Quest Setup Checklist
-        </div>
-        <div class="block-content">
-            <ul class="nav nav-list nav-list-vivid">
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Complete the accounting section so you can receive donations"
-                       {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}">
-                        <i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Accounting</a>
-                </li>
-                {% if quest.account_verification_fields_needed %}
-                    <li>
-                        <a data-toggle="tooltip" data-placement="top"
-                           data-title="There are a few more things we need from you to enable donations"
-                           {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}">
-                            <i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Verification</a>
-                    </li>
-                {% endif %}
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Tell people a bit about yourself or your organization"
-                       {% if not quest.about %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}#general">
-                        <i class="fa {% if quest.about %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete General Info</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Upload a picture that represents your Quest"
-                       {% if 'images/wallpaper_capitol_2.jpg' in quest.wallpaper_pic %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}">
-                        <i class="fa {% if 'images/wallpaper_capitol_2.jpg' not in quest.wallpaper_pic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Upload a Wallpaper</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Take your Quest live to enable Missions"
-                       {% if not quest.active %}class="red-href"{% endif %} href="#">
-                        <i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a>
-                </li>
-                <li>
-                    <a data-toggle="tooltip" data-placement="top"
-                       data-title="Create a Mission to start collecting donations"
-                       {% if not quest.missions %}class="red-href"{% endif %} href="{% url "select_mission" %}">
-                        <i class="fa {% if quest.missions %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Create a Mission</a>
-                </li>
-                {% if quest.missions %}
-                    <li>
-                        <a data-toggle="tooltip" data-placement="top"
-                           data-title="Take your Mission live to start getting donations"
-                           {% if not mission_active %}class="red-href"{% endif %}
-                           href="{{ mission_link }}">
-                            <i class="fa {% if mission_active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Mission Live</a>
-                    </li>
-                {% endif %}
-            </ul>
         </div>
     </div>
 {% endblock %}

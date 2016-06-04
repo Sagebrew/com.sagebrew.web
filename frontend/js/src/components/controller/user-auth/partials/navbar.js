@@ -62,6 +62,8 @@ export function navbar() {
                     "reputation_update_seen": true,
                     "update_time": true
                 })
+            }).done(function () {
+                $('#js-reputation-change-notifier').remove();
             });
         })
         //
@@ -73,50 +75,7 @@ export function navbar() {
                      $('#js-sb_friend_request_notifier').remove();
                 });
             }
-        })
-        //
-        // Friend Request / Accept
-        .on('click', '.respond_friend_request-accept-action', function(event) {
-            event.preventDefault();
-            var requestID = $(this).data('request_id');
-            request.post({
-                url: "/v1/me/friend_requests/" + requestID + "/accept/",
-                data: JSON.stringify({
-                    'request_id': requestID
-                })
-            }).done(function() {
-                $('#friend_request_' + requestID).remove();
-            });
-        })
-        //
-        // Friend Request / Decline
-        .on('click', '.respond_friend_request-decline-action', function(event){
-            event.preventDefault();
-            var requestID = $(this).data('request_id');
-            request.post({
-                url: "/v1/me/friend_requests/" + requestID + "/decline/",
-                data: JSON.stringify({
-                    'request_id': requestID
-                })
-            }).done(function() {
-                $('#friend_request_' + requestID).remove();
-            });
-        })
-        //
-        // Friend Request / Block
-        .on('click', '.respond_friend_request-block-action', function(event) {
-            event.preventDefault();
-            var requestID = $(this).data('request_id');
-            request.post({
-                url: "/v1/me/friend_requests/" + requestID + "/block/",
-                data: JSON.stringify({
-                    'request_id': requestID
-                })
-            }).done(function() {
-                $('#friend_request_' + requestID).remove();
-            });
         });
-
     //
     // Search
     $(".full_search-action").click(function() {

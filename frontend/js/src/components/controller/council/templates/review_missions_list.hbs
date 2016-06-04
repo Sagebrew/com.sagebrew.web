@@ -1,0 +1,48 @@
+<div class="block-content">
+    <table class="table table-striped payment-methods">
+        <tbody><tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Activation Status
+            </th>
+            {{# if pending_review }}
+                <th>
+                    Actions
+                </th>
+            {{/if}}
+        </tr>
+        {{#each missions}}
+            <tr>
+                <td>
+                    {{this.title}}
+                </td>
+                <td class="mission-created">
+                    {{this.created}}
+                </td>
+                <td>
+                    {{this.active}}
+                </td>
+                {{# if ../pending_review }}
+                    <td>
+                        <a href="/council/missions/{{this.id}}/review/"
+                           class="sb-action-icon"
+                           data-object_uuid="{{this.id}}">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                {{/if}}
+            </tr>
+        {{ else }}
+            <tr>
+                <td>
+                    No Current Missions {{review_string}}
+                </td>
+            </tr>
+        {{/each}}
+    </tbody></table>
+</div>

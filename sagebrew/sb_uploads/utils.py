@@ -207,6 +207,8 @@ def get_image_data(object_uuid, file_object):
         else:
             image = Image.open(another_file_object)
     image_format = image.format
+    if image_format not in settings.ALLOWED_IMAGE_FORMATS:
+        raise IOError
     width, height = image.size
     file_name = "%s.%s" % (object_uuid, image_format.lower())
 

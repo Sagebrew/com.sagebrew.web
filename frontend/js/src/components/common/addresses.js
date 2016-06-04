@@ -33,11 +33,11 @@ function validateAddress(addressValidationForm, callbackFunction) {
         key: settings.api.liveaddress,
         addresses: [
             {
-                street: "#street",
-                street2: "#street-additional",
-                city: "#city",
-                state: "#state",
-                zipcode: "#postal-code"
+                address1: "#street",
+                address2: "#street-additional",
+                locality: "#city",
+                administrative_area: "#state",
+                postal_code: "#postal-code"
             }
         ]
     });
@@ -89,7 +89,7 @@ function validateAddress(addressValidationForm, callbackFunction) {
 }
 
 
-export function submitAddress(addressForm, callbackFunction) {
+export function submitAddress(addressForm, callbackFunction, submitEndpoint) {
     var latitudeKey = "addressLatitude",
         longitudeKey = "addressLongitude",
         countryKey = "addressCountry",
@@ -106,9 +106,8 @@ export function submitAddress(addressForm, callbackFunction) {
     addressData.longitude = localStorage.getItem(longitudeKey);
     addressData.country = localStorage.getItem(countryKey);
     addressData.congressional_district = localStorage.getItem(congressionalKey);
-    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
+    requests.patch({url: submitEndpoint, data: JSON.stringify({address: addressData})})
         .done(function (data) {
-            greyPage.classList.add('sb_hidden');
             callbackFunction(data);
         });
 }

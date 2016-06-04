@@ -69,6 +69,7 @@ class UploadViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         croppic = request.query_params.get('croppic', 'false').lower()
+        editor = request.query_params.get('editor', 'false').lower()
         file_object = request.data.get('file_object', None)
         if file_object is None:
             file_object = request.data.get('file', None)
@@ -86,7 +87,10 @@ class UploadViewSet(viewsets.ModelViewSet):
                                  "width": upload.width,
                                  "height": upload.height},
                                 status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            if editor == 'true':
+                return Response({"files": [serializer.data]},
+                                status=status.HTTP_200_OK)
+            return Response(serializer.data, status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])

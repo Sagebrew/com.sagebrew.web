@@ -50,7 +50,7 @@ class TestCreateMessageTask(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_create_event_with_metadata(self):
+    def test_create_email_with_metadata(self):
         from plebs.serializers import EmailAuthTokenGenerator
         message_data = {
             'message_type': 'email',

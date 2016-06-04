@@ -37,73 +37,18 @@
         </div>
         <div class="col-md-4 col-md-offset-1">
             <h1 class="sb_signup_headline_containter">Sign Up - It's Free</h1>
-            <form id="account-info">
-                <div class="form-group">
-                    <input type="text"
-                           id="first-name"
-                           name="first_name"
-                           placeholder="First Name"
-                           autocomplete="off"
-                           value="" class="form-control">
-                </div>
+            {% include "account_info_form.html" with label=False birthday_header=True birthday_custom_class="sb_signup_headline_containter" %}
+            <button class="btn btn-block btn-lg btn-primary sb_btn"
+                        type="button" id="submit_signup">
+                    Register
+                </button>
+            <div>
+                <small class="terms-description">By registering, you agree to our <a href="{% url "terms_and_conditions" %}">Terms of Service</a>.</small>
 
-                <div class="form-group">
-                    <input type="text"
-                           id="last-name"
-                           name="last_name"
-                           placeholder="Last Name"
-                           autocomplete="off"
-                           value="" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <input type="text"
-                           id="email"
-                           name="email"
-                           placeholder="Email"
-                           autocomplete="off"
-                           value="" class="form-control">
-                </div>
-                <div class="form-group">
-                    <input type="password"
-                           value=""
-                           name="password"
-                           id="password"
-                           placeholder="Password"
-                           autocomplete="off"
-                           class="form-control">
-                </div>
-                <div class="form-group">
-                    <input type="password"
-                           value=""
-                           name="password2"
-                           id="password2"
-                           placeholder="Re-enter Password"
-                           autocomplete="off"
-                           class="form-control">
-                </div>
-
-                <h3 class="sb_signup_headline_containter">Birthday</h3>
-                        <div class="form-group">
-                    <input type="text"
-                           id="birthday"
-                           name="date_of_birth"
-                           placeholder="MM/DD/YYYY"
-                           autocomplete="off"
-                           value="" class="form-control">
-                </div>
-                <button class="btn btn-block btn-lg btn-primary sb_btn"
-                            type="button" id="submit_signup">
-                        Register
-                    </button>
-                <div>
-                    <small class="terms-description">By registering, you agree to our <a href="{% url "terms_and_conditions" %}">Terms of Service</a>.</small>
-
-                </div>
-                <div>
-                    <small class="terms-description"><a href="{% url "reset_password_page" %}">Forgot Your Password?</a></small>
-                </div>
-            </form>
+            </div>
+            <div>
+                <small class="terms-description"><a href="{% url "reset_password_page" %}">Forgot Your Password?</a></small>
+            </div>
         </div>
     </div>
 

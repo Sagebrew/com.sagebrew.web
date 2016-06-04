@@ -10,9 +10,11 @@ from django.core.cache import cache
 
 from neomodel import db
 
+from sb_address.neo_models import Address
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
+from sb_missions.utils import setup_onboarding
 
 from sb_quests.neo_models import Quest
 
@@ -20,6 +22,7 @@ from sb_quests.neo_models import Quest
 class QuestViewTests(TestCase):
 
     def setUp(self):
+        db.cypher_query('MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
@@ -27,15 +30,17 @@ class QuestViewTests(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
         cache.clear()
-        self.mission = Mission(owner_username=self.user.username,
-                               title=str(uuid1())).save()
+        self.mission = Mission(
+            owner_username=self.user.username, title=str(uuid1()),
+            focus_on_type="advocacy", focus_name="testing advocacy",
+            district=None).save()
         self.quest = Quest(owner_username=self.pleb.username).save()
         self.quest.missions.connect(self.mission)
         self.quest.owner.connect(self.pleb)
+        setup_onboarding(self.quest, self.mission)
 
     def test_quest(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -71,6 +76,18 @@ class QuestViewTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+    def test_quest_settings_with_address(self):
+        address = Address(street="3295 Rio Vista St",
+                          city="Commerce Township", state="MI",
+                          postal_code="48382", country="US",
+                          congressional_district="11").save()
+        self.quest.address.connect(address)
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('quest_manage_settings',
+                      kwargs={'username': self.user.username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     def test_settings_no_quest(self):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest_manage_settings',
@@ -80,3 +97,12 @@ class QuestViewTests(TestCase):
         res, _ = db.cypher_query(query)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_settings_no_mission(self):
+        db.cypher_query('MATCH (a:Mission) OPTIONAL MATCH (a)-[r]-()'
+                        ' DELETE a, r')
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('quest_manage_settings',
+                      kwargs={'username': self.user.username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

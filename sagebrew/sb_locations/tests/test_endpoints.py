@@ -17,6 +17,110 @@ from sb_locations.neo_models import Location
 from sb_quests.neo_models import Position
 
 
+wixom_data = {
+    "address_components": [
+        {
+            "long_name": "Wixom",
+            "short_name": "Wixom",
+            "types": [
+                "locality",
+                "political"
+            ]
+        },
+        {
+            "long_name": "Oakland County",
+            "short_name": "Oakland County",
+            "types": [
+                "administrative_area_level_2",
+                "political"
+            ]
+        },
+        {
+            "long_name": "Michigan",
+            "short_name": "MI",
+            "types": [
+                "administrative_area_level_1",
+                "political"
+            ]
+        },
+        {
+            "long_name": "United States",
+            "short_name": "US",
+            "types": [
+                "country",
+                "political"
+            ]
+        }
+    ],
+    "adr_address": "<span class=\"locality\">Wixom</span>, "
+                   "<span class=\"region\">MI</span>, "
+                   "<span class=\"country-name\">USA</span>",
+    "formatted_address": "Wixom, MI, USA",
+    "geometry": {
+        "location": {},
+        "viewport": {
+            "O": {
+                "O": 42.493165,
+                "j": 42.55855589999999
+            },
+            "j": {
+                "j": -83.558674,
+                "O": -83.507566
+            }
+        }
+    },
+    "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+    "id": "20c67ea90c3088cc7d5fdd08dc7ccd170559a4fe",
+    "name": "Wixom",
+    "place_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8",
+    "reference": "CnRrAAAAd8ZPXfASBM6FFtdy7mckkorluFIIsJlBesOwOUtRqhIOhWPZJ"
+                 "i8ul4sx8pozfeSSMYidyRbS37IkNcMJ2e76UsBnvrpWr-wRMKo-jfzCrJu"
+                 "YQIxQ_1j40TTd_cZSMgQXVQgnqn940GYDuYTbpNT8thIQYBVqsZV4thkz"
+                 "ZT90o9E0DBoUrELXmJ3GdZlCgHjdowsRZlQIDkk",
+    "scope": "GOOGLE",
+    "types": [
+        "locality",
+        "political"
+    ],
+    "url": "https://maps.google.com/?q=Wixom,+MI,+USA&ftid=0x8824a620614c1b"
+           "ef:0x5f1e999bcb411664",
+    "vicinity": "Wixom",
+    "html_attributions": []
+}
+
+
+springfield_data = [
+    {
+        'long_name': 'Springfield',
+        'short_name': 'Springfield',
+        'types': [
+            'locality',
+            'political'
+        ],
+    },
+    {
+        'long_name': 'Lee',
+        'types': ['administrative_area_level_3', 'political'],
+        'short_name': 'Lee'
+    },
+    {
+        'long_name': 'Fairfax County',
+        'types': [u'administrative_area_level_2', u'political'],
+        'short_name': u'Fairfax County'
+    },
+    {
+        'long_name': 'Virginia',
+        'types': ['administrative_area_level_1', 'political'],
+        'short_name': 'VA'
+    },
+    {
+        'long_name': 'United States',
+        'types': [u'country', u'political'],
+        'short_name': u'US'
+    }
+]
+
+
 class LocationEndpointTests(APITestCase):
 
     def setUp(self):
@@ -197,7 +301,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.user.is_staff = False
         self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'Wixom')
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,
@@ -216,7 +320,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.user.is_staff = False
         self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'Internationalizaetion2')
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,
@@ -246,7 +350,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.user.is_staff = False
         self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'City of Wixom')
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,
@@ -284,6 +388,34 @@ class LocationEndpointTests(APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_external_id_with_admin_3_and_locality(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, {
+            "place_id": "ChIJnTrlhehNtokRBKX6FiRv52c",
+            "address_components": springfield_data
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'Springfield')
+
+    def test_add_external_id_with_locality(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, wixom_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'Wixom')
+
+    def test_add_external_id_does_not_exist(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, {
+            "place_id": "ChIJkRBFiR1234",
+            'address_components': []
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['place_id'],
+                         ["We could not find that Place ID"])
 
     def test_cache_location(self):
         cache.clear()

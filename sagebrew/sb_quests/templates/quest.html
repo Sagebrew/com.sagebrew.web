@@ -1,4 +1,4 @@
-a{% extends "layout/hero-two-col-right.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
     {{ quest.title }}'s Quest
@@ -13,7 +13,6 @@ a{% extends "layout/hero-two-col-right.html" %}
     <meta name="author" content=" {{ quest.title }} ">
 {% endblock keywords %}
 {% block hero %}
-    {% include "manage/activate_partial.html" %}
     <div class="row block row-no-left-right-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
             <h1> {{ quest.title }} </h1>
@@ -137,7 +136,7 @@ a{% extends "layout/hero-two-col-right.html" %}
             <h1>Missions</h1>
             <div class="title-important-actions">
                 {% if request.user.username == quest.owner_username %}
-                    <a class="btn btn-primary js-quest-signup">Embark on a Mission</a>
+                    <a class="btn btn-primary js-quest-signup hidden-xs">Embark on a Mission</a>
                 {% endif %}
             </div>
         </div>

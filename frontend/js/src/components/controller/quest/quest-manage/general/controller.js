@@ -21,21 +21,18 @@ export const meta = {
  * Load.
  */
 export function load() {
-    require('drmonty-garlicjs');
     var $app = $(".app-sb"),
         questID = helpers.args(1),
-        socialForm = $("#socialForm"),
         $about = $("#about"),
         $title = $("#title"),
         $remaining = $("#js-about-char-count"),
         $titleRemaining = $("#js-title-char-count"),
         aboutCharLimit = 128,
-        titleCharLimit = 240,
+        titleCharLimit = 70,
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture");
     validation.missionManageValidator($('#socialForm'), aboutCharLimit);
-    socialForm.garlic();
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
     helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
     $app

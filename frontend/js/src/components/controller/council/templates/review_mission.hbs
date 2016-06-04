@@ -1,0 +1,18 @@
+<h1 class="no-margin-padding-top">Epic</h1>
+<div class="sb_markdown">
+    {{{ mission.epic }}}
+</div>
+<h1 class="no-margin-padding-top">Verification Status</h1>
+<div class="sb_markdown">
+    {{ mission.quest.account_verified }}
+</div>
+<h1 class="no-margin-padding-top">Previously Submitted Review Options</h1>
+<div class="sb_markdown">
+    <ul>
+        {{#each mission.review_feedback}}
+            <li>
+                {{this}}
+            </li>
+        {{/each}}
+    </ul>
+</div>

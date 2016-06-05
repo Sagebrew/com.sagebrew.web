@@ -42,6 +42,7 @@ function loadSingleContent() {
             } else if (formattedObjectType === "solution") {
                 renderedTemplate = solutionTemplate(data);
             } else if (formattedObjectType === "post") {
+                data.html_content = Autolinker.link(data.results[i].content);
                 renderedTemplate = postNewsTemplate(data);
             } else {
                 renderedTemplate = "";

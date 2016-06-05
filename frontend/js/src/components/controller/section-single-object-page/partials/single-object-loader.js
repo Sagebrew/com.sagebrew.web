@@ -1,6 +1,7 @@
 /*global $, Autolinker */
 var request = require('api').request,
     helpers = require('common/helpers'),
+    postCreate = require('controller/section-profile/partials/postcreate.js').load,
     questionTemplate = require('controller/section-profile/templates/question_news.hbs'),
     solutionTemplate = require('controller/section-profile/templates/solution_news.hbs'),
     postNewsTemplate = require('controller/section-profile/templates/post_news.hbs');
@@ -42,7 +43,7 @@ function loadSingleContent() {
             } else if (formattedObjectType === "solution") {
                 renderedTemplate = solutionTemplate(data);
             } else if (formattedObjectType === "post") {
-                data.html_content = Autolinker.link(data.results[i].content);
+                data.html_content = Autolinker.link(data.content);
                 renderedTemplate = postNewsTemplate(data);
             } else {
                 renderedTemplate = "";
@@ -56,4 +57,5 @@ function loadSingleContent() {
 
 export function init() {
     loadSingleContent();
+    postCreate();
 }

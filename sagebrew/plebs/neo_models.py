@@ -160,7 +160,6 @@ class Pleb(Searchable):
     stripe_default_card_id = StringProperty()
     # last_counted_vote_node is the node we want to query on to get
     # reputation change over time
-
     last_counted_vote_node = StringProperty(default=None)
     # vote_from_last_refresh is what gets stored every time a user
     # refreshes their page, allows us to easily swap it with
@@ -600,6 +599,7 @@ class Pleb(Searchable):
         # See create_vote_node task in sb_votes tasks for where this is deleted
         res = cache.get("%s_reputation_change" % self.username)
         if res is None:
+            # last_counted_vote_node is set in sb_vote/tasks if it is None.
             query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
                     '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
                     '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \

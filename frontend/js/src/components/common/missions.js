@@ -42,7 +42,10 @@ export function populateMissions(loadElement, questID, template, emptyMessage,
         renderCallback: function($container, data) {
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
-                data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
+                // Required for legacy Quests
+                if(data.results[i].level !== null) {
+                    data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
+                }
             }
             $container.append(template({
                 missions: data.results,

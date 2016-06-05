@@ -21,4 +21,5 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
+    python manage.py populate_last_rep_node && \
     python manage.py clearsessions"

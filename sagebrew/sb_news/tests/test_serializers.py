@@ -104,7 +104,8 @@ class TestNewsSerializers(TestCase):
                 '{external_id: "c7dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "Obama Welcomes Castro America "
+        self.assertEqual(res.one['title'], "Obama's Team Welcomes Castro "
+                                           " & Cuba To America & To Receive "
                                            "Criticism: 'Wouldn't Disagree'...")
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c294037cba0aad280b655614c5c776f1c5b453ce"}) ' \

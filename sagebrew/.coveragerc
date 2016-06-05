@@ -76,6 +76,7 @@ omit =
     */management/commands/remove_and_repopulate_official_quests.py
     */management/commands/remove_unconnected_quests.py
     */management/commands/migrate_to_new_editor.py
+    */management/commands/populate_last_rep_node.py
     */sagebrew/test_runner.py
 
 [report]

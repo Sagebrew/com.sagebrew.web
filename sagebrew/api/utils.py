@@ -428,6 +428,7 @@ def only_roman_chars(unistr):
 
 
 def render_content(content):
+
     if content is not None:
         if content[:4] == "<h2>" or content[:4] == "<h2 ":
             # Only parse the content if we need to since it can be a long

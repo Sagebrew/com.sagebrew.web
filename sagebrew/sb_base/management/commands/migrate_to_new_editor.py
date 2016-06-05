@@ -1,3 +1,5 @@
+import markdown
+
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
@@ -22,7 +24,9 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for mission in [Mission.inflate(row[0]) for row in res]:
-                rendered = render_content(mission.epic)
+                rendered = render_content(markdown.markdown(
+                    mission.epic.replace(
+                        '&gt;', '>')).replace('<a', '<a target="_blank"'))
                 mission.epic = rendered
                 mission.temp_epic = rendered
                 mission.save()
@@ -34,7 +38,9 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for question in [Question.inflate(row[0]) for row in res]:
-                rendered = render_content(question.content)
+                rendered = render_content(markdown.markdown(
+                    question.content.replace(
+                        '&gt;', '>')).replace('<a', '<a target="_blank"'))
                 question.content = rendered
                 question.save()
         skip = 0
@@ -45,7 +51,9 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for solution in [Solution.inflate(row[0]) for row in res]:
-                rendered = render_content(solution.content)
+                rendered = render_content(markdown.markdown(
+                    solution.content.replace(
+                        '&gt;', '>')).replace('<a', '<a target="_blank"'))
                 solution.content = rendered
                 solution.save()
         skip = 0
@@ -56,7 +64,9 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for update in [Update.inflate(row[0]) for row in res]:
-                rendered = render_content(update.content)
+                rendered = render_content(markdown.markdown(
+                    update.content.replace(
+                        '&gt;', '>')).replace('<a', '<a target="_blank"'))
                 update.content = rendered
                 update.save()
         cache.set("migrated_to_new_editor", True)

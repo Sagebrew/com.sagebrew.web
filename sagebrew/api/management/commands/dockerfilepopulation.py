@@ -49,10 +49,10 @@ class Command(BaseCommand):
                                 os.environ.get("CIRCLECI", "false").lower())
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             web_docker = web_docker.replace('{{IMAGE_TYPE}}', "frontend")
-            web_docker = web_docker.replace('{{VERSION}}', "10")
+            web_docker = web_docker.replace('{{VERSION}}', "11")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
             worker_docker = worker_docker.replace('{{IMAGE_TYPE}}', "base")
-            worker_docker = worker_docker.replace('{{VERSION}}', "21")
+            worker_docker = worker_docker.replace('{{VERSION}}', "22")
 
         f = open("%s/dockerfiles/web_app/Dockerfile" % settings.REPO_DIR, "w")
         f.write(web_docker)

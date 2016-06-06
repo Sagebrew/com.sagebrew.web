@@ -431,6 +431,12 @@ def only_roman_chars(unistr):
     return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())
 
 
+def remove_class_from_elements(soup, class_string, element='div'):
+    [element['class'].remove(class_string)
+     for element in soup.find_all(element, {'class': class_string})]
+    return str(soup).replace("<html><body>", "").replace("</body></html>", "")
+
+
 def render_content(content):
 
     if content is not None:
@@ -458,9 +464,22 @@ def render_content(content):
                 'div', {"class": "medium-insert-buttons"})]
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
-
-        # Iterate through each image tag within the document and add the
-        # necessary a tag for lightbox to work.
+        if 'medium-insert-caption-placeholder' in content:
+            soup = BeautifulSoup(content, 'lxml')
+            [div.extract() for div in soup.findAll(
+                'figcaption', {"class": "medium-insert-caption-placeholder"})]
+            content = str(soup).replace("<html><body>", "") \
+                .replace("</body></html>", "")
+        if 'medium-insert-embeds-selected' in content:
+            soup = BeautifulSoup(content, 'lxml')
+            content = remove_class_from_elements(
+                soup, 'medium-insert-embeds-selected')
+        if 'figcaption' in content and 'contenteditable="true"' in content:
+            soup = BeautifulSoup(content, 'lxml')
+            [fig.attrs.update({'contenteditable': 'false'}) for fig in
+             soup.find_all('figcaption', {'contenteditable': 'true'})]
+            content = str(soup).replace("<html><body>", "") \
+                .replace("</body></html>", "")
         return content
     else:
         return ""

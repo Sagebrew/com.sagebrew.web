@@ -471,3 +471,13 @@ export function historyBackFallback(fallbackUrl) {
             }
     }, 500);
 }
+
+/*
+ * Set all figcaptions to contenteditable="false"
+ */
+export function disableFigcapEditing() {
+    $("figcaption").each(function() {
+        var $this = $(this);
+        $this.attr('contenteditable', 'false');
+    });
+}

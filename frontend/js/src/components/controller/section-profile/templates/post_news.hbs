@@ -44,15 +44,7 @@
             <div class="col-xs-12 col-sm-11">
                 <div class="block-content" id="js-post-{{id}}">
                     <p>{{{ html_content }}}</p>
-                    {{# if uploaded_objects }}
-                        <div class="row sb-post-image-wrapper">
-                            {{> 'controller/section-profile/templates/image_container.hbs'
-                                uploaded_objects=uploaded_objects }}
-                        </div>
-                    {{ else if first_url_content }}
-                        {{> 'controller/section-profile/templates/expand_url_content.hbs'
-                                first_url_content=first_url_content }}
-                    {{/if}}
+                    {{> 'controller/section-profile/templates/image_and_expanded_container.hbs' }}
                 </div>
                 <div id="js-edit-container-{{id}}" style="display: none">
                     <form class="js-edit-post-form" action="" method="POST"

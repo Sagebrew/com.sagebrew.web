@@ -474,12 +474,6 @@ def render_content(content):
             soup = BeautifulSoup(content, 'lxml')
             content = remove_class_from_elements(
                 soup, 'medium-insert-embeds-selected')
-        if 'figcaption' in content and 'contenteditable="true"' in content:
-            soup = BeautifulSoup(content, 'lxml')
-            [fig.attrs.update({'contenteditable': 'false'}) for fig in
-             soup.find_all('figcaption', {'contenteditable': 'true'})]
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
         return content
     else:
         return ""

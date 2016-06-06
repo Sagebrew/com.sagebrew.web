@@ -346,10 +346,3 @@ class TestRenderContent(TestCase):
         rendered_content = "<div></div>"
         res = render_content(content)
         self.assertEqual(rendered_content, res)
-
-    def test_with_medium_editor_figcaption_editable(self):
-        content = '<figcaption contenteditable="true">Some content</figcaption>'
-        rendered_content = '<figcaption contenteditable="false">Some ' \
-                           'content</figcaption>'
-        res = render_content(content)
-        self.assertEqual(rendered_content, res)

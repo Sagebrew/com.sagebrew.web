@@ -1,6 +1,7 @@
 var request = require('api').request,
     moment = require('moment'),
-    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
+    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
+    helpers = require('common/helpers');
 
 export const meta = {
     controller: "mission/mission-view/updates",
@@ -51,6 +52,7 @@ export function load() {
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }
+                helpers.disableFigcapEditing();
             }
         });
     }

@@ -51,6 +51,7 @@ export function load () {
                     editor = mediumEditor(".editable", "Type your Solution here");
 
                     $container.append(solutionTemplate(data));
+                    helpers.disableFigcapEditing();
                     $('[data-toggle="tooltip"]').tooltip();
                     $form.find('button').prop('disabled', false);
                 }).fail(function () {
@@ -86,6 +87,7 @@ export function load () {
                     data.results = helpers.votableContentPrep(data.results);
                     for (var i = 0; i < data.results.length; i++) {
                         $container.append(Autolinker.link(solutionTemplate(data.results[i])));
+                        helpers.disableFigcapEditing();
                         $('[data-toggle="tooltip"]').tooltip();
                         $app.trigger("sb:populate:comments", {
                             id: data.results[i].id,

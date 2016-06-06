@@ -14,6 +14,8 @@ import unicodedata as ud
 from bs4 import BeautifulSoup
 from datetime import datetime
 from logging import getLogger
+# TODO for python 3 need to swap this out for import html
+import HTMLParser
 
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
@@ -405,6 +407,8 @@ def cleanup_title(value):
     if value[len(value) - 1] == '"' or value[len(value) - 1] == "'":
         value = value[:len(value) - 1]
     value = value.replace('"', "").strip()
+    value = HTMLParser.HTMLParser().unescape(value.lower())
+    value = value.title()
     for acronym in settings.COMPANY_ACRONYMS:
         if " %s " % acronym.lower() in value.lower():
             value = value.replace(acronym.lower(), acronym)

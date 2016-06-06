@@ -10,7 +10,7 @@ export function createMediumEditor(selectorString, placeholderText) {
             toolbar: {
                 buttons: ['bold', 'italic', 'underline', 'anchor', 'h2',
                     'h3', 'orderedlist', 'unorderedlist',
-                    'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
+                    'justifyLeft', 'justifyCenter', 'quote']
             },
             extensions: {
                 'autolist': autolist,

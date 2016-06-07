@@ -43,7 +43,7 @@ export function init () {
             }
             return request.get({url:url});
         },
-        renderCallback: function($container, data) {
+        renderCallback: function($container, data){
             // Only perform AutoLinker on html_content and other rendered content
             // so that we don't cause href's to get populated into the raw content
             // specifically posts for when we do inline editing.
@@ -91,6 +91,7 @@ export function init () {
                 }
 
             }
+            helpers.disableFigcapEditing($container);
         }
     });
 

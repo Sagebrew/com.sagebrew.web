@@ -331,3 +331,26 @@ class TestRenderContent(TestCase):
     def test_none(self):
         res = render_content(None)
         self.assertEqual(res, "")
+
+    def test_with_medium_editor_embeds_selected(self):
+        content = '<div class="some-other-class this-should-stay ' \
+                  'medium-insert-embeds-selected">Some test content</div>'
+        rendered_content = '<div class="some-other-class this-should-stay">' \
+                           'Some test content</div>'
+        res = render_content(content)
+        self.assertEqual(rendered_content, res)
+
+    def test_with_medium_editor_caption_placeholder(self):
+        content = '<div><figcaption class="medium-insert-caption-placeholder' \
+                  '"></figcaption></div>'
+        rendered_content = "<div></div>"
+        res = render_content(content)
+        self.assertEqual(rendered_content, res)
+
+    def test_remove_class_and_remove_caption_placeholder(self):
+        content = '<div><figcaption class="medium-insert-caption-placeholder' \
+                  '"></figcaption></div>' \
+                  '<div class="medium-insert-embeds-selected"></div>'
+        rendered_content = '<div></div><div class=""></div>'
+        res = render_content(content)
+        self.assertEqual(rendered_content, res)

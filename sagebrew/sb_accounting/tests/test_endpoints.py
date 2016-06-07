@@ -332,6 +332,38 @@ class AccountingHooksTests(APITestCase):
         self.assertEqual(response.data['detail'], "Transfer Failed")
 
     @requests_mock.mock()
+    def test_valid_event_request_transfer_failed_account_deleted(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        transfer_mock_data = {
+            "type": "stripe_account",
+            "destination": "acct_00000000000000"
+        }
+        m.get("https://api.stripe.com/v1/transfers/tr_00000000000000",
+              json=transfer_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "id": "acct_00000000000000",
+            "deleted": True
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_201_CREATED)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "transfer.failed",
+            "data": {
+                "object": {
+                    "id": "tr_00000000000000"
+                }
+            }
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, data)
+
+    @requests_mock.mock()
     def test_transfer_failed_stripe_account_invalid_transfer(self, m):
         self.quest.account_verified = "unverified"
         self.quest.save()

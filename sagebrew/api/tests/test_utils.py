@@ -346,3 +346,11 @@ class TestRenderContent(TestCase):
         rendered_content = "<div></div>"
         res = render_content(content)
         self.assertEqual(rendered_content, res)
+
+    def test_remove_class_and_remove_caption_placeholder(self):
+        content = '<div><figcaption class="medium-insert-caption-placeholder' \
+                  '"></figcaption></div>' \
+                  '<div class="medium-insert-embeds-selected"></div>'
+        rendered_content = '<div></div><div class=""></div>'
+        res = render_content(content)
+        self.assertEqual(rendered_content, res)

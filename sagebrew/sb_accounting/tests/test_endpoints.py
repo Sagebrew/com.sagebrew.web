@@ -255,6 +255,45 @@ class AccountingHooksTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     @requests_mock.mock()
+    def test_valid_event_request_account_updated_deleted(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        account_mock_data = {
+            "id": "acct_00000000000000",
+            "deleted": True
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        admin_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": settings.INTERCOM_ADMIN_ID_DEVON,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get("https://api.intercom.io/admins", json=admin_mock_data,
+              status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "account.updated",
+            "data": {
+                "object": {
+                    "id": "acct_00000000000000"
+                }
+            }
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.data, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @requests_mock.mock()
     def test_valid_event_request_transfer_failed_stripe_account(self, m):
         self.quest.account_verified = "unverified"
         self.quest.save()

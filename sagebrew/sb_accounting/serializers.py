@@ -85,6 +85,9 @@ class AccountSerializer(SBSerializer):
             except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:
                 logger.exception(e)
                 raise serializers.ValidationError(e)
+            if 'deleted' in account.keys():
+                if account['deleted']:
+                    return response_dict
             pleb = Pleb.nodes.get(email=account.email)
             quest = Quest.nodes.get(owner_username=pleb.username)
 
@@ -192,6 +195,9 @@ class AccountSerializer(SBSerializer):
                     account = stripe.Account.retrieve(
                         transfer.destination
                     )
+                    if 'deleted' in account.keys():
+                        if account['deleted']:
+                            return response_dict
                 else:
                     raise serializers.ValidationError('An error occurred')
             except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:

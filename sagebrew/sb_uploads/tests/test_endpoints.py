@@ -319,7 +319,7 @@ class URLContentEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('urlcontent-list')
         data = {
-            "url": "https://requestb.in/"
+            "url": "http://thepiratebay.se/browse/201"
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

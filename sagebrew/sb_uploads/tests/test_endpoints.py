@@ -315,16 +315,6 @@ class URLContentEndpointTests(APITestCase):
             self.assertIn('.s3.amazonaws.com/media/',
                           response.data['selected_image'])
 
-    def test_create_ssl_error(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('urlcontent-list')
-        data = {
-            "url": "https://requestb.in/"
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNone(response.data['selected_image'])
-
     @requests_mock.mock()
     def test_create_not_og(self, m):
         self.client.force_authenticate(user=self.user)

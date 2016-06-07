@@ -341,8 +341,8 @@ class TestRenderContent(TestCase):
         self.assertEqual(rendered_content, res)
 
     def test_with_medium_editor_caption_placeholder(self):
-        content ='<div><figcaption class="medium-insert-caption-placeholder">' \
-                 '</figcaption></div>'
+        content = '<div><figcaption class="medium-insert-caption-placeholder' \
+                  '"></figcaption></div>'
         rendered_content = "<div></div>"
         res = render_content(content)
         self.assertEqual(rendered_content, res)

@@ -432,13 +432,12 @@ def only_roman_chars(unistr):
 
 
 def remove_class_from_elements(soup, class_string, element='div'):
-    [element['class'].remove(class_string)
-     for element in soup.find_all(element, {'class': class_string})]
+    [html_element['class'].remove(class_string)
+     for html_element in soup.find_all(element, {'class': class_string})]
     return str(soup).replace("<html><body>", "").replace("</body></html>", "")
 
 
 def render_content(content):
-
     if content is not None:
         if content[:4] == "<h2>" or content[:4] == "<h2 ":
             # Only parse the content if we need to since it can be a long

@@ -257,12 +257,15 @@ class URLContentSerializer(SBSerializer):
         try:
             response = requests.get(validated_data['url'],
                                     headers={'content-type': 'html/text'},
-                                    timeout=5, verify=True)
+                                    timeout=5)
         except requests.Timeout:
             return URLContent(url=validated_data['url']).save()
         except requests.ConnectionError:
             return URLContent(url=validated_data['url']).save()
-        except requests.exceptions.SSLError:
+        except requests.exceptions.SSLError:  # pragma: no cover
+            # djb 6/7/16
+            # Cannot find a replacement url to use in testing to
+            # throw an SSLError
             return URLContent(url=validated_data['url']).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=validated_data['url']).save()

@@ -431,36 +431,38 @@ def only_roman_chars(unistr):
     return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())
 
 
-def render_content(content):
+def remove_class_from_elements(soup, class_string, element='div'):
+    [html_element['class'].remove(class_string)
+     for html_element in soup.find_all(element, {'class': class_string})]
+    return soup
 
+
+def render_content(content):
     if content is not None:
+        soup = BeautifulSoup(content, 'lxml')
         if content[:4] == "<h2>" or content[:4] == "<h2 ":
             # Only parse the content if we need to since it can be a long
             # process (lxml should make it pretty fast though)
-            soup = BeautifulSoup(content, 'lxml')
             if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h2.get('style', ''):
                 soup.h2['style'] = soup.h2.get(
                     'style', '') + "padding-top: 0; margin-top: 5px;"
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
         elif content[:4] == "<h3>" or content[:4] == "<h3 ":
-            soup = BeautifulSoup(content, 'lxml')
             if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h3.get('style', ''):
                 soup.h3['style'] = soup.h3.get(
                     'style', '') + "padding-top: 0; margin-top: 5px;"
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
         if 'medium-insert-buttons' in content:
-            soup = BeautifulSoup(content, 'lxml')
             [div.extract() for div in soup.findAll(
                 'div', {"class": "medium-insert-buttons"})]
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
-
-        # Iterate through each image tag within the document and add the
-        # necessary a tag for lightbox to work.
-        return content
+        if 'medium-insert-caption-placeholder' in content:
+            [div.extract() for div in soup.findAll(
+                'figcaption', {"class": "medium-insert-caption-placeholder"})]
+        if 'medium-insert-embeds-selected' in content:
+            soup = \
+                remove_class_from_elements(
+                    soup, 'medium-insert-embeds-selected')
+        return str(soup).replace("<html><body>", "")\
+            .replace("</body></html>", "")
     else:
         return ""

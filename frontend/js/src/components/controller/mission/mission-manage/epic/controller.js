@@ -1,7 +1,7 @@
 var request = require('api').request,
     mediumEditor = require('common/mediumeditorhelper').createMediumEditor,
     moment = require('moment'),
-    args = require('common/helpers').args;
+    helpers = require('common/helpers');
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -48,8 +48,11 @@ export function load() {
         finishedTypingInterval = 1000,
         editor = mediumEditor(".editable", "Type your Epic here"),
         $editable = $(".editable"),
-        slug = args(2),
+        slug = helpers.args(2),
         livestamp = $("#livestamp");
+    if ($editable.length === 0) {
+        helpers.disableFigcapEditing($('.block-content'));
+    }
     livestamp.attr('data-livestamp', new Date());
     livestamp.html(moment(new Date(livestamp.attr('data-livestamp'))).fromNow());
     updateTime();
@@ -92,4 +95,5 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+
 }

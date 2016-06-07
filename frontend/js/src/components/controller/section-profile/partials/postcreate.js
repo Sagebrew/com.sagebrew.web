@@ -8,7 +8,8 @@ var request = require('api').request,
     settings = require('settings').settings,
     Autolinker = require('autolinker'),
     content = require('common/content'),
-    postNewsTemplate = require('../templates/post_news.hbs');
+    postNewsTemplate = require('../templates/post_news.hbs'),
+    imageExpandedContainer = require('../templates/image_and_expanded_container.hbs');
 
 
 
@@ -215,6 +216,7 @@ export function load () {
                 // The surrounding <p> tag is necessary to ensure consistent
                 // formatting for text.
                 document.getElementById("js-post-" + data.id).innerHTML = '<p>' + Autolinker.link(data.content) + '</p>';
+                document.getElementById("js-post-" + data.id).innerHTML += imageExpandedContainer(helpers.votableContentPrep([data])[0]);
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
             });

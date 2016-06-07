@@ -25,7 +25,7 @@ export function load() {
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
-    helpers.disableFigcapEditing();
+    helpers.disableFigcapEditing($(".block"));
 }
 
 /**

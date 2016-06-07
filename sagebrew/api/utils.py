@@ -448,32 +448,28 @@ def render_content(content):
                     not in soup.h2.get('style', ''):
                 soup.h2['style'] = soup.h2.get(
                     'style', '') + "padding-top: 0; margin-top: 5px;"
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
+            content = str(soup)
         elif content[:4] == "<h3>" or content[:4] == "<h3 ":
             soup = BeautifulSoup(content, 'lxml')
             if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h3.get('style', ''):
                 soup.h3['style'] = soup.h3.get(
                     'style', '') + "padding-top: 0; margin-top: 5px;"
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
+            content = str(soup)
         if 'medium-insert-buttons' in content:
             soup = BeautifulSoup(content, 'lxml')
             [div.extract() for div in soup.findAll(
                 'div', {"class": "medium-insert-buttons"})]
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
+            content = str(soup)
         if 'medium-insert-caption-placeholder' in content:
             soup = BeautifulSoup(content, 'lxml')
             [div.extract() for div in soup.findAll(
                 'figcaption', {"class": "medium-insert-caption-placeholder"})]
-            content = str(soup).replace("<html><body>", "") \
-                .replace("</body></html>", "")
+            content = str(soup)
         if 'medium-insert-embeds-selected' in content:
             soup = BeautifulSoup(content, 'lxml')
             content = remove_class_from_elements(
                 soup, 'medium-insert-embeds-selected')
-        return content
+        return content.replace("<html><body>", "").replace("</body></html>", "")
     else:
         return ""

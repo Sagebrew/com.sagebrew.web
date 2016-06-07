@@ -91,6 +91,7 @@ export function init () {
                 }
 
             }
+            helpers.disableFigcapEditing($container);
         }
     });
 

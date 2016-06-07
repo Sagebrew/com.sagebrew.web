@@ -51,7 +51,7 @@ export function load() {
         slug = helpers.args(2),
         livestamp = $("#livestamp");
     if ($editable.length === 0) {
-        helpers.disableFigcapEditing();
+        helpers.disableFigcapEditing($('.block-content'));
     }
     livestamp.attr('data-livestamp', new Date());
     livestamp.html(moment(new Date(livestamp.attr('data-livestamp'))).fromNow());

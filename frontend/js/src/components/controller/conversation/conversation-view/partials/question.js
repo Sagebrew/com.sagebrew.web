@@ -24,7 +24,7 @@ export function load () {
                 insertElement: "#js-conversation-solutions"
             });
             $('[data-toggle="tooltip"]').tooltip();
-            helpers.disableFigcapEditing();
+            helpers.disableFigcapEditing($('#js-conversation-question'));
         });
     $app
         .on('click', '.js-delete-question', function() {

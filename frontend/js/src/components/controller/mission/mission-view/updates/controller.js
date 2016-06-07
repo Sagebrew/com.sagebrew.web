@@ -52,7 +52,7 @@ export function load() {
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }
-                helpers.disableFigcapEditing();
+                helpers.disableFigcapEditing($container);
             }
         });
     }

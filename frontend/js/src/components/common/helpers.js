@@ -475,8 +475,8 @@ export function historyBackFallback(fallbackUrl) {
 /*
  * Set all figcaptions to contenteditable="false"
  */
-export function disableFigcapEditing() {
-    $("figcaption").each(function() {
+export function disableFigcapEditing($container) {
+    $container.find("figcaption").each(function() {
         var $this = $(this);
         $this.attr('contenteditable', 'false');
     });

@@ -376,6 +376,12 @@ function initAutocomplete() {
             greyPage.classList.add('sb_hidden');
             return;
         }
+        if (place.name === "Random") {
+            $.notify({message: "Sorry we currently do not support that location. Please try another."},
+                {type: "danger"});
+            greyPage.classList.add('sb_hidden');
+            return;
+        }
         if (place.geometry.viewport) {
             map.fitBounds(place.geometry.viewport);
         } else {

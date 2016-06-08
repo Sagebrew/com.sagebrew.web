@@ -40,7 +40,7 @@ export function load() {
     if(settings.profile.quest.fields_needed_human_readable !== null && settings.profile.quest.fields_needed_human_readable !== "") {
         var neededFields = settings.profile.quest.fields_needed_human_readable.split(','),
             fieldHTML = '<h5>Fields Needed</h5><ul>';
-        for(var i = 0; i < neededFields.length; i++) {
+        for(var i = 0; i < neededFields.length; i+=1) {
             if (neededFields[i] === "Verification Document") {
                 neededFields[i] = '<a href="' + uploadIdentificationID + '">' + neededFields[i] + '</a>';
             }

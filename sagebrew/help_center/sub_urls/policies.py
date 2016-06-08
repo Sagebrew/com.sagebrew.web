@@ -116,16 +116,10 @@ urlpatterns = patterns(
     url(r'^how_to_search/$', RedirectView.as_view(
         url='/help/policies/how-to-search/', permanent=True),
         name='how_to_search_redirect'),
-    url(r'^markdown_formatting/$', RedirectView.as_view(
-        url='/help/policies/markdown-formatting/', permanent=True),
-        name='markdown_formatting_redirect'),
     url(r'^reporting_suspicious_behavior/$', RedirectView.as_view(
         url='/help/policies/reporting-suspicious-behavior/', permanent=True),
         name='reporting_suspicious_behavior_redirect'),
     url(r'^user_behavior/$', RedirectView.as_view(
         url='/help/policies/user-behavior/', permanent=True),
-        name='user_behavior_redirect'),
-    url(r'^what_is_markdown/$', RedirectView.as_view(
-        url='/help/policies/what-is-markdown/', permanent=True),
-        name='what_is_markdown_redirect'),
+        name='user_behavior_redirect')
 )

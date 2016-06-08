@@ -139,7 +139,7 @@ class AccountSerializer(SBSerializer):
                             "Please review it in the <a href='%s'>"
                             "council area</a>."
                             % (quest.owner_username,
-                               reverse('council_missions')),
+                               reverse('council_missions', request=request)),
                     'template': "personal",
                     'from_user': {
                         'type': "admin",

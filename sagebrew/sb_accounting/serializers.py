@@ -82,7 +82,8 @@ class AccountSerializer(SBSerializer):
                 account = stripe.Account.retrieve(
                     validated_data['data']['object']['id']
                 )
-            except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:
+            except (stripe.InvalidRequestError, stripe.APIConnectionError,
+                    stripe.AuthenticationError) as e:
                 logger.exception(e)
                 raise serializers.ValidationError(e)
             if account.get('deleted', False):

@@ -53,9 +53,8 @@ class PoliciesHelpSitemap(sitemaps.Sitemap):
         return ['advertising', 'be_nice',
                 'do_not_spam',
                 'feedback', 'finding_topics_of_interest',
-                'markdown_formatting',
                 'support', 'reporting_suspicious_behavior',
-                'user_behavior', 'what_is_markdown']
+                'user_behavior']
 
     def location(self, item):
         return reverse(item)

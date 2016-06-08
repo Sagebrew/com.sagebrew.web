@@ -26,6 +26,10 @@ def request_profile(request):
     try:
         if request.user.is_authenticated():
             try:
+                # We access info from the quest when in a mission area but
+                # not info from missions, setting expand here so that
+                # we can access quest info. Expand being set to true does not
+                # return expanded missions
                 if "/missions/" in request.path:
                     expand = True
                 else:

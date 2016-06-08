@@ -30,6 +30,7 @@ export function load() {
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',
+            loadingMoreItemsMessage: '',
             url: '/v1/missions/' + missionId + '/updates/',
             params: {
                 expand: 'true',

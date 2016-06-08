@@ -693,7 +693,7 @@ COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
                     'U.S.', 'US', 'USA', 'U.S.A.', 'APC', 'PDP', 'ISIS',
                     'World War II', 'World War I', 'DC', 'D.C.', 'DMV',
                     'DNC', 'RNC', 'D.N.C.', 'R.N.C.', 'PC', 'P.C.',
-                    'LGBT', 'L.G.B.T.', 'L.G.B.T']
+                    'LGBT', 'L.G.B.T.', 'L.G.B.T', 'LA Times', 'L.A. Times']
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

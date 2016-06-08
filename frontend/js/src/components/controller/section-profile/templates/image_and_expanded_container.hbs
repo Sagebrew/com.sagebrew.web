@@ -1,0 +1,9 @@
+{{# if uploaded_objects }}
+    <div class="row sb-post-image-wrapper">
+        {{> 'controller/section-profile/templates/image_container.hbs'
+            uploaded_objects=uploaded_objects }}
+    </div>
+{{ else if first_url_content }}
+    {{> 'controller/section-profile/templates/expand_url_content.hbs'
+            first_url_content=first_url_content }}
+{{/if}}

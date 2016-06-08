@@ -82,10 +82,11 @@ class AccountSerializer(SBSerializer):
                 account = stripe.Account.retrieve(
                     validated_data['data']['object']['id']
                 )
-            except (stripe.InvalidRequestError, stripe.APIConnectionError,
-                    stripe.AuthenticationError) as e:
+            except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:
                 logger.exception(e)
                 raise serializers.ValidationError(e)
+            except stripe.AuthenticationError:
+                raise serializers.ValidationError('User does not exist.')
             if account.get('deleted', False):
                 return response_dict
             pleb = Pleb.nodes.get(email=account.email)
@@ -202,6 +203,8 @@ class AccountSerializer(SBSerializer):
             except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:
                 logger.exception(e)
                 raise serializers.ValidationError(e)
+            except stripe.AuthenticationError:
+                raise serializers.ValidationError('User does not exist.')
             pleb = Pleb.nodes.get(email=account.email)
             create_system_notification(
                 to_plebs=[pleb],

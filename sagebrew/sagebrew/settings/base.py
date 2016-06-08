@@ -485,7 +485,7 @@ SUNLIGHT_FOUNDATION_KEY = environ.get("SUNLIGHT_FOUNDATION_KEY")
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 PRO_QUEST_PROMOTION = True
-PRO_QUEST_END_DATE = datetime(2016, 6, 16)
+PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True

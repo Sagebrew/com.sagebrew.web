@@ -422,6 +422,110 @@ class MeEndpointTests(APITestCase):
         self.pleb.email = self.email
         self.pleb.save()
 
+    def test_update_customer_dne(self):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        url = reverse('me-list')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 0o2,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/",
+            "email": "bounce@simulator.amazonses.com",
+            "customer_token": stripe_res['id']
+        }
+        cache.clear()
+        res = self.client.patch(url, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIsNone(self.pleb.stripe_customer_id)
+        self.assertIsNone(self.pleb.stripe_default_card_id)
+        self.pleb.refresh()
+        self.assertIsNotNone(self.pleb.stripe_customer_id)
+        self.assertIsNotNone(self.pleb.stripe_default_card_id)
+        self.pleb.email = self.email
+        self.pleb.save()
+
+    @requests_mock.mock()
+    def test_update_customer_exists(self, m):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        url = reverse('me-list')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
+        self.pleb.stripe_customer_id = "cus_00000000000000"
+        self.pleb.save()
+        token_mock_data = {
+            "id": "tok_0000000000000",
+            "object": "token",
+            "card": {
+                "id": "card_0000000000000",
+                "object": "card"
+            }
+        }
+        m.post("https://api.stripe.com/v1/tokens", json=token_mock_data,
+               status_code=status.HTTP_201_CREATED)
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 0o2,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer_mock_data = {
+            "id": "cus_00000000000000",
+            "object": "customer",
+            "sources": {
+                "object": "list",
+                "data": [],
+                "url": "/v1/customers/cus_00000000000000/sources"
+            }
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        card_create_mock_data = {
+            "id": "card_0000000000000"
+        }
+        m.post("https://api.stripe.com/v1/customers/cus_00000000000000/sources",
+               json=card_create_mock_data, status_code=status.HTTP_201_CREATED)
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/",
+            "email": "bounce@simulator.amazonses.com",
+            "customer_token": stripe_res['id']
+        }
+        cache.clear()
+        res = self.client.patch(url, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.pleb.refresh()
+        self.assertEqual(self.pleb.stripe_customer_id, "cus_00000000000000")
+        self.assertEqual(self.pleb.stripe_default_card_id,
+                         card_create_mock_data['id'])
+        self.pleb.email = self.email
+        self.pleb.save()
+
     def test_update_email_uppercase(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-list')

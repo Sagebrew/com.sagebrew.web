@@ -516,7 +516,7 @@ class QuestSerializer(SBSerializer):
 
     def get_fields_needed_human_readable(self, obj):
         if obj.account_verification_fields_needed is not None:
-            return (', '.join(
+            return (','.join(
                 [settings.STRIPE_FIELDS_NEEDED[field_needed]
                  for field_needed in obj.account_verification_fields_needed]))
         else:

@@ -38,7 +38,6 @@ export function donationsGraph(data, elementID) {
     require('highcharts/modules/exporting')(Highcharts);
     var preparedData = prepareDonationData(data.results);
     // Create a scatter plot showing each donation received as a point
-    console.log(preparedData);
     Highcharts.setOptions({
         lang: {
             thousandsSep: ','

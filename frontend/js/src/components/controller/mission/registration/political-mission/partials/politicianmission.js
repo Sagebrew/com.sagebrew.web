@@ -380,6 +380,7 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            document.getElementById('js-start-btn').disabled = true;
             return;
         }
         if (place.geometry.viewport) {

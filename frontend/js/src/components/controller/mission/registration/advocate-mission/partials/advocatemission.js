@@ -296,6 +296,7 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            document.getElementById('js-start-btn').disabled = true;
             return;
         }
 
@@ -328,7 +329,6 @@ function initAutocomplete() {
         var greyPage = document.getElementById('sb-greyout-page');
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             var place = results[0];
-            console.log(place);
             if (place.geometry.viewport) {
                 map.fitBounds(place.geometry.viewport);
             } else {

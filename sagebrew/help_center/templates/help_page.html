@@ -30,14 +30,10 @@
         <h1 class="block-title" style="margin-bottom: -10px;">{{ title }}</h1>
         <div class="block-content sb_markdown">
             {% if static_files == True %}
-                    {% ssi content_path parsed %}
-                {% else %}
-                    {% ssi content_path %}
-                {% endif %}
-                {% if "/markdown_formatting/" in request.path %}
-                    <textarea class="form-control sb_solution_input_area markdown-input"
-                              id="question_content_id" style="height: 300px;"></textarea>
-                {% endif %}
+                {% ssi content_path parsed %}
+            {% else %}
+                {% ssi content_path %}
+            {% endif %}
         </div>
     </div>
 {% endblock live %}

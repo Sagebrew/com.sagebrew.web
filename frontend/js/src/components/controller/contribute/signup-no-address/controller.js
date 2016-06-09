@@ -2,14 +2,14 @@
 var requests = require('api').request,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
-    addresses = require('common/addresses'),
     moment = require('moment');
 
 export const meta = {
-    controller: "contribute/signup",
+    controller: "contribute/signup-no-address",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/donate\/name$"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/endorse\/name$",
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/volunteer\/name$"
     ]
 };
 
@@ -27,7 +27,6 @@ export function init() {
 export function load() {
     var $app = $(".app-sb"),
         accountForm = document.getElementById('account-info'),
-        addressForm = document.getElementById('address'),
         accountValidationForm = $(accountForm),
         campaignFinanceValidationForm,
         campaignFinanceForm = document.getElementById('campaign-finance');
@@ -37,28 +36,21 @@ export function load() {
         validators.campaignFinanceValidator(campaignFinanceValidationForm);
     }
     validators.accountValidator(accountValidationForm);
-    var addressValidationForm = addresses.setupAddress(validateAddressCallback);
     $app
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
-            completeRegistration(addressValidationForm, addressForm, 
+            completeRegistration(
                 accountValidationForm, accountForm, campaignFinanceValidationForm);
         }).on('keypress', '#account-info input', function(event) {
             if (event.which === 13 || event.which === 10) {
-                completeRegistration(addressValidationForm, addressForm, 
-                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                completeRegistration(accountValidationForm, accountForm,
+                    campaignFinanceValidationForm);
                 return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
-            }
-        }).on('keypress', '#address input', function(event) {
-            if (event.which === 13 || event.which === 10) {
-                completeRegistration(addressValidationForm, addressForm,
-                    accountValidationForm, accountForm, campaignFinanceValidationForm);
-                return false;
             }
         }).on('keypress', '#campaign-finance input', function(event) {
             if (event.which === 13 || event.which === 10) {
-                completeRegistration(addressValidationForm, addressForm,
-                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                completeRegistration(accountValidationForm, accountForm,
+                    campaignFinanceValidationForm);
                 return false;
             }
         }).on('click', '#retired-or-not-employed', function () {
@@ -83,18 +75,15 @@ export function postload() {
 }
 
 
-function completeRegistration(addressValidationForm, addressForm,
-                              accountValidationForm, accountForm,
+function completeRegistration(accountValidationForm, accountForm,
                               campaignFinanceValidationForm) {
-    addressValidationForm.data('formValidation').validate();
     accountValidationForm.data('formValidation').validate();
     // Do this here so all the fields necessary pop up immediately and you don't have
     // to successfully fill out address and profile before seeing these warnings.
     if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
         campaignFinanceValidationForm.data('formValidation').validate();
     }
-    if(addressValidationForm.data('formValidation').isValid() === true &&
-            accountValidationForm.data('formValidation').isValid()){
+    if(accountValidationForm.data('formValidation').isValid()){
         document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         var accountData = helpers.getSuccessFormData(accountForm);
 
@@ -124,18 +113,13 @@ function completeRegistration(addressValidationForm, addressForm,
         delete accountData.password2;
         accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
         requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
-            .done(function (data) {
-                addresses.submitAddress(addressForm, submitAddressCallback,
-                    "/v1/profiles/" + data.id + "/");
+            .done(function () {
+                submitCallback();
             });
         }
 }
 
-
-function validateAddressCallback() {
-}
-
-function submitAddressCallback() {
+function submitCallback() {
     var contributionType = helpers.args(3),
         missionSlug = helpers.args(2),
         donateToID = helpers.args(1),

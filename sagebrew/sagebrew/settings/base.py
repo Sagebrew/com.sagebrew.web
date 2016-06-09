@@ -485,7 +485,7 @@ SUNLIGHT_FOUNDATION_KEY = environ.get("SUNLIGHT_FOUNDATION_KEY")
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 PRO_QUEST_PROMOTION = True
-PRO_QUEST_END_DATE = datetime(2016, 6, 16)
+PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -693,7 +693,7 @@ COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
                     'U.S.', 'US', 'USA', 'U.S.A.', 'APC', 'PDP', 'ISIS',
                     'World War II', 'World War I', 'DC', 'D.C.', 'DMV',
                     'DNC', 'RNC', 'D.N.C.', 'R.N.C.', 'PC', 'P.C.',
-                    'LGBT', 'L.G.B.T.', 'L.G.B.T']
+                    'LGBT', 'L.G.B.T.', 'L.G.B.T', 'LA Times', 'L.A. Times']
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

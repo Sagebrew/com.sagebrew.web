@@ -86,7 +86,9 @@ class AccountSerializer(SBSerializer):
                 logger.exception(e)
                 raise serializers.ValidationError(e)
             except stripe.AuthenticationError:
-                raise serializers.ValidationError('User does not exist.')
+                # Just return silently here so that Stripe stops sending us the
+                # unauthenticatable user
+                return response_dict
             if account.get('deleted', False):
                 return response_dict
             pleb = Pleb.nodes.get(email=account.email)
@@ -204,7 +206,9 @@ class AccountSerializer(SBSerializer):
                 logger.exception(e)
                 raise serializers.ValidationError(e)
             except stripe.AuthenticationError:
-                raise serializers.ValidationError('User does not exist.')
+                # Just return silently here so that Stripe stops sending us the
+                # unauthenticatable user
+                return response_dict
             pleb = Pleb.nodes.get(email=account.email)
             create_system_notification(
                 to_plebs=[pleb],

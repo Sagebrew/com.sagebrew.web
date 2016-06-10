@@ -67,7 +67,7 @@ export function load () {
             var $appSolutions = $(parentData.insertElement),
             $app = $(".app-sb");
             $appSolutions.sb_contentLoader({
-                emptyDataMessage: '<div class="block first-solution"><div class="block-content">Be the first to provide a Solution!</div></div>',
+                emptyDataMessage: ' ',
                 url: "/v1/questions/" + parentData.id + "/solutions/",
                 params: {
                     expand: "true"

@@ -7,13 +7,13 @@ voting is Sagebrew's simplest way to show support or opposition and using
 your votes helps other users ensure that the [Conversation][3] is moving 
 in the right direction. 
 
-## Two types of votes ##
-### Upvoting ###
+### Two types of votes ###
+#### Upvoting ####
 Shows support for a Question, Solution, or Comment. Upvote anything 
 that you agree with to let that user know that 
 you are interested in what they have to say and that you're on the same boat.
 
-#### Requirements & Limitations ####
+##### Requirements & Limitations #####
 - 10 [Reputation][4] is required to Upvote
 - You're allowed 15 Upvotes per day
 - You're allowed 10 additional Upvotes per day on Questions only 
@@ -21,14 +21,14 @@ you are interested in what they have to say and that you're on the same boat.
 - Upvotes on Questions result in 5 Reputation awarded to the author
 - Upvotes on Solutions result in 10 Reputation awarded to the author
 
-### Downvoting ###
+#### Downvoting ####
 Downvoting shows opposition to a Question, Solution, or Comment. Downvote something 
 that you strongly disagree with to let the 
 author know that you are opposed to their view point. It might be beneficial to 
 leave a Comment when Downvoting to explain your position, but it is not 
 necessary. 
 
-#### Requirements & Limitations ####
+##### Requirements & Limitations #####
 - 100 Reputation is required to Downvote
 - You will have 15 overall Downvotes per day
 - An additional 10 Downvotes will be provided per day for Questions only

@@ -6,7 +6,7 @@ listed regulations as well as any not indicated here but enforced by the
 [Federal Election Commission (FEC)][2].
 The  basic contribution limits are as follows:
 
-## Individuals ##
+### Individuals ###
 
 - May contribute $2700 to any candidate or candidate committee per election 
   (the primary and general are separate elections).
@@ -16,27 +16,27 @@ The  basic contribution limits are as follows:
 - May contribute an additional $5,000 per calendar year to any other 
   political committee.
 
-## PACs ##
-### What is a PAC? ###
+### PACs ###
+#### What is a PAC? ####
 PAC is short for Political Action Committee. A PAC is an organization usually 
 formed with the intent of raising money to elect certain candidates and defeat 
 others. PACs usually represent business, labor, or ideological interests.
 We currently only enable individuals to donate to campaigns who have setup
 an [Advocacy][4] or [Political][3] Mission.
 
-### Who can form a PAC? ###
+#### Who can form a PAC? ####
 Anyone! The process for registering is fairly simple and is detailed on 
 the [FEC's][1] website.
 
-### Multicandidate vs Single Candidate PACs ###
+#### Multicandidate vs Single Candidate PACs ####
 Multicandidate PACs are PACs that have been registered with the Federal 
 Election Commission as a political committee for at least six months, have 
 received contributions from more than 50 people, and have contributed to at 
 least five federal candidates.
 
 
-### How much can they contribute? ###
-#### Non Multicandidate ####
+#### How much can they contribute? ####
+##### Non Multicandidate #####
 
 - May contribute $2,700 to any candidate per election.
 - May contribute $33,400 to a national party committee per calendar year
@@ -45,7 +45,7 @@ least five federal candidates.
 - May contribute $5,000 to any other political committee per calendar year
 
 
-#### Multicandidate ####
+##### Multicandidate #####
 
 - May contribute $5,000 to any candidate per election.
 - May contribute $15,000 to a national party committee per calendar year
@@ -54,7 +54,7 @@ least five federal candidates.
 - May contribute $5,000 to any other political committee per calendar year
 
 
-## Super PAC ##
+### Super PAC ###
 A Super PAC is a new class of PAC that arose in 2010 as a result of a Supreme 
 Court case called SpeechNow.org v. Federal Election Commission. A Super PAC 
 is a PAC that may raise unlimited amounts of funding from corporations, unions, 

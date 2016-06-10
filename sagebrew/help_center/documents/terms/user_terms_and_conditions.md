@@ -22,7 +22,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
 
 
 
-## General ##
+### General ###
 
 1.  Your use of the Service is at your sole risk. The service is provided on 
     an "as is" and "as available" basis.
@@ -100,7 +100,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
 
 
 
-## Revisions to the Service ##
+### Revisions to the Service ###
 
 1.  Sagebrew reserves the right at any time and from time to time to modify 
     or discontinue, temporarily or permanently, the Service (or any part thereof) 
@@ -113,7 +113,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
     modification, price change, suspension or discontinuance of the Service.
 
 
-## Monetary Matters ##
+### Monetary Matters ###
 
 1.  All paid plans must enter a valid payment account. Free accounts are not 
     required to provide payment account information.
@@ -132,7 +132,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
     liable for any such loss.
 
 
-## Copyright and Content Ownership ##
+### Copyright and Content Ownership ###
 
 1.  Your Content will not contain third-party copyrighted material, or material 
     that is subject to other third-party proprietary rights, unless you have 
@@ -177,7 +177,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
     written permission from Sagebrew.
 
 
-### Service Content ###
+#### Service Content ####
 The Service and its contents are intended solely for the use of the Service 
 Subscribers and may only be used in accordance with the Terms of this 
 Agreement. All materials displayed or performed on the Service, including, 
@@ -217,7 +217,7 @@ Software and all intellectual property rights therein.
 
 
 
-### Subscriber Content ###
+#### Subscriber Content ####
 You agree that all Subscriber Content that You contribute to the Service in the 
 Conversation Cloud, Quest Area, or Mission Areas ("Public Content") is perpetually and irrevocably 
 licensed to Sagebrew under the [Creative Commons Attribution Share Alike license][10]. 
@@ -281,8 +281,8 @@ who contributed the work.
 
 
 
-## Donations ##
-### Mission Donations ###
+### Donations ###
+#### Mission Donations ####
 When donating to Missions, Subscribers agree that they are complying 
 with current federal election regulations and will provide all necessary 
 information needed by the Quest to properly file with the governing body of the 
@@ -310,7 +310,7 @@ information to meet their legal obligations to the governing body of their
 Quest's region, this may include but is not limited to filing with bodies such 
 as the FEC.  
 
-### Direct Donations ###
+#### Direct Donations ####
 By making a donation directly to Sagebrew (Direct Donation) the Subscriber 
 grants Sagebrew the right to utilize their information from the Service to 
 file tax documentation and to fulfill any other action required by the law. 
@@ -318,7 +318,7 @@ The Subscriber also permits Sagebrew to contact them regarding the donation
 if additional information is required.
 
 
-### Volunteering ###
+#### Volunteering ####
 If you volunteer to assist a Quest on a specific Mission you give that Quest 
 the right to contact you in regards to the action you volunteered to perform.
 By volunteering you also authorize the Quest to view your email, name, city, 
@@ -326,7 +326,7 @@ and state to enable them to properly connect with you. Sagebrew shall not share
 your street address and it is up to the Subscriber to share that information with 
 the Quest.
 
-## Other Websites ##
+### Other Websites ###
 
 1.  Sagebrew may contain links to other websites. (For instance, the 
     Conversation Cloud, user profiles, and comments may link to other sites.) 
@@ -337,7 +337,7 @@ the Quest.
 
 
 
-## Mobile and Other Devices ##
+### Mobile and Other Devices ###
 
 1.  We currently provide our mobile services for free, but please be aware 
     that your carrier's normal rates and fees, such as text messaging and 
@@ -351,14 +351,14 @@ the Quest.
 
 
 
-## Other Legal Responsibilities ##
+### Other Legal Responsibilities ###
 
 1.  We don’t become involved in disputes between users, or between users and 
     any third party relating to the use of the Services. We don’t oversee the 
     performance or punctuality of Quests and their Missions, and we don’t endorse any content 
     users submit to the Site. 
 
-## Cancellation and Termination ##
+### Cancellation and Termination ###
 
 1.  You are solely responsible for properly canceling your account. An email or 
     phone request to cancel your account is not considered cancellation. You 
@@ -376,7 +376,7 @@ the Quest.
     to anyone for any reason at any time.
 
 
-## Vote Manipulation ##
+### Vote Manipulation ###
 You agree not to attempt to manipulate voting by any means: manual, mechanical, 
 or otherwise. These methods are many and varied, and are included but not 
 limited to:
@@ -400,7 +400,7 @@ limited to:
 
 
 
-## Miscellaneous ##
+### Miscellaneous ###
 This Agreement, as modified from time to time, constitutes the entire agreement 
 between You and Sagebrew with respect to the subject matter hereof. This 
 Agreement replaces all prior or contemporaneous understandings or agreements, 
@@ -424,7 +424,7 @@ to bind Sagebrew in any respect whatsoever. Any notice to the Service that is
 required or permitted by this Agreement shall be in writing and shall be deemed 
 effective upon receipt, when sent by confirmed e-mail to [support@sagebrew.com][3].
 
-## Definitions ##
+### Definitions ###
 
 *   Conversation Cloud: Publicly accessible portion of the Service that can be 
     found at [https://www.sagebrew.com/conversations/][9].

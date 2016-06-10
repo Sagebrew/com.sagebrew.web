@@ -1,17 +1,17 @@
 *Reputation needed: 50*
 
-## Description ##
+### Description ###
 By now you should be familiar with the Conversation system and proper etiquette 
 for discussion. With this power invested in you, this ability to Flag content, 
 you’ll be able to Flag Questions, Solutions, and Comments that clearly disregard 
 proper discussion etiquette. We're counting on you, the Sagebrew Community, to 
 assist us in keeping the Conversation Cloud clean and meaningful. 
 
-## When should you Flag content? ##
+### When should you Flag content? ###
 When a Question, Solution, or Comment clearly disregards etiquette or steers 
 the Conversation away from the original intent of the Question.
 
-### Examples ###
+#### Examples ####
 - Content that uses inappropriate/offensive language
 - Content that does not add to the Solution or Question in any way
 - Content that does not cite proper sources
@@ -20,12 +20,12 @@ the Conversation away from the original intent of the Question.
 - Content that only provides anecdotal evidence.
 - Content that has veered away from the original purpose/issue at hand
 
-## What happens to Flagged content? ##
+### What happens to Flagged content? ###
 When content is flagged it is put up for review by the [Admin Council][1] who 
 will examine the content and vote on whether or not it is indeed inappropriate. 
 A 2/3 majority is needed to [remove][3] or [close][4] Flagged posts.   
 
-## Limitations ##
+### Limitations ###
 - You'll have 2 Flags per day. The number of Flags per day will increase with 
   your [Reputation][2], up to a maximum of 15 Flags
 - You'll gain an additional Flag for every 5 helpful Flags. A helpful Flag 

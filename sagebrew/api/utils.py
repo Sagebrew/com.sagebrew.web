@@ -408,15 +408,15 @@ def cleanup_title(value):
         value = value[:len(value) - 1]
     value = value.replace('"', "").strip()
     value = HTMLParser.HTMLParser().unescape(value.lower())
-    value = value.title()
-    for acronym in settings.COMPANY_ACRONYMS:
-        if " %s " % acronym.lower() in value.lower():
-            value = value.replace(acronym.lower(), acronym)
     en_us_locale = icu.Locale('en_US')
     break_iter = icu.BreakIterator.createWordInstance(
         en_us_locale)
     temp_title = icu.UnicodeString(value)
-    return unicode(temp_title.toTitle(break_iter, en_us_locale))
+    title = unicode(temp_title.toTitle(break_iter, en_us_locale))
+    for acronym in settings.COMPANY_ACRONYMS:
+        if "%s " % acronym[1] in title:
+            title = value.replace(acronym[1], acronym[0])
+    return title
 
 
 def is_latin(uchr):

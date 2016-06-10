@@ -5,7 +5,7 @@ courteous! There are many conversational behaviors that are frowned upon
 at Sagebrew and might get you flagged for inappropriate conduct. Some general 
 guidelines:
 
-## Do not use language that is: ##
+### Do not use language that is: ###
 
 - Offensive
 - Libelous (lying)
@@ -13,7 +13,7 @@ guidelines:
 - Insulting (anything that directly targets an individual, making little of 
   their opinion, position, sex, race, education level, etc.)
 
-## Be respectful of other's ideas ##
+### Be respectful of other's ideas ###
 This means respecting someone's position even if it is in direct opposition to 
 your own. As Aristotle said, "It is the mark of an educated mind 
 to be able to entertain a thought without accepting it." 
@@ -24,11 +24,11 @@ Take the time to really consider each side of a Conversation. Often the best
 Solutions include ideas from all sides, and if you aren't respectful of other 
 sides, you're likely to miss out on the best Solution. 
 
-## No Trolling ##
+### No Trolling ###
 Don't play devil's advocate for the sole purpose of stirring up chaos. You 
 aren't assisting in finding a solution and you aren't helping anybody. 
 
-## Do not argue for argument's sake ##
+### Do not argue for argument's sake ###
 The purpose of a Conversation is to find a common Solution that best 
 accommodates the needs of all. The purpose of a Conversation is not to argue 
 your point stubbornly, but to genuinely wish to fix a problem. 

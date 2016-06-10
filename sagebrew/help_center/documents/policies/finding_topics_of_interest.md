@@ -4,7 +4,7 @@ When creating an account we will ask you to select the topics that interest
 you. By checking the box next to any of the topics we present, you will 
 tailor your feed to provide discussions associated with your selection. 
 
-## List of Core Topics ##
+### List of Core Topics ###
 
 - Fiscal
 - Foreign policy

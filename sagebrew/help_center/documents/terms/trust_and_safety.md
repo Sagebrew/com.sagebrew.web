@@ -4,7 +4,7 @@ actively listen to you, the community, for your needs and
 desires, and we encourage open communication so we can
 make Sagebrew a great experience for everyone.
 
-## A few things for general users ##
+### A few things for general users ###
 - Sagebrew provides a great platform for those seeking
   to run for public office, advocate for change, or endorse other's missions.
   However, not all Missions
@@ -39,11 +39,11 @@ make Sagebrew a great experience for everyone.
   The more information exchanged between individuals and those representing 
   groups of individuals, the better.
 
-## A few things for candidates and sitting representatives ##
+### A few things for candidates and sitting representatives ###
 - Take an active role in the Conversation. This will help show your constituents how you
   solve problems, how you strategize, and why you stand for your ideals.
 
-## Sagebrew's role here ##
+### Sagebrew's role here ###
 - Our algorithms do their best to flag things like spam, someone selling products, etc,
   for the [Admin Council][5] to review prior to it being seen by the general Community.
   If it's clearly not legitimate, we do our best to tidy it up. We like to run a clean

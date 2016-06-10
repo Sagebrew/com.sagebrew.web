@@ -113,6 +113,9 @@ function loadMissions(affectsFilter) {
                 // TODO This is replicated in newsfeed, need to move it to a fxn
                 data.results[i].title = missions.determineTitle(data.results[i]);
                 if (data.results[i].focus_on_type === "position"){
+                    if(data.results[i].level !== null) {
+                        data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
+                    }
                     if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){
                         data.results[i].title = data.results[i].quest.title + "'s mission for " + data.results[i].title;
                     } else {

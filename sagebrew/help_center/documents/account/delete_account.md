@@ -5,13 +5,13 @@ to delete your account please let us know by clicking the ![Chat Bubble][1] in t
 right corner and we'll do everything we can to resolve the issue.
 
 
-## Overview ##
+### Overview ###
 Please be aware that after you delete your account it will no longer be 
 accessible and cannot be reinstated. This means any reputation you've gained
 will be lost.
 ![Delete Account][2]
 
-## Steps ##
+### Steps ###
 1. To delete your account first click Settings in the navigation bar.
     ![Select Settings][3]
 

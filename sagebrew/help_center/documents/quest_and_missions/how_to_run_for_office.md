@@ -6,7 +6,7 @@ basis in her State, and has decided to run for office. She has set her sights
 on a seat in the senate and campaign season is just around the corner. How will 
 she go about campaigning?
 
-## Testing the waters ##
+### Testing the waters ###
 Before registering as a candidate, Mona wants to test the waters to see if 
 she's got enough support to make a viable bid. She can raise up to $5000 or 
 spend up to $5000 without needing to register. This $5000 dollar cushion is 
@@ -18,7 +18,7 @@ committee.
 Please note the $5000 applies to Presidential bids for office and if you're 
 running for a state or local office this figure may range.
 
-## Put together a campaign committee ##
+### Put together a campaign committee ###
 First Mona will carefully select her campaign committee. This team will be 
 responsible for handling the day to day affairs of the campaign and are crucial 
 to the success of a campaign. Mona will want to choose her team wisely. A 
@@ -45,7 +45,7 @@ social media coordinators.
 Together, Mona and her team of bright-minded and dedicated visionaries will 
 begin her campaign. Next up on the campaign checklist...
 
-## Set up a campaign bank account ##
+### Set up a campaign bank account ###
 It is not necessary for Mona to set up a campaign bank account until she 
 registers with the FEC but it may benefit her to set up a separate account 
 to later designate as her campaign bank account. This way she can keep track 
@@ -54,7 +54,7 @@ not necessary, and if Mona was to decide she didn't want to run for office
 after all, she doesn't have to report any of her fundraising and spending as 
 long as she remains under the $5000 threshold.
 
-## Registering with the FEC ##
+### Registering with the FEC ###
 To run for federal office, Mona will have to register with the FEC. She can 
 find the appropriate forms at [www.fec.gov][1]. She'll need to file a Statement of 
 Candidacy form that authorizes a [Principal Campaign Committee][4] to raise money 
@@ -76,7 +76,7 @@ Things for Mona to note:
 - All monetary transactions conducted under the campaign must be properly 
   recorded and documented with the FEC.
 
-## Drafting a campaign plan ##
+### Drafting a campaign plan ###
 Now that Mona is registered and ready to campaign, she should draft a campaign 
 plan. This is a crucial first step towards organizing her campaign. With a 
 campaign plan, Mona will outline:
@@ -93,7 +93,7 @@ A campaign plan will help to set a pragmatic goal for the campaign and will
 provide a reference to check progress during the campaign.  
 
 
-## Fundraising ##
+### Fundraising ###
 While fundraising, Mona and her committee should use all resources available to 
 reach as many of her constituents as possible, as well as looking for funding 
 elsewhere. This is another area where Sagebrew can play a huge part for Mona. 
@@ -108,19 +108,19 @@ Luckily for Mona, Sagebrew not only makes it easier to raise money, but
 decreases the amount of money she'll need to spend to get her name and face
 out there by making her profile a mere click away for all of her constituents.
 
-## Organization and Scheduling ##
+### Organization and Scheduling ###
 In order for Mona to stay on top of her busy campaigning schedule, she'll want 
 to have an assistant or designate another member of her committee to handle her 
 schedule. This includes events, meetings, public appearances, and everything 
 in-between. An organized campaign is a fluid campaign. Good campaign 
 organization can be the difference between success and failure.
 
-## Volunteers ##
+### Volunteers ###
 Recruiting volunteers to assist with her campaign, Mona is able to cover a 
 lot more ground. The more people she can get to assist her the better. 
 Volunteers can help run events, mailing, canvasing and much more.
 
-## Public Outreach ##
+### Public Outreach ###
 Mona will have to create a positive public image if her campaign is to be 
 successful. While it's important to reach as many people as possible, it's 
 usually recommended to target precincts that are neither heavily supportive 

@@ -3,7 +3,7 @@ point of view to understand where those we disagree with are coming from. We lik
 start these conversations off with a Question. Below you'll find some guidelines we
 like to follow to get the most out of these conversations.
 
-## Open Ended ##
+### Open Ended ###
 Can you find a definitive answer on Google, like who won the Super Bowl, or is the 
 Doge meme a Shiba Inu? If so it's probably not an open ended Question. A conversation
 surrounding an issue that hasn't been solved yet and has many potential solutions 
@@ -12,7 +12,7 @@ solved in a multitude of ways. Each having pros and cons that can be discussed a
 to help others understand the problem better. Enabling people to converge behind solutions they
 agree can fix the underlying problem.
 
-## Metric Based Evidence ##
+### Metric Based Evidence ###
 If you cannot find statistically supported evidence to support your question, you 
 should propose that a proper study be conducted to shed further light 
 on the situation. It is important to provide evidence based in metrics and studies.

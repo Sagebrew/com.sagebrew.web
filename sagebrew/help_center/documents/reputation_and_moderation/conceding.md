@@ -1,6 +1,6 @@
 When you concede to another Solution your Solution will become grayed out. 
 
-## What this means for you ##
+### What this means for you ###
 
 - No more [Commenting][2] on a conceded Solution
 - No more [upvoting][3] or [downvoting][4] on a conceded Solution

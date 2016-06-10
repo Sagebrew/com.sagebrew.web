@@ -1,6 +1,6 @@
 *Reputation needed: 1,250*
 
-## Description ##
+### Description ###
 You now have the ability to create your own Tags! This will allow you to more 
 accurately Tag your content and potentially drive traffic to your Conversations
 with custom Tags that better fit your material. This is an exciting feature and one 
@@ -8,7 +8,7 @@ that should not be taken lightly. The rules are pretty
 simple folks: no inappropriate Tags, no offensive Tags...basically if you would 
 have laughed at it when you were twelve, you probably shouldn't make it a Tag.
 
-## When should I create a Tag? ##
+### When should I create a Tag? ###
 You should create a Tag when it further clarifies what the Conversation should
 be about, or if there is a word or phrase that better describes the material 
 within it. For example, if the Question of whether or not police 
@@ -18,20 +18,20 @@ Tag `Ferguson` to give the Question further relevance during a search.
 In this way, you are simply making it easier for members interested in 
 Ferguson to find and participate in the conversation. 
 
-## When shouldn't I create a Tag? ##
+### When shouldn't I create a Tag? ###
 You should refrain from creating Tags that are offensive, inappropriate, 
 obscene, libelous, irrelevant, or spam. 
 
 ## Restrictions ##
 You can place 5 tags on any Question. 
 
-### Remember ###
+#### Remember ####
 Your tags determine the [Reputation][1] breakdown for a Conversation. If you spark 
 a Question and tag it with "science" and "foreign Policy" all the reputation 
 you gain as a result of conversation on that Question will be split evenly 
 between the Science and Foreign Policy Reputation categories. 
 
-#### For example: ####
+##### For example: #####
 Sir Percival sparks a Question that he tags with "Social" and "Economic." The 
 Question generates Sir Percival 400 reputation. 200 Reputation is allocated to 
 the "Social" Reputation spec. The other 200 is allocated to the "Economic" 

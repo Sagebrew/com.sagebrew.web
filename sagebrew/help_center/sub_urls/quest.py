@@ -5,17 +5,6 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^epic-management/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "Managing Your Epic",
-            "description": "This article will help you setup and manage "
-                           "the Epic for your Mission.",
-            "content_path":
-                "%sepic_management.html" % settings.HELP_DOCS_PATH,
-            "category": "Quest and Missions"
-    },
-        name="epic_management"),
     url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

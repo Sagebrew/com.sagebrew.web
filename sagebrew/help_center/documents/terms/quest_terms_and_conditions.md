@@ -1,6 +1,6 @@
 *The following terms apply specifically to Sagebrew Quest Subscribers*
 
-## General ##
+### General ###
 1.  You (the "Quest Subscriber", "Quest Account", "You", or "you") will use 
     the Service to try to achieve the office you pursue or the advocacy
     campaign you have outlined.  You will NOT advocate 
@@ -40,7 +40,7 @@
 
 
 
-## Contributions ##
+### Contributions ###
 1.  You are responsible for managing any contribution limits placed on you 
     or your campaign by the governing body that holds legal authority over the area 
     you are campaigning or advocating within. 
@@ -82,7 +82,7 @@ information related to your use of the payment processing services provided
 by Stripe.
 
 
-## Donation Reporting ##
+### Donation Reporting ###
 Quest Subscribers are responsible for reporting contributions correctly to the 
 FEC if their campaign falls within it's jurisdiction. 
 Sagebrew will provide the following, if provided by the Subscriber and 
@@ -112,7 +112,7 @@ of the Service.
 For more information on filing with the FEC visit the [FEC website][3].
 
 
-## Cancellation and Termination ##
+### Cancellation and Termination ###
 1.  Cancellation by the Quest Subscriber may only occur when there are no 
     pending transactions. To accomplish this the user must first deactivate their 
     Quest prior to deleting it. 

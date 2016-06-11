@@ -19,14 +19,7 @@
 {% endblock hero %}
 {% block sidebar_right %}
     {% if request.user.is_authenticated %}
-        <div class="block block-type-nav">
-            <div class="block-title">
-                Start a Conversation
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
-            </div>
-        </div>
+        {% include "partials/start_conversation_block.html" %}
     {% endif %}
     <div class="block block-type-nav">
         <div class="block-title">

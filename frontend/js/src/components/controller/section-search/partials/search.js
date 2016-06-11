@@ -36,7 +36,9 @@ export function submitSearch() {
                     searchResults.innerHTML += questSearchTemplate(value._source);
                 } else if (value._type === 'mission') {
                     value._source.title = missions.determineTitle(value._source);
-                    value._source.level = value._source.level.replace('_', " ").replace("-", " ");
+                    if(value._source.level !== null && value._source.level !== undefined){
+                        value._source.level = value._source.level.replace('_', " ").replace("-", " ");
+                    }
                     searchResults.innerHTML += missionSearchTemplate(value._source);
                 }
             });

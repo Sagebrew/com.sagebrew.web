@@ -48,9 +48,13 @@ class ContributionMissionView(View):
                 reverse("mission_endorse", kwargs=reverse_params) and \
                 not request.user.is_authenticated():
             return redirect("mission_endorse_name", **reverse_params)
+        mission_dict = MissionSerializer(
+            mission, context={'request': request}).data
+        mission_dict['about'] = "A %s level %s mission." % (
+            mission.level.replace('_', " ").replace('-', ' '),
+            mission.focus_on_type.replace('_', " "))
         return render(request, self.template_name, {
-            "selected": MissionSerializer(
-                mission, context={'request': request}).data,
+            "selected": mission_dict,
             "quest": QuestSerializer(quest).data,
             "slug": slugify(mission.get_mission_title()),
             "missions": None

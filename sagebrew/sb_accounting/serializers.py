@@ -12,7 +12,7 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from sb_base.serializers import IntercomMessageSerializer
@@ -48,7 +48,10 @@ class AccountSerializer(SBSerializer):
                     validated_data['data']['object']['customer'])
             except stripe.InvalidRequestError:
                 raise serializers.ValidationError("Ran into some issues")
-            pleb = Pleb.nodes.get(email=customer['email'])
+            try:
+                pleb = Pleb.nodes.get(email=customer['email'])
+            except(DoesNotExist, Pleb.DoesNotExist):
+                return response_dict
 
             message_data = {
                 'message_type': 'email',
@@ -91,7 +94,10 @@ class AccountSerializer(SBSerializer):
                 return response_dict
             if account.get('deleted', False):
                 return response_dict
-            pleb = Pleb.nodes.get(email=account.email)
+            try:
+                pleb = Pleb.nodes.get(email=account.email)
+            except(DoesNotExist, Pleb.DoesNotExist):
+                return response_dict
             quest = Quest.nodes.get(owner_username=pleb.username)
 
             if quest.account_verified != "verified" \
@@ -209,7 +215,10 @@ class AccountSerializer(SBSerializer):
                 # Just return silently here so that Stripe stops sending us the
                 # unauthenticatable user
                 return response_dict
-            pleb = Pleb.nodes.get(email=account.email)
+            try:
+                pleb = Pleb.nodes.get(email=account.email)
+            except(DoesNotExist, Pleb.DoesNotExist):
+                return response_dict
             create_system_notification(
                 to_plebs=[pleb],
                 notification_id=str(uuid1()),
@@ -233,7 +242,10 @@ class AccountSerializer(SBSerializer):
             except (stripe.InvalidRequestError, stripe.APIConnectionError) as e:
                 logger.exception(e)
                 raise serializers.ValidationError(e)
-            pleb = Pleb.nodes.get(email=customer.email)
+            try:
+                pleb = Pleb.nodes.get(email=customer.email)
+            except(DoesNotExist, Pleb.DoesNotExist):
+                return response_dict
             create_system_notification(
                 to_plebs=[pleb],
                 notification_id=str(uuid1()),

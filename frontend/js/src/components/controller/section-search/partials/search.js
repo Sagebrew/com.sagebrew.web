@@ -2,6 +2,7 @@ var request = require('api').request,
     settings = require('settings').settings,
     getArgs = require('common/helpers').getQueryParam,
     moment = require('moment'),
+    missions = require('common/missions'),
     emptySearchTemplate = require('../templates/search_empty.hbs'),
     questionSearchTemplate = require('../templates/question_search.hbs'),
     profileSearchTemplate = require('../templates/user_search.hbs'),
@@ -34,7 +35,10 @@ export function submitSearch() {
                     }
                     searchResults.innerHTML += questSearchTemplate(value._source);
                 } else if (value._type === 'mission') {
-                    value._source.position_mission = value._source.focus_on_type === "position";
+                    value._source.title = missions.determineTitle(value._source);
+                    if(value._source.level !== null && value._source.level !== undefined){
+                        value._source.level = value._source.level.replace('_', " ").replace("-", " ");
+                    }
                     searchResults.innerHTML += missionSearchTemplate(value._source);
                 }
             });

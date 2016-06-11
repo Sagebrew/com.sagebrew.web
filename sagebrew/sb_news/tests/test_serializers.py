@@ -120,9 +120,9 @@ class TestNewsSerializers(TestCase):
                 'RETURN a'
 
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "'What's this another new "
-                                           "US USA U.S. U.S.A. title it's "
-                                           "a miracle...'")
+        self.assertEqual(res.one['title'], "What's This Another New "
+                                           "US USA U.S. U.S.A. Title It's A "
+                                           "Miracle...")
 
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c8dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \

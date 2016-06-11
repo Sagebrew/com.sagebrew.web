@@ -255,9 +255,9 @@ class TestCleanTitle(TestCase):
         text = "'What's this another new US " \
                "Usa U.S. U.s.a. title it's a miracle...'"
         res = cleanup_title(text)
-        self.assertEqual(res, "'What's this another new "
-                              "US USA U.S. U.S.A. title it's "
-                              "a miracle...'")
+        self.assertEqual(res, "What's This Another New "
+                              "US USA U.S. U.S.A. Title It's A "
+                              "Miracle...")
 
     def test_quotes(self):
         text = "\"Yet another title! What is this!\""

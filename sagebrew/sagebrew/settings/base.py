@@ -686,7 +686,7 @@ UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = [
     ('ABC', 'Abc'), ('CNN', 'Cnn'), ('CBS', 'Cbs'),
     ('MSNBC', 'Msnbc'), ('BBC', 'Bbc'), ('CBC', 'Cbc'), ('CBS', 'Cbs'),
-    ('NBC', 'Nbc'), ('NYT', 'Nyt'), ('PBS', 'Pbs'), ('abc7.com', 'Abc7.com'),
+    ('NBC', 'Nbc'), ('NYT', 'Nyt'), ('PBS', 'Pbs'),
     ('NPR', 'Npr'), ('N.P.R.', 'N.p.r'), ('N.P.R', 'N.p.r'), ('N.Y.T', 'N.y.t'),
     ('N.Y.T.', 'N.y.t.'), ('TYT', 'Tyt'), ('T.Y.T.', 'T.y.t.'), ('FBI', 'Fbi'),
     ('F.B.I', 'F.b.i'), ('F.B.I.', 'F.b.i.'), ('CIA', 'Cia'),
@@ -698,7 +698,8 @@ COMPANY_ACRONYMS = [
     ('C.D.C', 'C.d.c'), ('C.D.C.', 'C.d.c.'), ('HEPA', 'Hepa'),
     ('H.E.P.A', 'H.e.p.a'), ('H.E.P.A.', 'H.e.p.a.'), ('U.S.', 'U.s.'),
     ('US', 'Us'), ('USA', 'Usa'), ('U.S.A.', 'U.s.a.'), ('U.S.A', 'U.s.a'),
-    ('APC', 'Apc'), ('PDP', 'Pdp'), ('ISIS', 'Isis'),
+    ('APC', 'Apc'), ('PDP', 'Pdp'), ('ISIS', 'Isis'), ('.com', '.Com'),
+    ('abc7.com', 'Abc7.com'), ('cnn.com', 'Cnn.com'), ('ft.com', 'Ft.com'),
     ('World War II', 'World War Ii'), ('World War I', 'World War i'),
     ('DC', 'Dc'), ('D.C.', 'D.c.'), ('DMV', 'Dmv'), ('DNC', 'Dnc'),
     ('RNC', 'Rnc'), ('D.N.C.', 'D.n.c.'), ('R.N.C.', 'R.n.c.'),

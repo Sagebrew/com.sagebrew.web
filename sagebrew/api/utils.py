@@ -414,8 +414,14 @@ def cleanup_title(value):
     temp_title = icu.UnicodeString(value)
     title = unicode(temp_title.toTitle(break_iter, en_us_locale))
     for acronym in settings.COMPANY_ACRONYMS:
-        if "%s " % acronym[1] in title:
-            title = title.replace("%s " % acronym[1], "%s " % acronym[0])
+        if '.com' in acronym[0]:
+            # .com often comes at the end of a title so we don't want to add
+            # the trailing space check
+            if acronym[1] in title:
+                title = title.replace(acronym[1], acronym[0])
+        else:
+            if "%s " % acronym[1] in title:
+                title = title.replace("%s " % acronym[1], "%s " % acronym[0])
     return title
 
 

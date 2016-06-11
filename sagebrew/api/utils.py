@@ -415,7 +415,7 @@ def cleanup_title(value):
     title = unicode(temp_title.toTitle(break_iter, en_us_locale))
     for acronym in settings.COMPANY_ACRONYMS:
         if "%s " % acronym[1] in title:
-            title = value.replace(acronym[1], acronym[0])
+            title = title.replace(acronym[1], acronym[0])
     return title
 
 

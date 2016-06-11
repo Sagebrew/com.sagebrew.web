@@ -261,12 +261,12 @@ class TestCleanTitle(TestCase):
 
     def test_quotes(self):
         text = "\"Yet another title! What is this!\""
-        res = empty_text_to_none(text)
+        res = cleanup_title(text)
         self.assertEqual(res, "Yet Another Title! What Is This!")
 
     def test_lowercase(self):
         text = "Friends of Israel - The New Yorker"
-        res = empty_text_to_none(text)
+        res = cleanup_title(text)
         self.assertEqual(res, "Friends Of Israel - The New Yorker")
 
 

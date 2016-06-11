@@ -708,7 +708,8 @@ COMPANY_ACRONYMS = [('ABC', 'Abc'), ('CNN', 'Cnn'), ('CBS', 'Cbs'),
                     ('RNC', 'Rnc'), ('D.N.C.', 'D.n.c.'), ('R.N.C.', 'R.n.c.'),
                     ('PC', 'Pc'), ('P.C.', 'P.c.'), ('LGBT', 'Lgbt'),
                     ('L.G.B.T.', 'L.g.b.t.'), ('L.G.B.T', 'L.g.b.t'),
-                    ('LA Times', 'La Times'), ('L.A. Times', 'L.a. Times')]
+                    ('LA Times', 'La Times'), ('L.A. Times', 'L.a. Times'),
+                    ('9th', '9Th')]
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

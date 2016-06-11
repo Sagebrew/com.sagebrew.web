@@ -150,7 +150,7 @@ class TestNewsSerializers(TestCase):
         res, _ = db.cypher_query(query)
         self.assertEqual(len(res), 1)
         query = 'MATCH (a:NewsArticle {title: ' \
-                '"Isis Inc: How Oil Fuels The Jihadi Terrorists - ' \
+                '"ISIS Inc: How Oil Fuels The Jihadi Terrorists - ' \
                 'Ft.com"}) RETURN a'
         res, _ = db.cypher_query(query)
         self.assertEqual(len(res), 1)

@@ -409,13 +409,13 @@ def cleanup_title(value):
     value = value.replace('"', "").strip()
     value = HTMLParser.HTMLParser().unescape(value.lower())
     en_us_locale = icu.Locale('en_US')
-    break_iter = icu.BreakIterator.createWordInstance(
+    break_iter = icu.BreakIterator.createTitleInstance(
         en_us_locale)
     temp_title = icu.UnicodeString(value)
     title = unicode(temp_title.toTitle(break_iter, en_us_locale))
     for acronym in settings.COMPANY_ACRONYMS:
         if "%s " % acronym[1] in title:
-            title = title.replace(acronym[1], acronym[0])
+            title = title.replace("%s " % acronym[1], "%s " % acronym[0])
     return title
 
 

@@ -45,7 +45,7 @@ class DonationsHelpSitemap(sitemaps.Sitemap):
 
 
 class PoliciesHelpSitemap(sitemaps.Sitemap):
-    priority = 0.5
+    priority = 0.3
     changefreq = 'yearly'
     protocol = 'https'
 

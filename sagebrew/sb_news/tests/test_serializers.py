@@ -121,7 +121,8 @@ class TestNewsSerializers(TestCase):
 
         res, _ = db.cypher_query(query)
         self.assertEqual(res.one['title'], "What's This Another New "
-                                           "Title It's A Miracle...")
+                                           "US USA U.S. U.S.A. Title It's A "
+                                           "Miracle...")
 
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c8dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
@@ -149,13 +150,13 @@ class TestNewsSerializers(TestCase):
         res, _ = db.cypher_query(query)
         self.assertEqual(len(res), 1)
         query = 'MATCH (a:NewsArticle {title: ' \
-                '"Isis Inc: How Oil Fuels The Jihadi Terrorists - ' \
-                'Ft.com"}) RETURN a'
+                '"ISIS Inc: How Oil Fuels The Jihadi Terrorists - ' \
+                'ft.com"}) RETURN a'
         res, _ = db.cypher_query(query)
         self.assertEqual(len(res), 1)
         query = 'MATCH (a:NewsArticle {title: ' \
-                '"Breaking: Donald Trump Stuns With Announcement ' \
-                'Of Foreign Policy Dream Team"}) RETURN a'
+                '"Breaking: Donald Trump Stuns With ' \
+                'Announcement Of Foreign Policy Dream Team"}) RETURN a'
 
         res, _ = db.cypher_query(query)
         self.assertEqual(len(res), 1)

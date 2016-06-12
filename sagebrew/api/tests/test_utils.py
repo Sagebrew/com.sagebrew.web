@@ -14,7 +14,8 @@ from api.utils import (add_failure_to_queue,
                        generate_long_token, smart_truncate,
                        gather_request_data, flatten_lists,
                        calc_stripe_application_fee, clean_url,
-                       empty_text_to_none, generate_summary, render_content)
+                       empty_text_to_none, generate_summary, render_content,
+                       cleanup_title)
 from sb_questions.neo_models import Question
 
 
@@ -238,6 +239,35 @@ class TestEmptyTextToNone(TestCase):
     def test_none(self):
         res = empty_text_to_none(None)
         self.assertIsNone(res)
+
+
+class TestCleanTitle(TestCase):
+
+    def test_html_encoded_chars(self):
+        res = cleanup_title("OBAMA&apos;s TEAM WELCOMES CASTRO &amp; "
+                            "CUBA TO AMERICA & TO RECeive CRITICISM: "
+                            "'WOULDN'T DISAGREE'...")
+        self.assertEqual(res, "Obama's Team Welcomes Castro "
+                              "& Cuba To America & To Receive "
+                              "Criticism: 'Wouldn't Disagree'...")
+
+    def test_acronym_check(self):
+        text = "'What's this another new US " \
+               "Usa U.S. U.s.a. title it's a miracle...'"
+        res = cleanup_title(text)
+        self.assertEqual(res, "What's This Another New "
+                              "US USA U.S. U.S.A. Title It's A "
+                              "Miracle...")
+
+    def test_quotes(self):
+        text = "\"Yet another title! What is this!\""
+        res = cleanup_title(text)
+        self.assertEqual(res, "Yet Another Title! What Is This!")
+
+    def test_lowercase(self):
+        text = "Friends of Israel - The New Yorker"
+        res = cleanup_title(text)
+        self.assertEqual(res, "Friends Of Israel - The New Yorker")
 
 
 class TestGenerateSummary(TestCase):

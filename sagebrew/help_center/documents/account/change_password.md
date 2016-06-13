@@ -1,9 +1,9 @@
 Changing your password can be done from your profile settings in a few short steps
 as described below.
-## Overview ##
+### Overview ###
 ![Change Your Password][1]
 
-## Steps ##
+### Steps ###
 1. You can reset your password by accessing your settings in the navigation bar:
 
     ![Select Settings][2]

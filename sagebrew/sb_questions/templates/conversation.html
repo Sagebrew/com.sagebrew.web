@@ -62,16 +62,22 @@
     {% else %}
         <div class="question" id="js-conversation-question"></div>
     {% endif %}
-
-    <div class="block">
-        <h2 class="block-title no-underline center-title">Solutions</h2>
-    </div>
+    {% if question.solution_count > 0 %}
+        <div class="block">
+            <h2 class="block-title no-underline center-title">Solutions</h2>
+        </div>
+    {% endif %}
     <div id="js-conversation-solutions">
         <div class="loader"></div>
     </div>
+    <div class="block first-solution"></div>
     {% if not question.is_closed and not request.user.is_anonymous and request_profile.email_verified %}
     <div class="block">
-        <h4 class="block-title">Provide a Solution</h4>
+        <h4 class="block-title">{% if question.solution_count > 0 %}
+            Provide a Solution
+        {% else %}
+            Be the first to provide a Solution!
+        {% endif %}</h4>
         <div class="sb_markdown sb_solution">
             <div class="block-content">
                 <form id="solutionSubmitForm" data-parent_id="{{ question.id }}">

@@ -15,9 +15,10 @@
 <div class="block sb_markdown margin-top-40">
     <div class="block-content">
         <form id="questionInputForm">
-            <input class="form-control block-title no-margin-left no-border no-padding-left font-size-26" style="margin-bottom: 10px;"
-                  id="title_id"
-                  name="title"
+            <input class="form-control block-title no-margin-left no-border no-padding-left font-size-26"
+                   style="margin-bottom: 10px; {% if question.solution_count > 0 %}padding: 0 0 0 15px !important;{% endif %}"
+                   id="title_id"
+                   name="title"
                   placeholder="Question Title" value="{{ question.title }}"
                   {% if question.solution_count > 0 %}disabled="disabled"{% endif %}/>
             <textarea class="sb_markdown editable"

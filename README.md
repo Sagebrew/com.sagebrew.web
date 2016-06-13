@@ -17,5 +17,5 @@ We use 70 characters for tags because these shouldn't be sentences
 either. However we use advocacy mission titles as tags right now
 so we need to increase the allowable size. Potentially we will 
 separate the 2 and have users tag related missions and tags 
-separatly. Allowing us to reduce the character count to 25 or 30.
+separately. Allowing us to reduce the character count to 25 or 30.
 

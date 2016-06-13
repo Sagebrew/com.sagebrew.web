@@ -6,7 +6,8 @@ from sb_contributions.views import ContributionMissionView
 
 from .views import (mission_redirect_page, mission_updates,
                     MissionSettingsView, MissionBaseView,
-                    mission_edit_updates, mission_endorsements)
+                    mission_edit_updates, mission_endorsements,
+                    mission_account_signup)
 
 
 urlpatterns = patterns(
@@ -25,9 +26,7 @@ urlpatterns = patterns(
     url(r'^advocate/$', login_required(
         TemplateView.as_view(template_name="mission/advocate.html")),
         name="advocate"),
-    url(r'^account/$', login_required(
-        TemplateView.as_view(template_name="mission/account_setup.html")),
-        name="account_setup"),
+    url(r'^account/$', mission_account_signup, name="account_setup"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/review/$',

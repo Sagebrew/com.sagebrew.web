@@ -42,14 +42,7 @@
 {% endblock hero %}
 {% block sidebar_left %}
     {% if is_owner %}
-        <div class="block block-type-nav">
-            <div class="block-title">
-                Start a Mission
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
-            </div>
-        </div>
+        {% include "partials/start_mission_block.html" %}
     {% endif %}
     <div class="block standard-bottom-padding">
         <h6 class="block-title">Missions</h6>
@@ -71,14 +64,7 @@
 {% endblock sidebar_left %}
 {% block sidebar_right %}
     {% if is_owner %}
-        <div class="block block-type-nav">
-            <div class="block-title">
-                Start a Conversation
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
-            </div>
-        </div>
+        {% include "partials/start_conversation_block.html" %}
     {% endif %}
     <div class="block">
         <h6 class="block-title">Reputation</h6>

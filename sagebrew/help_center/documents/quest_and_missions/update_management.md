@@ -11,7 +11,7 @@ broadcast to the following users:
 * Political Mission Only: Constituents who can vote for your Position
 * Advocacy Mission Only: People Located Within Your Advocacy's Affected Area
 
-## How to Create a New Update ##
+### How to Create a New Update ###
 To create a new Update navigate to your Mission's settings and select the Updates
 navigation link.
 
@@ -24,7 +24,7 @@ Edit your Epic.
 ![create a new update][2]
 
 
-## How to Edit an Update ##
+### How to Edit an Update ###
 Editing an update can be done by clicking on the gear located on the existing 
 update. This can be found either on the Updates page itself or within your Update
 management console under "Previous Updates".
@@ -32,7 +32,7 @@ management console under "Previous Updates".
 ![edit an existing update][4]
 
 
-## Closing ##
+### Closing ###
 Updates are a great way to keep in touch with your supporters. They give you an 
 easy way to interact with them without the worry of people hijacking your post. 
 They're also a great way to drive repeat donations and to increase turnout for an 

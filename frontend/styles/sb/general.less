@@ -2441,3 +2441,13 @@ textarea.sb_comment_input{
 .medium-toolbar-arrow-over:before {
   top: -8px;
   border-color: transparent transparent @sb_green transparent; }
+
+.medium-insert-embeds {
+  // Setting z-index to 4 to fix being unable to use youtube video controls
+  // in medium editor when inserted on the same line as an image.
+  // Assigning the z-index to 1 here places it above anything that has no
+  //assigned z-index, aka the element that was previously
+  //blocking the controls but below sb-greyout-page and the navbar so it
+  //does not overlap on those.
+  z-index: 1;
+}

@@ -242,7 +242,7 @@ class QuestEndpointTests(APITestCase):
                       kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertEqual(response.data['fields_needed_human_readable'],
-                         'City, Terms of Service Acceptance Date')
+                         'City,Terms of Service Acceptance Date')
 
     def test_list(self):
         self.client.force_authenticate(user=self.user)

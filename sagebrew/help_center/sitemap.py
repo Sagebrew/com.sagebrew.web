@@ -45,7 +45,7 @@ class DonationsHelpSitemap(sitemaps.Sitemap):
 
 
 class PoliciesHelpSitemap(sitemaps.Sitemap):
-    priority = 0.5
+    priority = 0.3
     changefreq = 'yearly'
     protocol = 'https'
 
@@ -85,8 +85,7 @@ class QuestHelpSitemap(sitemaps.Sitemap):
                 'how_to_export_contributions', 'how_to_get_on_the_ballot',
                 'how_to_run',
                 'name_on_ballot_to_run', 'need_more_help_repsagetribune',
-                'principle_campaign_committee', 'update_management',
-                'epic_management']
+                'principle_campaign_committee', 'update_management']
 
     def location(self, item):
         return reverse(item)

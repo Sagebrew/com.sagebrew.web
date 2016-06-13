@@ -21,12 +21,24 @@ def mission_redirect_page(request, object_uuid=None):
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    except (CypherException, ClientError, IOError):
+    except (CypherException, ClientError, IOError):  # pragma: no cover
         return redirect("500_Error")
 
     return redirect("mission", object_uuid=object_uuid,
                     slug=slugify(mission_obj.get_mission_title()),
                     permanent=True)
+
+
+@login_required()
+def mission_account_signup(request):
+    try:
+        quest = Quest.get(owner_username=request.user.username)
+    except (Mission.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
+    except (CypherException, ClientError, IOError):  # pragma: no cover
+        return redirect("500_Error")
+
+    return render(request, 'mission/account_setup.html', {"quest": quest})
 
 
 def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):

@@ -95,6 +95,33 @@ class AccountingHooksTests(APITestCase):
         self.assertEqual(response.data['detail'], "Invoice Payment Failed")
 
     @requests_mock.mock()
+    def test_invoice_payment_failed_request_no_user(self, m):
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "invoice.payment_failed",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        query = 'MATCH (pleb:Pleb {email: "%s"})-[r]-() ' \
+                'DELETE pleb, r' % "success@simulator.amazonses.com"
+        db.cypher_query(query)
+        m.post("https://api.intercom.io/messages/",
+               status_code=status.HTTP_202_ACCEPTED)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], "evt_00000000000000")
+
+    @requests_mock.mock()
     def test_valid_event_request_invalid_serializer(self, m):
         intercom_mock_data = {
             "type": "admin.list",
@@ -204,6 +231,42 @@ class AccountingHooksTests(APITestCase):
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['detail'], "Account Updated")
+
+    @requests_mock.mock()
+    def test_no_user_account_updated(self, m):
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com",
+            "verification": {
+                "disabled_reason": "fields_needed",
+                "due_by": None,
+                "fields_needed": ["legal_entity.type"]
+            },
+            "legal_entity": {
+                "verification": {
+                    "status": "verified",
+                    "details": "Identity document is too unclear to read."
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "account.updated",
+            "data": {
+                "object": {
+                    "id": "acct_00000000000000"
+                }
+            }
+        }
+        query = 'MATCH (pleb:Pleb {email: "%s"})-[r]-() ' \
+                'DELETE pleb, r' % "success@simulator.amazonses.com"
+        db.cypher_query(query)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], "evt_00000000000000")
 
     @requests_mock.mock()
     def test_valid_event_request_account_updated_invalid_account(self, m):
@@ -332,6 +395,37 @@ class AccountingHooksTests(APITestCase):
         self.assertEqual(response.data['detail'], "Transfer Failed")
 
     @requests_mock.mock()
+    def test_no_user_transfer_failed_stripe_account(self, m):
+        transfer_mock_data = {
+            "type": "stripe_account",
+            "destination": "acct_00000000000000"
+        }
+        m.get("https://api.stripe.com/v1/transfers/tr_00000000000000",
+              json=transfer_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_201_CREATED)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "transfer.failed",
+            "data": {
+                "object": {
+                    "id": "tr_00000000000000"
+                }
+            }
+        }
+        query = 'MATCH (pleb:Pleb {email: "%s"})-[r]-() ' \
+                'DELETE pleb, r' % "success@simulator.amazonses.com"
+        db.cypher_query(query)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], "evt_00000000000000")
+
+    @requests_mock.mock()
     def test_valid_event_request_transfer_failed_account_deleted(self, m):
         self.quest.account_verified = "unverified"
         self.quest.save()
@@ -424,6 +518,31 @@ class AccountingHooksTests(APITestCase):
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['detail'], "Trail Will End")
+
+    @requests_mock.mock()
+    def test_no_user_request_trial_will_end(self, m):
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000",
+            "type": "customer.subscription.trial_will_end",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        query = 'MATCH (pleb:Pleb {email: "%s"})-[r]-() ' \
+                'DELETE pleb, r' % "success@simulator.amazonses.com"
+        db.cypher_query(query)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['id'], "evt_00000000000000")
 
     @requests_mock.mock()
     def test_valid_event_request_trial_will_end_invalid_customer(self, m):

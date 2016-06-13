@@ -266,7 +266,7 @@ def gather_request_data(context, expedite_param=None, expand_param=None):
 
     if expedite_param is not None:
         expedite = 'true'
-    if expand_param is not None:
+    if expand_param:
         expand = 'true'
 
     return request, expand, expand_array, relations, expedite

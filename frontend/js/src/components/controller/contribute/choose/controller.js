@@ -27,8 +27,13 @@ export function load() {
     require('common/handlebars_helpers');
     var $app = $(".app-sb"),
         missionList = document.getElementById('js-mission-list'),
-        contributionType = helpers.args(2);
-    missions.populateMissions($(missionList), helpers.args(1), null, null, null, null, null, null, "Select");
+        contributionType = helpers.args(2),
+        populateOptions = {
+            loadElement: $(missionList),
+            questID: helpers.args(1),
+            buttonText: "Select"
+        };
+    missions.populateMissions(populateOptions);
     $app
         .on('click', '.js-position', function (event) {
             event.preventDefault();

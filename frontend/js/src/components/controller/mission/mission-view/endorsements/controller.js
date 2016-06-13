@@ -65,7 +65,6 @@ export function load() {
                         $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
                     } else {
                         data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
-                        data.results[i].button_text = "View";
                         $endorsmentContainer.append(
                             missionSummaryTemplate(
                                 {

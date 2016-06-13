@@ -4,9 +4,10 @@ var request = require('api').request,
     missionShowTemplate = require('controller/mission/templates/show_more_missions.hbs'),
     settings = require('settings').settings;
 
-export function populateMissions(loadElement, questID, template, emptyMessage,
+
+export function populateMissions({loadElement, questID, template, emptyMessage,
                                  continuousLoad, additionalMissionElement, 
-                                 additionalMissionWrapper, nextPage, buttonText){
+                                 additionalMissionWrapper, nextPage, buttonText}={}){
     require('common/handlebars_helpers');
     require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
@@ -70,7 +71,7 @@ export function populateMissions(loadElement, questID, template, emptyMessage,
 
 export function populateEndorsements(loadElement, questID, template, emptyMessage, endorserType,
                                     continuousLoad, additionalEndorsementElement,
-                                    additionalEndorsementWrapper, nextPage){
+                                    additionalEndorsementWrapper, nextPage, buttonText){
     require('common/handlebars_helpers');
     require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
@@ -87,6 +88,9 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
     }
     if(endorserType === undefined || endorserType === "undefined" || endorserType === null) {
         endorserType = "profiles";
+    }
+    if(buttonText === undefined || buttonText === "undefined" || buttonText === null) {
+        buttonText = "View";
     }
     loadElement.sb_contentLoader({
         emptyDataMessage: emptyMessage,
@@ -114,7 +118,7 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
             $container.append(template({
                 missions: data.results,
                 static_url: settings.static_url,
-                button_text: "View"
+                button_text: buttonText
             }));
             if(continuousLoad === false) {
                 if (additionalEndorsementElement !== null && data.next === null) {

@@ -1,7 +1,7 @@
 var missions = require('common/missions'),
     request = require('api').request,
     settings = require('settings').settings,
-    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
+    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summaries.hbs'),
     questSummaryTemplate = require('controller/quest/quest-view/templates/quest_summary.hbs'),
     profileSummaryTemplate = require('controller/section-profile/templates/profile_summary.hbs');
 
@@ -68,7 +68,8 @@ export function load() {
                         $endorsmentContainer.append(
                             missionSummaryTemplate(
                                 {
-                                    mission: data.results[i],
+                                    missions: data.results[i],
+                                    static_url: settings.static_url,
                                     button_text: "View"
                                 }));
                     }

@@ -1,12 +1,12 @@
 var request = require('api').request,
     positionHolderTemplate = require('controller/mission/registration/political-mission/templates/position_holder.hbs'),
-    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
+    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summaries.hbs'),
     missionShowTemplate = require('controller/mission/templates/show_more_missions.hbs'),
     settings = require('settings').settings;
 
 export function populateMissions(loadElement, questID, template, emptyMessage,
                                  continuousLoad, additionalMissionElement, 
-                                 additionalMissionWrapper, nextPage){
+                                 additionalMissionWrapper, nextPage, buttonText){
     require('common/handlebars_helpers');
     require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
@@ -20,6 +20,9 @@ export function populateMissions(loadElement, questID, template, emptyMessage,
     }
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
+    }
+    if(buttonText === undefined || buttonText === "undefined" || buttonText === null) {
+        buttonText = "Select";
     }
     loadElement.sb_contentLoader({
         emptyDataMessage: emptyMessage,
@@ -49,7 +52,8 @@ export function populateMissions(loadElement, questID, template, emptyMessage,
             }
             $container.append(template({
                 missions: data.results,
-                static_url: settings.static_url
+                static_url: settings.static_url,
+                button_text: buttonText
             }));
             if(continuousLoad === false) {
                 if (additionalMissionElement !== null && data.next === null) {
@@ -109,7 +113,8 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
             }
             $container.append(template({
                 missions: data.results,
-                static_url: settings.static_url
+                static_url: settings.static_url,
+                button_text: "View"
             }));
             if(continuousLoad === false) {
                 if (additionalEndorsementElement !== null && data.next === null) {

@@ -8,7 +8,7 @@ export function load() {
 
     missions.populateMissions($('#js-mission-list'), pageUser, null,
         '<div class="block"><div class="block-content five-padding-bottom"><p>' +
-        'Check Back Later For New Missions</p></div></div>');
+        'Check Back Later For New Missions</p></div></div>', null, null, null, null, "View");
     $app
         .on('click', '.js-position', function (event) {
             event.preventDefault();

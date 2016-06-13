@@ -63,6 +63,24 @@ class MissionViewTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+    def test_account_setup(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('account_setup')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_account_setup_not_logged_in(self):
+        url = reverse('account_setup')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_account_setup_no_quest(self):
+        db.cypher_query('MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('account_setup')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_mission_redirect(self):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('mission_redirect',

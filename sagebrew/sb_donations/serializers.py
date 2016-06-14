@@ -68,6 +68,9 @@ class DonationSerializer(SBSerializer):
         if value < 1:
             message = "Donations must be at least $1."
             raise serializers.ValidationError(message)
+        if value > 1000000:
+            message = "Donations cannot be over $999,999.99."
+            raise serializers.ValidationError(message)
         '''
         TODO @tyler is there a reason we weren't allowing donations with change?
         if not isinstance(value, int):
@@ -142,6 +145,7 @@ class DonationSerializer(SBSerializer):
         serializer.save()
         cache.delete("%s_total_donated" % mission.object_uuid)
         cache.delete("%s_total_donated" % quest.object_uuid)
+        cache.delete("%s_average_donation_amount" % mission.object_uuid)
         return donation
 
     def get_mission(self, obj):

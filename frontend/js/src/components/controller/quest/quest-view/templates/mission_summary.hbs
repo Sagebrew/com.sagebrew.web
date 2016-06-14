@@ -1,29 +1,25 @@
-{{#grouped_each 3 missions}}
-    <div class="row margin-bottom-20">
-        {{#each this }}
-            <div class="col-sm-4">
-                <div class="block {{#if this.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if this.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ this.id }}" data-slug="{{ this.slug }}">
-                    <div class="block-hero-image" style="height: 120px; overflow: hidden;">
-                        <img class='width-100' src="{{this.wallpaper_pic}}" />
-                    </div>
-                    <a class="block-title js-position" data-id="{{ this.id }}"
-                       data-slug="{{ this.slug }}" href="#">{{ this.title_summary }}</a>
-                    <div class="block-content" style="height: 170px;overflow: hidden;">
-                        <p>
-                            {{#if this.about }}
-                                {{this.about}}
-                            {{else}}
-                                A {{this.level}} level {{this.focus_on_type}} mission.
-                            {{/if}}
-                        </p>
-                    </div>
-                        <div class="block-footer">
-                        <a href="#" class="btn btn-primary sb_btn js-position"
-                           data-id="{{ this.id }}"
-                           data-slug="{{ this.slug }}">Select</a>
-                    </div>
-                </div>
-            </div>
-        {{/each}}
+<div class="col-sm-4 margin-bottom-20">
+    <div class="block {{#if mission.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if mission.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ mission.id }}" data-slug="{{ mission.slug }}">
+        <div class="block-hero-image" style="height: 120px; overflow: hidden;">
+            <img class='width-100' src="{{mission.wallpaper_pic}}" />
+        </div>
+        <a class="block-title js-position" data-id="{{ mission.id }}"
+           data-slug="{{ mission.slug }}" href="#">{{ mission.title_summary }}</a>
+        <div class="block-content" style="height: 170px;overflow: hidden;">
+            <p>
+                {{#if mission.about }}
+                    {{mission.about}}
+                {{else}}
+                    A {{mission.level}} level {{mission.focus_on_type}} mission.
+                {{/if}}
+            </p>
+        </div>
+            <div class="block-footer">
+            <a href="#" class="btn btn-primary sb_btn js-position"
+               data-id="{{ mission.id }}"
+               data-slug="{{ mission.slug }}">
+                {{button_text}}
+            </a>
+        </div>
     </div>
-{{/grouped_each}}
+</div>

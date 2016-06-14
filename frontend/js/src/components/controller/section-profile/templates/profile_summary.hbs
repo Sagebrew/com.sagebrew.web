@@ -8,7 +8,13 @@
             <p class="no-margin-top-bottom">Reputation: {{reputation}}</p>
         </div>
             <div class="block-footer">
-            <a href="{{ url }}" class="btn btn-primary sb_btn">Select</a>
+            <a href="{{ url }}" class="btn btn-primary sb_btn">
+                {{#if this.button_text}}
+                    {{this.button_text}}
+                {{else}}
+                    {{../../button_text}}
+                {{/if}}
+            </a>
         </div>
     </div>
 </div>

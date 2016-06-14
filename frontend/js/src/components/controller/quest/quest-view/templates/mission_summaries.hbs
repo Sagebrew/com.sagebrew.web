@@ -1,0 +1,8 @@
+{{#grouped_each 3 missions}}
+    <div class="row">
+        {{#each this }}
+            {{> 'controller/quest/quest-view/templates/mission_summary.hbs'
+            mission=this button_text=../../button_text }}
+        {{/each}}
+    </div>
+{{/grouped_each}}

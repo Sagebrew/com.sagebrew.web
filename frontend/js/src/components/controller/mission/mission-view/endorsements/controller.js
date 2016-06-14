@@ -58,12 +58,19 @@ export function load() {
                     }
                     data.results[i].static_url = settings.static_url;
                     if(data.results[i].type === "profile") {
+                        data.results[i].button_text = "View";
                         $endorsmentContainer.append(profileSummaryTemplate(data.results[i]));
                     } else if(data.results[i].type === "quest") {
+                        data.results[i].button_text = "View";
                         $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
                     } else {
                         data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
-                        $endorsmentContainer.append(missionSummaryTemplate(data.results[i]));
+                        $endorsmentContainer.append(
+                            missionSummaryTemplate(
+                                {
+                                    mission: data.results[i],
+                                    button_text: "View"
+                                }));
                     }
                 }
             }

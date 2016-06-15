@@ -943,7 +943,7 @@ class MissionEndpointTests(APITestCase):
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.data,
-                         {"amount":["Donations cannot be over $999,999.99."]})
+                         {"amount":["Donations cannot be over $999,999.99"]})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_donation_create_negative(self):

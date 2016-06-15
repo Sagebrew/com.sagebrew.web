@@ -89,6 +89,7 @@ export function amount() {
                 errorMinDonationWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
             } else if (parseInt(numStr, 10) >= 1000000) {
+                // limiting to less than $1,000,000.00 due to stripe allowing a max of $999,999.99 charge amount
                 errorMaxDonationWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
             } else if (numStr.replace(/\s/g, "").length === 0 || numStr === null) {

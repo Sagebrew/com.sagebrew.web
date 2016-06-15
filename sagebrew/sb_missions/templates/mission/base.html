@@ -85,6 +85,7 @@
 {% endblock %}
 
 {% block sidebar_right %}
+    {% include "mission/average_donation_block.html" %}
     <div class="block" id="about-wrapper">
         <h4 class="block-title">About</h4>
         <div class="block-content block-holder-sm" id="about-parent">
@@ -136,5 +137,5 @@
             {% endif %}
         </div>
     </div>
-    {% include "mission/average_donation_block.html" %}
+
 {% endblock %}

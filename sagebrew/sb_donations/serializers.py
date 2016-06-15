@@ -68,7 +68,7 @@ class DonationSerializer(SBSerializer):
         if value < 1:
             message = "Donations must be at least $1"
             raise serializers.ValidationError(message)
-        if value > 1000000:
+        if value >= 100000000:
             # Limiting to less than $1,000,000.00 because stripe does not
             # allow charges over $999,999.99
             message = "Donations cannot be over $999,999.99"

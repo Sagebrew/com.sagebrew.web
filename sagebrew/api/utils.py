@@ -390,9 +390,11 @@ def generate_summary(content):
         excluded = [exclude
                     for exclude in settings.DEFAULT_EXCLUDE_SENTENCES
                     if exclude.lower() in sentence.lower()]
+        word_list = sentence.split(' ')
         if settings.TIME_EXCLUSION_REGEX.search(sentence) is None \
                 and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
-                and len(excluded) == 0:
+                and len(excluded) == 0 \
+                and len(word_list) > 1:
             summary += " " + sentence
     return summary.replace('&gt;', '').strip()
 
@@ -413,6 +415,7 @@ def cleanup_title(value):
         en_us_locale)
     temp_title = icu.UnicodeString(value)
     title = unicode(temp_title.toTitle(break_iter, en_us_locale))
+    word_enders = [" ", ",", ".", ";", ":", '"', "'"]
     for acronym in settings.COMPANY_ACRONYMS:
         if '.com' in acronym[0]:
             # .com often comes at the end of a title so we don't want to add
@@ -420,8 +423,13 @@ def cleanup_title(value):
             if acronym[1] in title:
                 title = title.replace(acronym[1], acronym[0])
         else:
-            if "%s " % acronym[1] in title:
-                title = title.replace("%s " % acronym[1], "%s " % acronym[0])
+            if title.rfind(acronym[1]) == len(title) - len(acronym[1]):
+                title = "%s%s" % (title[:len(title) - (len(acronym[1]))],
+                                  acronym[0])
+            for ender in word_enders:
+                if "%s%s" % (acronym[1], ender) in title:
+                    title = title.replace("%s%s" % (acronym[1], ender),
+                                          "%s%s" % (acronym[0], ender))
     return title
 
 

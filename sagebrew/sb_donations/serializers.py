@@ -22,7 +22,7 @@ from .neo_models import Donation
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
-    amount = serializers.IntegerField(required=True, min_value=100)
+    amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
 
@@ -61,6 +61,12 @@ class DonationSerializer(SBSerializer):
                                                 str(270000)[:-2])
                 raise serializers.ValidationError(message)
         """
+        if value < 0:
+            message = "You cannot donate a negative amount of money"
+            raise serializers.ValidationError(message)
+        if value < 1:
+            message = "Donations must be at least $1"
+            raise serializers.ValidationError(message)
         if value >= 100000000:
             # Limiting to less than $1,000,000.00 because stripe does not
             # allow charges over $999,999.99

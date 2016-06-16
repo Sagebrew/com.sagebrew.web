@@ -19,16 +19,17 @@ export function init() {
 
 }
 
+
 /**
  * Load
  */
 export function load() {
-    var missionID = helpers.args(1);
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
     helpers.disableFigcapEditing($(".block"));
-    maps("/v1/missions/" + missionID + "/", "#map");
+    var missionID = helpers.args(1);
+    maps("/v1/missions/" + missionID + "/", "map", true);
 }
 
 /**
@@ -37,4 +38,5 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+
 }

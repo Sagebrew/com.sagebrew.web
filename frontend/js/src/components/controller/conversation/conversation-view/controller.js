@@ -1,4 +1,5 @@
-var mapLocation = require('./partials/map-location'),
+var args = require('common/helpers').args,
+    mapLocation = require('common/static_map'),
     question = require('./partials/question'),
     solution = require('./partials/solution');
 
@@ -19,7 +20,7 @@ export const meta = {
  */
 export function load() {
     // Sidebar
-    mapLocation.init();
+    mapLocation.init("/v1/questions/" + args(1) + "/?expedite=true", "map", false);
     solution.load();
     question.load();
 }

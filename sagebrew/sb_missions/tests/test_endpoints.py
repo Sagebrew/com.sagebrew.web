@@ -912,6 +912,9 @@ class MissionEndpointTests(APITestCase):
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {"amount": ["Ensure this value is greater than or equal to 100."]})
 
     def test_donation_create_one_million_dollars(self):
         self.client.force_authenticate(user=self.user)
@@ -976,6 +979,9 @@ class MissionEndpointTests(APITestCase):
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {"amount": ["Ensure this value is greater than or equal to 100."]})
 
     def test_donation_create_not_default_payment(self):
         self.client.force_authenticate(user=self.user)

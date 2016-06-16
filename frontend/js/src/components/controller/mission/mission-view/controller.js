@@ -1,5 +1,6 @@
 var wallpaper = require('./partials/wallpaper'),
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    maps = require('common/static_map').init;
 
 export const meta = {
     controller: "mission/mission-view",
@@ -22,10 +23,12 @@ export function init() {
  * Load
  */
 export function load() {
+    var missionID = helpers.args(1);
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
     helpers.disableFigcapEditing($(".block"));
+    maps("/v1/missions/" + missionID + "/", "#map");
 }
 
 /**

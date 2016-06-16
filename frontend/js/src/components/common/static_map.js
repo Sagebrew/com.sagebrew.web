@@ -8,6 +8,11 @@ function displayMap(url, mapID) {
         .done(function (data) {
             // TODO: Duplicated code, need to move this into a fxn, export it, and call it
             var zoomLevel = 1;
+            console.log(data);
+            var map = new google.maps.Map(document.getElementById(mapID), {
+                zoom: zoomLevel
+            });
+            var marker
             if(data.longitude !== undefined && data.longitude !== null) {
                 if((data.affected_area.match(/,/g) || []).length === 0){
                     zoomLevel = 3;
@@ -45,13 +50,13 @@ function displayMap(url, mapID) {
 
 }
 
-export function init() {
+export function init(url, mapID) {
     "use strict";
     var s = document.createElement("script");
     s.type = "text/javascript";
     s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys&callback=initMap";
     window.initMap = function(){
-        displayMap();
+        displayMap(url, mapID);
     };
     $("head").append(s);
 }

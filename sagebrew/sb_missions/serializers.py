@@ -65,6 +65,7 @@ class MissionSerializer(SBSerializer):
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
+    average_donation_amount = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
@@ -454,6 +455,9 @@ class MissionSerializer(SBSerializer):
             return obj.level.replace('_', ' ')
         else:
             return "unknown"
+
+    def get_average_donation_amount(self, obj):
+        return obj.get_average_donation_amount()
 
 
 class MissionReviewSerializer(SBSerializer):

@@ -133,3 +133,21 @@ class TestMission(TestCase):
         self.assertTrue(res)
         res = Mission.unendorse(self.mission.object_uuid, self.owner.username)
         self.assertTrue(res)
+
+    def test_get_average_donation_amount(self):
+        donation = Donation(amount=500).save()
+        donation.mission.connect(self.mission)
+        donation2 = Donation(amount=2500).save()
+        donation2.mission.connect(self.mission)
+        res = self.mission.get_average_donation_amount()
+        self.assertEqual(res, "15.00")
+
+    def test_get_average_donation_amount_cached(self):
+        cache.set("%s_average_donation_amount" % self.mission.object_uuid,
+                  "15.00")
+        res = self.mission.get_average_donation_amount()
+        self.assertEqual(res, "15.00")
+
+    def test_get_average_donation_amount_no_donations(self):
+        res = self.mission.get_average_donation_amount()
+        self.assertEqual(res, "0.00")

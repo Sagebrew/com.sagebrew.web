@@ -263,11 +263,18 @@ export function load() {
         }
     });
 
-
-    missions.populateMissions($missionList, pageUser, missionMinTemplate,
-        '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
+    var populateOptions = {
+        loadElement: $missionList,
+        questID: pageUser,
+        template: missionMinTemplate,
+        emptyMessage: '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>',
-        false, $(".additional-mission"), $(".additional-mission-wrapper"), 1);
+        continuousLoad: false,
+        additionalMissionElement: $(".additional-mission"),
+        additionalMissionWrapper: $(".additional-mission-wrapper"),
+        nextPage: 1
+    };
+    missions.populateMissions(populateOptions);
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
         '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>',

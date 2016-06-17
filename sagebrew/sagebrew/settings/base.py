@@ -717,7 +717,7 @@ COMPANY_ACRONYMS = [
     (u'MN', u'Mn'), (u'MO', u'Mo'), (u'MT', u'Mt'),
     (u'NE', u'Ne'), (u'NV', u'Nv'), (u'NH', u'Nh'), (u'NJ', u'Nj'),
     (u'NM', u'Nm'), (u'NY', u'Ny'), (u'NC', u'Nc'), (u'ND', u'Nd'),
-    (u'MP', u'Mp'),
+    (u'MP', u'Mp'), ('EU', 'Eu'), ('UK', 'Uk'), ('De', 'DE'),
     (u'OL', u'Ol'), (u'PA', u'Pa'), (u'PI', u'Pi'), (u'PR', u'Pr'),
     (u'RI', u'Ri'), (u'SC', u'Sc'), (u'SD', u'Sd'), (u'TN', u'Tn'),
     (u'TX', u'Tx'), (u'UT', u'Ut'), (u'VT', u'Vt'), (u'VI', u'Vi'),

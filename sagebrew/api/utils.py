@@ -415,7 +415,7 @@ def cleanup_title(value):
         en_us_locale)
     temp_title = icu.UnicodeString(value)
     title = unicode(temp_title.toTitle(break_iter, en_us_locale))
-    word_enders = [" ", ",", ".", ";", ":", '"', "'"]
+    word_enders = [" ", ",", ".", ";", ":", '"', "'", "-"]
     for acronym in settings.COMPANY_ACRONYMS:
         if '.com' in acronym[0]:
             # .com often comes at the end of a title so we don't want to add

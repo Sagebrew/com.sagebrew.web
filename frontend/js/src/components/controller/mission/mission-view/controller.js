@@ -1,5 +1,6 @@
 var wallpaper = require('./partials/wallpaper'),
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    maps = require('common/static_map').init;
 
 export const meta = {
     controller: "mission/mission-view",
@@ -18,6 +19,7 @@ export function init() {
 
 }
 
+
 /**
  * Load
  */
@@ -26,6 +28,8 @@ export function load() {
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
     helpers.disableFigcapEditing($(".block"));
+    var missionID = helpers.args(1);
+    maps("/v1/missions/" + missionID + "/", "map", true);
 }
 
 /**
@@ -34,4 +38,5 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+
 }

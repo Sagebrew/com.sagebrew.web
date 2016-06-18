@@ -1,0 +1,8 @@
+<div class="block sb_markdown">
+    <h4 class="block-title">Topic{{ question.tags|length|pluralize }}</h4>
+    <div class="block-content block-holder-sm padding-top-5 min-height-0">
+        <h4 class="no-padding-top">
+            {{ question.tags_formatted|default:" No Tags Set on Conversation" }}
+        </h4>
+    </div>
+</div>

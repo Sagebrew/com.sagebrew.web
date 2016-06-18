@@ -11,29 +11,9 @@
     <meta name="author" content="{{ authors }}">
 {% endblock keywords %}
 {% block sidebar_right %}
-    <div class="conversation-meta">
-        <div class="meta">
-            <div class="row">
-                <div class="col-xs-12"><h5 align="center">Topic{{ question.tags|length|pluralize }}</h5></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12"><h6 align="center">{{ question.tags_formatted|default:" No Tags Set on Conversation" }}</h6></div>
-            </div>
-        </div>
-    </div>
-    <div class="conversation-meta" style="margin-top: 30px;">
-        <div class="meta">
-            <div class="row">
-                <div class="col-xs-12"><h5 align="center">Focus</h5></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12"><h6 align="center">{{ question.affected_area|default:"World" }}</h6></div>
-            </div>
-        </div>
-    </div>
-    <div class="map-viewer-conversation">
-        <div id="map"></div>
-    </div>
+    {% include "questions/tag_sidebar.html" %}
+
+    {% include "partials/map_sidebar.html" with affected_area=question.affected_area %}
 
     <div class="hidden-sm hidden-md sb_questions_side_container">
         <h3 align="center">

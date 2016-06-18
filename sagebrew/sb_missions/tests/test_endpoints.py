@@ -912,6 +912,42 @@ class MissionEndpointTests(APITestCase):
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {"amount": ["Donations must be at least $1"]})
+
+    def test_donation_create_one_million_dollars(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "amount": 100000000,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data,
+                         {"amount": ["Donations cannot be over $999,999.99"]})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_donation_create_negative(self):
         self.client.force_authenticate(user=self.user)
@@ -943,6 +979,9 @@ class MissionEndpointTests(APITestCase):
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {"amount": ["You cannot donate a negative amount of money"]})
 
     def test_donation_create_not_default_payment(self):
         self.client.force_authenticate(user=self.user)

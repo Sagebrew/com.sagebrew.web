@@ -22,7 +22,7 @@ from .neo_models import Donation
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
-    amount = serializers.IntegerField(required=True, min_value=100)
+    amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
 
@@ -62,11 +62,15 @@ class DonationSerializer(SBSerializer):
                 raise serializers.ValidationError(message)
         """
         if value < 0:
-            message = "You cannot donate a negative amount of " \
-                      "money to this mission."
+            message = "You cannot donate a negative amount of money"
             raise serializers.ValidationError(message)
         if value < 1:
-            message = "Donations must be at least $1."
+            message = "Donations must be at least $1"
+            raise serializers.ValidationError(message)
+        if value >= 100000000:
+            # Limiting to less than $1,000,000.00 because stripe does not
+            # allow charges over $999,999.99
+            message = "Donations cannot be over $999,999.99"
             raise serializers.ValidationError(message)
         '''
         TODO @tyler is there a reason we weren't allowing donations with change?
@@ -142,6 +146,7 @@ class DonationSerializer(SBSerializer):
         serializer.save()
         cache.delete("%s_total_donated" % mission.object_uuid)
         cache.delete("%s_total_donated" % quest.object_uuid)
+        cache.delete("%s_average_donation_amount" % mission.object_uuid)
         return donation
 
     def get_mission(self, obj):

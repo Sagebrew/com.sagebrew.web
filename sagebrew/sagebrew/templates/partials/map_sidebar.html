@@ -1,13 +1,9 @@
-<div class="conversation-meta" style="margin-top: 30px;">
-    <div class="meta">
-        <div class="row">
-            <div class="col-xs-12"><h5 align="center">Focus</h5></div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12"><h6 align="center">{{ affected_area|default:"World" }}</h6></div>
+<div class="block sb_markdown">
+    <h4 class="block-title">Focus</h4>
+    <div class="block-content block-holder-sm padding-top-5">
+        <h4 class="no-padding-top">{{ affected_area|default:"World" }}</h4>
+        <div class="map-viewer-conversation">
+            <div id="map"></div>
         </div>
     </div>
-</div>
-<div class="map-viewer-conversation">
-    <div id="map"></div>
 </div>

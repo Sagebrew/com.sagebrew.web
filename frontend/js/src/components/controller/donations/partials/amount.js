@@ -11,6 +11,7 @@ export function amount() {
         customInputWrapper = document.getElementById('custom-amount-wrapper'),
         errorFormatWrapper = document.getElementById('error-wrong-format'),
         errorMinDonationWrapper = document.getElementById('error-min-donation'),
+        errorMaxDonationWrapper = document.getElementById('error-max-donation'),
         donateToID = helpers.args(1),
         campaignFinanceValidationForm,
         campaignFinanceForm = document.getElementById('campaign-finance'),
@@ -84,8 +85,12 @@ export function amount() {
             if (!decimalFormat.test(numStr) && !nonDecimalFormat.test(numStr)){
                 errorFormatWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
-            } else if (parseInt(numStr) < 1) {
+            } else if (parseInt(numStr, 10) < 1) {
                 errorMinDonationWrapper.classList.remove("sb_hidden");
+                continueBtn.disabled = true;
+            } else if (parseInt(numStr, 10) >= 1000000) {
+                // limiting to less than $1,000,000.00 due to stripe allowing a max of $999,999.99 charge amount
+                errorMaxDonationWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
             } else if (numStr.replace(/\s/g, "").length === 0 || numStr === null) {
                 errorMinDonationWrapper.classList.remove("sb_hidden");
@@ -93,11 +98,13 @@ export function amount() {
             } else if (decimalFormat.test(numStr)) {
                 errorMinDonationWrapper.classList.add("sb_hidden");
                 errorFormatWrapper.classList.add("sb_hidden");
+                errorMaxDonationWrapper.classList.add("sb_hidden");
                 continueBtn.disabled = false;
                 localStorage.setItem(contributionKey, numStr.replace(".", ""));
             } else if (nonDecimalFormat.test(numStr)) {
                 errorMinDonationWrapper.classList.add("sb_hidden");
                 errorFormatWrapper.classList.add("sb_hidden");
+                errorMaxDonationWrapper.classList.add("sb_hidden");
                 continueBtn.disabled = false;
                 localStorage.setItem(contributionKey, numStr + "00");
             }

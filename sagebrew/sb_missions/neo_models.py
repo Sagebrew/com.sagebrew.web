@@ -2,6 +2,8 @@ from django.core.cache import cache
 from django.conf import settings
 from django.templatetags.static import static
 
+from py2neo.cypher.error.statement import ArithmeticError \
+    as CypherArithmeticError
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty, RelationshipFrom, DateTimeProperty,
                       ArrayProperty)
@@ -308,6 +310,24 @@ class Mission(Searchable):
             return '{:,.2f}'.format(float(res.one) / 100)
         else:
             return "0.00"
+
+    def get_average_donation_amount(self):
+        res = cache.get("%s_average_donation_amount" % self.object_uuid)
+        if res is None:
+            query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+                    '[:CONTRIBUTED_TO]-(d:Donation) ' \
+                    'RETURN sum(d.amount) / count(d)' \
+                    % self.object_uuid
+            try:
+                res, _ = db.cypher_query(query)
+            except CypherArithmeticError:
+                cache.set("%s_average_donation_amount" % self.object_uuid,
+                          "0.00")
+                return "0.00"
+            if res.one:
+                res = '{:,.2f}'.format(float(res.one) / 100)
+            cache.set("%s_average_donation_amount" % self.object_uuid, res)
+        return res
 
     def get_has_endorsed_profile(self, username=None):
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \

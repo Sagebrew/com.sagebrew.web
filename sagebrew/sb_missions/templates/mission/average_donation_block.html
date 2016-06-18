@@ -1,0 +1,17 @@
+<div class="block sb_markdown" id="about-wrapper">
+    <h4 class="block-title">Average Donation</h4>
+    <div class="block-content block-holder-sm" id="about-parent">
+        {% if mission.average_donation_amount != "0.00" %}
+            <h4 class="no-margin-top-bottom">
+                ${{ mission.average_donation_amount }}
+            </h4>
+        {% else %}
+            <h4 class="no-margin-top-bottom padding-bottom-15">
+                Be the first to
+                <a href="{% url 'mission_donation_amount' mission.id mission.slug %}">
+                    Donate
+                </a>
+            </h4>
+        {% endif %}
+    </div>
+</div>

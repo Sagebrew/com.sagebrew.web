@@ -6,7 +6,7 @@ ALLOWED_HOSTS = ['www.sagebrew.com', ]
 
 VERIFY_SECURE = True
 WEB_ADDRESS = "https://www.sagebrew.com"
-WEBHOSE_REQUEST_LIMIT = 25
+WEBHOSE_REQUEST_LIMIT = 30
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

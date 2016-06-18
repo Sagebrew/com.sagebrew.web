@@ -74,6 +74,9 @@ export function addPayment(responseHandler, cancelRedirect) {
             addWarning: true
         };
     }
+    if (localStorage.getItem("max_free_missions")) {
+        templateContext.maxFreeMissions = true;
+    }
     paymentForm.innerHTML = addPaymentMethodTemplate(templateContext);
 
     new Card({

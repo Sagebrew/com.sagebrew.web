@@ -29,6 +29,12 @@ export function load() {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
             if(settings.profile.quest !== null){
+                if (settings.profile.quest.missions) {
+                    if (settings.profile.quest.missions.length === 5 && settings.profile.quest.free_quest) {
+                        localStorage.setItem("max_free_mssions", true);
+                        window.location.href = "/quests/" + settings.profile.username + "/manage/add_payment/";
+                    }
+                }
                 greyPage.classList.add('sb_hidden');
                 window.location.href = "/missions/select/";
             } else {

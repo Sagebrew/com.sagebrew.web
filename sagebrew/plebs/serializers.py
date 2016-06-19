@@ -386,9 +386,9 @@ class PlebSerializerNeo(SBSerializer):
         interests_serializer.is_valid(raise_exception=True)
         interests_serializer.save()
         spawn_task(task_func=create_wall_task,
-                   task_param={"username": user.username})
+                   task_param={"username": pleb.username})
         spawn_task(task_func=generate_oauth_info,
-                   task_param={'username': user.username,
+                   task_param={'username': pleb.username,
                                'password': validated_data['password']},
                    countdown=20)
         cache.delete(pleb.username)

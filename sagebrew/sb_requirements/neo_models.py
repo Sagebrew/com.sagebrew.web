@@ -1,5 +1,6 @@
 import pickle
 import operator
+from logging import getLogger
 
 from django.conf import settings
 
@@ -9,6 +10,8 @@ from neomodel import StringProperty
 
 from api.utils import request_to_api
 from api.neo_models import SBObject
+
+logger = getLogger("loggly_logs")
 
 
 class Requirement(SBObject):
@@ -43,7 +46,11 @@ class Requirement(SBObject):
         url = str(self.url).replace("<username>", username)
         res = request_to_api(url, username, req_method='get')
         if res.status_code >= status.HTTP_400_BAD_REQUEST:
+            logger.critical(
+                "%s returned 404 during check_requirement, username: %s"
+                % (self.url, username))
             raise IOError("%d" % res.status_code)
+
         try:
             res = res.json()
         except ValueError:

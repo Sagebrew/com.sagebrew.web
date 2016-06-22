@@ -28,15 +28,21 @@ export function load() {
         .on('click', '.js-quest-signup', function(event) {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
-            if(settings.profile.quest !== null){
-                if (settings.profile.quest.missions) {
+            if (settings.profile.quest !== null) {
+                if (settings.profile.quest.missions !== null) {
                     if (settings.profile.quest.missions.length === 5 && settings.profile.quest.free_quest) {
-                        localStorage.setItem("max_free_mssions", true);
+                        localStorage.setItem("max_free_missions", true);
+                        greyPage.classList.add('sb_hidden');
                         window.location.href = "/quests/" + settings.profile.username + "/manage/add_payment/";
+                    } else {
+                        greyPage.classList.add('sb_hidden');
+                        window.location.href = "/missions/select/";
                     }
+                } else {
+                    greyPage.classList.add('sb_hidden');
+                    window.location.href = "/missions/select/";
                 }
-                greyPage.classList.add('sb_hidden');
-                window.location.href = "/missions/select/";
+
             } else {
                 request.post({url: "/v1/quests/", data: {}})
                     .done(function () {

@@ -481,3 +481,22 @@ export function disableFigcapEditing($container) {
         $this.attr('contenteditable', 'false');
     });
 }
+
+/*
+ * Determine if the browser is currently in private browsing mode
+ * Currently we only know about this being an issue in Safari
+ */
+export function testPrivateBrowsing() {
+    var storageTestKey = "storageTest";
+    try {
+        localStorage.setItem(storageTestKey, true);
+        localStorage.removeItem(storageTestKey);
+    } catch (e) {
+        if (e.code === DOMException.QUOTA_EXCEEDED_ERR && localStorage.length === 0) {
+            $.notify(
+                {message: "We noticed you're browsing in Private Mode, " +
+                "some features of the site may not function properly"},
+                {type: "warning"});
+        }
+    }
+}

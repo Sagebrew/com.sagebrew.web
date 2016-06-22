@@ -4,7 +4,8 @@
  */
 var navbar = require('./partials/navbar').initNavbar,
     settings = require('settings').settings,
-    request = require('api').request;
+    request = require('api').request,
+    testPrivate = require('common/helpers').testPrivateBrowsing;
 
 
 /**
@@ -24,6 +25,7 @@ export function load() {
     navbar();
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page');
+    testPrivate();
     $app
         .on('click', '.js-quest-signup', function(event) {
             event.preventDefault();
@@ -51,5 +53,6 @@ export function load() {
                     });
             }
         });
+
 }
 

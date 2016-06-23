@@ -16,6 +16,15 @@
                 </div>
             </div>
         {{/if}}
+        {{#if maxFreeMissions }}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-warning">
+                        Free Accounts cannot have more than five Missions. Please add a card here to upgrade your account.
+                    </div>
+                </div>
+            </div>
+        {{/if}}
         <form id="payment-form" action="" method="POST">
              <div class="row">
                 <div class="col-xs-12">

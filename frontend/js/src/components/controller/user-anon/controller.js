@@ -3,7 +3,8 @@
  * Loaded on every page that is requested by an anon user.
  */
 
-var loginform = require('./partials/loginform').initLoginForm;
+var loginform = require('./partials/loginform').initLoginForm,
+    testPrivate = require('common/helpers').testPrivateBrowsing;
 
 
 /**
@@ -19,5 +20,6 @@ export const meta = {
  * Init
  */
 export function init() {
+    testPrivate();
     loginform();
 }

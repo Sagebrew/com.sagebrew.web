@@ -50,20 +50,6 @@ export function load() {
                 completeAddress(addressValidationForm, addressForm);
                 return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
             }
-        })
-        .on('click', '#js-quest-signup', function(event) {
-            event.preventDefault();
-            greyPage.classList.remove('sb_hidden');
-            if(settings.profile.quest !== null){
-                greyPage.classList.add('sb_hidden');
-                window.location.href = "/missions/select/";
-            } else {
-                request.post({url: "/v1/quests/", data: {}})
-                    .done(function () {
-                        greyPage.classList.add('sb_hidden');
-                        window.location.href = "/missions/select/";
-                    });
-            }
         });
 }
 

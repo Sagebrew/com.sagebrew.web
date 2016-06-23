@@ -480,3 +480,13 @@ def render_content(content):
             .replace("</body></html>", "")
     else:
         return ""
+
+
+def remove_smart_quotes(content):
+    if isinstance(content, str) or isinstance(content, unicode):
+        if isinstance(content, str):
+            content = content.decode('utf-8')
+    else:
+        return content
+    return content.replace(u"\u2018", "'").replace(u"\u2019", "'")\
+        .replace(u"\u201c",'"').replace(u"\u201d", '"')

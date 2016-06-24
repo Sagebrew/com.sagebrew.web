@@ -35,7 +35,6 @@ function displayMap(url, mapID, externalID) {
                 geocoder.geocode({'placeId': placeID}, function(results, status) {
                     if (status === google.maps.GeocoderStatus.OK) {
                         if (results[0]) {
-                            console.log(zoomLevel);
                             map.setZoom(zoomLevel);
                             map.setCenter(results[0].geometry.location);
                             var marker = new google.maps.Marker({

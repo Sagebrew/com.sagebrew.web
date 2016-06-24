@@ -9,7 +9,8 @@ var request = require('api').request,
     locationKey = 'advocateMissionLocationID',
     locationName = "advocateMissionLocationName",
     levelKey = 'advocateMissionLevel',
-    districtKey = 'advocateDistrict';
+    districtKey = 'advocateDistrict',
+    affectedAreaKey = "affectedArea";
 
 
 export function load() {
@@ -153,6 +154,7 @@ export function load() {
                     focus_name: advocateInput.value,
                     district: localStorage.getItem(districtKey),
                     level: localStorage.getItem(levelKey),
+                    formatted_location_name: localStorage.getItem(affectedAreaKey),
                     location_name: location,
                     focus_on_type: "advocacy"
                 })
@@ -283,7 +285,8 @@ function initAutocomplete() {
 
     autocomplete.addListener('place_changed', function() {
         var place = autocomplete.getPlace(),
-            greyPage = document.getElementById('sb-greyout-page');
+            greyPage = document.getElementById('sb-greyout-page'),
+            affectedArea = place.formatted_address;
         greyPage.classList.remove('sb_hidden');
         if (!place.geometry) {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
@@ -307,6 +310,7 @@ function initAutocomplete() {
             map.setZoom(12);
         }
         localStorage.setItem(locationKey, place.place_id);
+        localStorage.setItem(affectedAreaKey, affectedArea);
         /**
          * If a location is selected the district should always be replaced by the holder and the position
          * removed from local storage
@@ -328,7 +332,8 @@ function initAutocomplete() {
         // TODO REUSE
         var greyPage = document.getElementById('sb-greyout-page');
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-            var place = results[0];
+            var place = results[0],
+                affectedArea = place.formatted_address;
             if (place.geometry.viewport) {
                 map.fitBounds(place.geometry.viewport);
             } else {
@@ -336,6 +341,7 @@ function initAutocomplete() {
                 map.setZoom(12);
             }
             localStorage.setItem(locationKey, place.place_id);
+            localStorage.setItem(affectedAreaKey, affectedArea);
             request.post({
                 url: '/v1/locations/add_external_id/',
                 data: JSON.stringify(place)

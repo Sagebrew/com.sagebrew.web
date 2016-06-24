@@ -489,4 +489,4 @@ def remove_smart_quotes(content):
     else:
         return content
     return content.replace(u"\u2018", "'").replace(u"\u2019", "'")\
-        .replace(u"\u201c",'"').replace(u"\u201d", '"')
+        .replace(u"\u201c", '"').replace(u"\u201d", '"')

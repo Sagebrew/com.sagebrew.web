@@ -10,3 +10,13 @@ BROKER_TRANSPORT_OPTIONS["polling_interval"] = 30
 
 STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")
+
+ELASTIC_SEARCH_HOST = [
+    {
+        'host': environ.get("ELASTIC_SEARCH_HOST", ""),
+        'port': environ.get("ELASTIC_SEARCH_PORT", ""),
+        'use_ssl': True,
+        'http_auth': (environ.get("ELASTIC_SEARCH_USER", ""),
+                      environ.get("ELASTIC_SEARCH_KEY", ""))
+    }
+]

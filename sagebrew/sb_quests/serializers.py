@@ -292,6 +292,7 @@ class QuestSerializer(SBSerializer):
                     sub = customer.subscriptions.create(plan='quest_premium')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
+                instance.account_type = account_type
             elif account_type == "promotion":
                 if promotion_key in settings.PROMOTION_KEYS \
                         and settings.PRO_QUEST_PROMOTION:
@@ -323,6 +324,7 @@ class QuestSerializer(SBSerializer):
                         instance.stripe_subscription_id).delete()
                     instance.stripe_subscription_id = None
                 instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
+                instance.account_type = account_type
 
             instance.account_type = account_type
         # ** Stripe update Address **

@@ -13,7 +13,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate, render_content)
+                       smart_truncate, render_content, remove_smart_quotes)
 from api.serializers import SBSerializer
 
 from sb_base.serializers import (IntercomEventSerializer,
@@ -51,6 +51,8 @@ class MissionSerializer(SBSerializer):
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
+    formatted_location_name = serializers.CharField(
+        required=False, allow_null=True)
     focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
@@ -116,6 +118,7 @@ class MissionSerializer(SBSerializer):
             focused_on = slugify(
                 focused_on).title().replace('-', ' ').replace('_', ' ')
         district = validated_data.get('district')
+        formatted_location_name = validated_data.get('formatted_location_name')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
         title = focused_on.title().replace('-', ' ').replace('_', ' ')
@@ -124,7 +127,9 @@ class MissionSerializer(SBSerializer):
                           focus_name=focused_on,
                           title=title,
                           wallpaper_pic=static(
-                              'images/wallpaper_capitol_2.jpg')).save()
+                              'images/wallpaper_capitol_2.jpg'),
+                          formatted_location_name=formatted_location_name)\
+            .save()
         if focus_type == "position":
             if level == "federal":
                 if district:
@@ -331,12 +336,14 @@ class MissionSerializer(SBSerializer):
                 '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.MISSION_ABOUT_TITLE))
-        instance.epic = validated_data.pop('epic', instance.epic)
+        instance.epic = remove_smart_quotes(
+            validated_data.pop('epic', instance.epic))
         # We expect the epic to be set to None and not "" so that None
         # can be used in this function for checks and the templates.
         instance.epic = empty_text_to_none(render_content(instance.epic))
         prev_temp_epic = instance.temp_epic
-        instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
+        instance.temp_epic = remove_smart_quotes(validated_data.pop(
+            'temp_epic', instance.temp_epic))
         instance.temp_epic = empty_text_to_none(
             render_content(instance.temp_epic))
         if prev_temp_epic != instance.temp_epic:

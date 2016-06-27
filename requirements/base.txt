@@ -51,4 +51,4 @@ python-intercom==2.1.1
 sumy==0.4.0
 imagehash==1.0
 pyicu==1.9.2
-python-google-places=1.1.0
+python-google-places==1.1.0

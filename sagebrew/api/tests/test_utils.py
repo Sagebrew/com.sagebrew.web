@@ -15,7 +15,7 @@ from api.utils import (add_failure_to_queue,
                        gather_request_data, flatten_lists,
                        calc_stripe_application_fee, clean_url,
                        empty_text_to_none, generate_summary, render_content,
-                       cleanup_title)
+                       cleanup_title, remove_smart_quotes)
 from sb_questions.neo_models import Question
 
 
@@ -384,3 +384,21 @@ class TestRenderContent(TestCase):
         rendered_content = '<div></div><div class=""></div>'
         res = render_content(content)
         self.assertEqual(rendered_content, res)
+
+
+class TestRemoveSmartQuotes(TestCase):
+
+    def test_success(self):
+        content = u"\u2018 \u2019 \u201c \u201d"
+        res = remove_smart_quotes(content)
+        self.assertEqual(res, u"' '" + u' " "')
+
+    def test_string(self):
+        content = u"\u2018 \u2019 \u201c \u201d".encode('utf-8')
+        res = remove_smart_quotes(content)
+        self.assertEqual(res, u"' '" + u' " "')
+
+    def test_without_quotes(self):
+        content = u"This is a string without 'smart' quotes"
+        res = remove_smart_quotes(content)
+        self.assertEqual(res, u"This is a string without 'smart' quotes")

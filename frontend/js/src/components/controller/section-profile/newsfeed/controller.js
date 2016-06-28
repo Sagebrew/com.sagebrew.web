@@ -2,7 +2,6 @@ var representatives = require('../partials/representatives'),
     postcreate = require('../partials/postcreate'),
     newsfeed = require('../partials/newsfeed'),
     solutions = require('controller/conversation/conversation-view/partials/solution'),
-    request = require('api').request,
     addresses = require('common/addresses'),
     settings = require('settings').settings;
 
@@ -28,7 +27,6 @@ export function init() {
 export function load() {
     require('plugin/contentloader');
     var $app = $(".app-sb"),
-        greyPage = document.getElementById('sb-greyout-page'),
         addressForm = document.getElementById('address'),
         addressValidationForm = addresses.setupAddress(function callback() {});
     // Sidebar

@@ -186,6 +186,7 @@ INSTALLED_APPS = (
     'plebs',
     'api',
     'govtrack',
+    'googleplaces',
     'neomodel',
     "opbeat.contrib.django",
     'sb_solutions',

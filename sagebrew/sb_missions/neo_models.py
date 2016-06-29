@@ -84,6 +84,7 @@ class Mission(Searchable):
     owner_username = StringProperty()
     location_name = StringProperty()
     formatted_location_name = StringProperty()
+    formatted_district_name = StringProperty()
 
     # Used to store off what one thing the mission is focused on. This eases
     # the inflation, handling, etc of the focused on object

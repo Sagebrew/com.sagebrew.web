@@ -374,6 +374,7 @@ function initAutocomplete() {
             greyPage = document.getElementById('sb-greyout-page'),
             affectedArea = place.formatted_address;
         greyPage.classList.remove('sb_hidden');
+        console.log(place);
         if (!place.geometry) {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
                 {type: "danger"});

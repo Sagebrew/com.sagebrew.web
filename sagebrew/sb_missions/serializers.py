@@ -53,6 +53,8 @@ class MissionSerializer(SBSerializer):
     location_name = serializers.CharField(required=False, allow_null=True)
     formatted_location_name = serializers.CharField(
         required=False, allow_null=True)
+    formatted_district_name = serializers.CharField(
+        required=False, allow_null=True)
     focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
@@ -119,6 +121,10 @@ class MissionSerializer(SBSerializer):
                 focused_on).title().replace('-', ' ').replace('_', ' ')
         district = validated_data.get('district')
         formatted_location_name = validated_data.get('formatted_location_name')
+        formatted_location_district = None
+        if district is not None:
+            formatted_location_district = formatted_location_name \
+                                          + ", District " + district
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
         title = focused_on.title().replace('-', ' ').replace('_', ' ')
@@ -128,7 +134,9 @@ class MissionSerializer(SBSerializer):
                           title=title,
                           wallpaper_pic=static(
                               'images/wallpaper_capitol_2.jpg'),
-                          formatted_location_name=formatted_location_name)\
+                          formatted_location_name=formatted_location_name,
+                          formatted_district_name=
+                          formatted_location_district)\
             .save()
         if focus_type == "position":
             if level == "federal":

@@ -1,7 +1,9 @@
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
-from googleplaces import GooglePlaces
+from googleplaces import GooglePlaces, GooglePlacesError
+
+from neomodel import db
 
 from sb_missions.neo_models import Mission
 from sb_locations.serializers import LocationSerializer
@@ -18,9 +20,21 @@ class Command(BaseCommand):
                     serialized = LocationSerializer(location).data
                     google_places = GooglePlaces(
                         "AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys")
-                    place = google_places.get_place(
-                        place_id=serialized['external_id'])
-                    mission.formatted_location_name = place.formatted_address
+                    if serialized['external_id']:
+                        external_id = serialized['external_id']
+                    else:
+                        query = 'MATCH (l:Location {object_uuid:"%s"})-' \
+                                '[:ENCOMPASSED_BY]->(e:Location) WHERE ' \
+                                'e.external_id is not NULL ' \
+                                'RETURN e.external_id' % (serialized['id'])
+                        res, _ = db.cypher_query(query)
+                        external_id = res.one
+                    try:
+                        formatted_address = google_places.get_place(
+                            place_id=external_id)
+                    except GooglePlacesError:
+                        formatted_address = None
+                    mission.formatted_location_name = formatted_address
                     mission.save()
         cache.set("add_formatted_location_names", True)
 

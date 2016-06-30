@@ -469,8 +469,8 @@ class MissionSerializer(SBSerializer):
 
     def get_formatted_district_name(self, obj):
         res = cache.get("%s_formatted_district_name" % obj.object_uuid)
-        if not res:
-            res = None
+        if res is None:
+            res = ""
             location = obj.get_location()
             if location:
                 if location.sector == "state_upper" \

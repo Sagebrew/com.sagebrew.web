@@ -31,7 +31,7 @@ class Command(BaseCommand):
                         external_id = res.one
                     try:
                         formatted_address = google_places.get_place(
-                            place_id=external_id)
+                            place_id=external_id).formatted_address
                     except GooglePlacesError:
                         formatted_address = None
                     mission.formatted_location_name = formatted_address

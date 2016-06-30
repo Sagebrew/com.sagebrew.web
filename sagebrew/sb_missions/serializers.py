@@ -53,8 +53,6 @@ class MissionSerializer(SBSerializer):
     location_name = serializers.CharField(required=False, allow_null=True)
     formatted_location_name = serializers.CharField(
         required=False, allow_null=True)
-    formatted_district_name = serializers.CharField(
-        required=False, allow_null=True)
     focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
@@ -68,6 +66,7 @@ class MissionSerializer(SBSerializer):
     has_endorsed_profile = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
+    formatted_district_name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     average_donation_amount = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
@@ -473,6 +472,21 @@ class MissionSerializer(SBSerializer):
 
     def get_average_donation_amount(self, obj):
         return obj.get_average_donation_amount()
+
+    def get_formatted_district_name(self, obj):
+        res = cache.get("%s_formatted_district_name" % obj.object_uuid)
+        if not res:
+            location = obj.get_location()
+            if location.sector == "state_upper" \
+                    or location.sector == "state_lower":
+                res = location.name
+            else:
+                try:
+                    res = int(location.name)
+                except ValueError:
+                    res = None
+            cache.set("%s_formatted_district_name" % obj.object_uuid, res)
+        return res
 
 
 class MissionReviewSerializer(SBSerializer):

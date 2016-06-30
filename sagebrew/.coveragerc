@@ -78,7 +78,6 @@ omit =
     */management/commands/migrate_to_new_editor.py
     */management/commands/populate_last_rep_node.py
     */management/commands/add_formatted_location_name.py
-    */management/commands/add_formatted_district_name.py
     */sagebrew/test_runner.py
 
 [report]

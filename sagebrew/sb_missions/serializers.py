@@ -66,6 +66,7 @@ class MissionSerializer(SBSerializer):
     has_endorsed_profile = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
+    formatted_district_name = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     average_donation_amount = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
@@ -465,6 +466,23 @@ class MissionSerializer(SBSerializer):
 
     def get_average_donation_amount(self, obj):
         return obj.get_average_donation_amount()
+
+    def get_formatted_district_name(self, obj):
+        res = cache.get("%s_formatted_district_name" % obj.object_uuid)
+        if res is None:
+            res = ""
+            location = obj.get_location()
+            if location:
+                if location.sector == "state_upper" \
+                        or location.sector == "state_lower":
+                    res = location.name
+                else:
+                    try:
+                        res = int(location.name)
+                    except ValueError:
+                        res = None
+            cache.set("%s_formatted_district_name" % obj.object_uuid, res)
+        return res
 
 
 class MissionReviewSerializer(SBSerializer):

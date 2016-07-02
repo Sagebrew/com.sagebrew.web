@@ -137,5 +137,5 @@
             {% endif %}
         </div>
     </div>
-    {% include "partials/map_sidebar.html" with affected_area=mission.formatted_location_name %}
+    {% include "partials/map_sidebar.html" with affected_area=mission.formatted_location_name|default_if_none:"World" district_line=mission.formatted_district_name sector=mission.location.sector %}
 {% endblock %}

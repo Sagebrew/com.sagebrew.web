@@ -14,37 +14,53 @@ function displayMap(url, mapID, externalID) {
                     disableDefaultUI: true,
                     draggable: false,
                     scrollwheel: false
-                });
+                }),
+                affectedArea = data.affected_area || data.formatted_location_name;
+            if (affectedArea) {
+                if ((affectedArea.match(/,/g) || []).length === 0) {
+                    zoomLevel = 3;
+                } else if ((affectedArea.match(/,/g) || []).length === 1) {
+                    zoomLevel = 5;
+                } else if ((affectedArea.match(/,/g) || []).length === 2) {
+                    zoomLevel = 12;
+                } else if ((affectedArea.match(/,/g) || []).length === 3) {
+                    zoomLevel = 14;
+                } else if ((affectedArea.match(/,/g) || []).length >= 4) {
+                    zoomLevel = 14;
+                }
+            }
             if (externalID) {
                 var placeID = data.location.external_id,
                     geocoder = new google.maps.Geocoder();
-                geocoder.geocode({'placeId': placeID}, function(results, status) {
-                    if (status === google.maps.GeocoderStatus.OK) {
-                        if (results[0]) {
-                            map.setZoom(10);
-                            map.setCenter(results[0].geometry.location);
-                            var marker = new google.maps.Marker({
-                                map: map,
-                                position: results[0].geometry.location
-                            });
-                            marker.setVisible(false);
+                if (placeID === null) {
+                    geocoder.geocode({'address': data.formatted_location_name}, function (results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            if (results[0]) {
+                                map.setCenter(results[0].geometry.location);
+                                var marker = new google.maps.Marker({
+                                    map: map,
+                                    position: results[0].geometry.location
+                                });
+                                marker.setVisible(false);
+                            }
                         }
-                    }
-                });
-            } else {
-                if (data.longitude !== undefined && data.longitude !== null) {
-                    if ((data.affected_area.match(/,/g) || []).length === 0) {
-                        zoomLevel = 3;
-                    } else if ((data.affected_area.match(/,/g) || []).length === 1) {
-                        zoomLevel = 5;
-                    } else if ((data.affected_area.match(/,/g) || []).length === 2) {
-                        zoomLevel = 12;
-                    } else if ((data.affected_area.match(/,/g) || []).length === 3) {
-                        zoomLevel = 14;
-                    } else if ((data.affected_area.match(/,/g) || []).length >= 4) {
-                        zoomLevel = 14;
-                    }
+                    });
+                } else {
+                    geocoder.geocode({'placeId': placeID}, function (results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            if (results[0]) {
+                                map.setCenter(results[0].geometry.location);
+                                var marker = new google.maps.Marker({
+                                    map: map,
+                                    position: results[0].geometry.location
+                                });
+                                marker.setVisible(false);
+                            }
+                        }
+                    });
                 }
+
+            } else {
                 if (data.longitude !== undefined && data.longitude !== null) {
                     if ((data.affected_area.match(/,/g) || []).length > 1) {
                         var marker = new google.maps.Marker({
@@ -53,10 +69,10 @@ function displayMap(url, mapID, externalID) {
                             title: data.affected_area
                         });
                         marker.setVisible(false);
-                        map.setZoom(zoomLevel);
                     }
                 }
             }
+            map.setZoom(zoomLevel);
         })
         .fail(function(){
             timeOutId = setTimeout(displayMap, 1000);

@@ -407,7 +407,6 @@ function initAutocomplete() {
             var inputValue = $("#pac-input").val(),
                 displayClickMessage = localStorage.getItem(clickMessageKey);
             if (inputValue && displayClickMessage) {
-                console.log(displayClickMessage);
                 $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                     {type: "danger"});
                 localStorage.setItem(clickMessageKey, false);
@@ -420,7 +419,7 @@ function initAutocomplete() {
     autocomplete.addListener('place_changed', function() {
         var place = autocomplete.getPlace(),
             greyPage = document.getElementById('sb-greyout-page'),
-            affectedArea = place;
+            affectedArea = place.formatted_address;
         greyPage.classList.remove('sb_hidden');
         if (!place.geometry) {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},

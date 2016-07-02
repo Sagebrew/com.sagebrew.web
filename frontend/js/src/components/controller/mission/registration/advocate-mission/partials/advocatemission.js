@@ -320,7 +320,6 @@ function initAutocomplete() {
             var inputValue = $("#pac-input").val(),
                 displayClickMessage = localStorage.getItem(clickMessageKey);
             if (inputValue && displayClickMessage) {
-                console.log(displayClickMessage);
                 $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                     {type: "danger"});
                 localStorage.setItem(clickMessageKey, false);

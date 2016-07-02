@@ -317,7 +317,7 @@ function initAutocomplete() {
     $("body").on('mousedown', function() {
         localStorage.setItem(clickMessageKey, true);
         pacInput.on("blur", function() {
-            var inputValue = $("#pac-input").val(),
+            var inputValue = pacInput.val(),
                 displayClickMessage = localStorage.getItem(clickMessageKey);
             if (inputValue && displayClickMessage) {
                 $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},

@@ -10,7 +10,8 @@ var request = require('api').request,
     locationName = "advocateMissionLocationName",
     levelKey = 'advocateMissionLevel',
     districtKey = 'advocateDistrict',
-    affectedAreaKey = "affectedArea";
+    affectedAreaKey = "affectedArea",
+    clickMessageKey = "displayClickMessage";
 
 
 export function load() {
@@ -278,9 +279,55 @@ function initAutocomplete() {
             service.textSearch(requestQuery, callback);
 
         });
-    var autocomplete = new google.maps.places.Autocomplete(input);
+    var autocomplete = new google.maps.places.Autocomplete(input),
+        pacInput = $("#pac-input");
     autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
+
+    (function pacSelectFrist(input) {
+        var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+        function addEventListenerWrapper(type, listener) {
+            if (type === "keydown") {
+                var origListener = listener;
+                listener = function(event) {
+                    var suggestionSelected = $(".pac-item-selected").length > 0;
+                    if ((event.which === 13 || event.which === 9) && !suggestionSelected) {
+                        var simulatedDownArrow = $.Event("keydown", {keyCode: 40, which: 40});
+                        origListener.apply(input, [simulatedDownArrow]);
+                    }
+                    origListener.apply(input, [event]);
+                };
+            }
+            _addEventListener.apply(input, [type, listener]);
+        }
+
+        if (input.addEventListener) {
+            input.addEventListener = addEventListenerWrapper;
+        }
+        else if (input.attachEvent){
+            input.attachEvent = addEventListenerWrapper;
+        }
+
+    })(input);
+
+    function removeBlurMessage() {
+        pacInput.off("blur");
+    }
+
+    $("body").on('mousedown', function() {
+        localStorage.setItem(clickMessageKey, true);
+        pacInput.on("blur", function() {
+            var inputValue = $("#pac-input").val(),
+                displayClickMessage = localStorage.getItem(clickMessageKey);
+            if (inputValue && displayClickMessage) {
+                console.log(displayClickMessage);
+                $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
+                    {type: "danger"});
+                localStorage.setItem(clickMessageKey, false);
+            }
+        });
+        window.setTimeout(removeBlurMessage, 100);
+    });
 
 
     autocomplete.addListener('place_changed', function() {

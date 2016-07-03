@@ -26,6 +26,7 @@ from .neo_models import Mission
 from .utils import setup_onboarding
 from .tasks import send_reengage_message
 
+
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
     submitted_for_review = serializers.BooleanField(required=False)

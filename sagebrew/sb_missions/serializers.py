@@ -13,7 +13,8 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate, render_content, remove_smart_quotes)
+                       smart_truncate, render_content, remove_smart_quotes,
+                       spawn_task)
 from api.serializers import SBSerializer
 
 from sb_base.serializers import (IntercomEventSerializer,
@@ -23,7 +24,7 @@ from sb_tags.neo_models import Tag
 
 from .neo_models import Mission
 from .utils import setup_onboarding
-
+from .tasks import send_reengage_message
 
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
@@ -257,6 +258,10 @@ class MissionSerializer(SBSerializer):
             if res.one is not None:
                 mission = Mission.inflate(res.one)
         setup_onboarding(quest, mission)
+        spawn_task(task_func=send_reengage_message,
+                   task_param={"mission_uuid": mission.object_uuid,
+                               "mission_type": focus_type},
+                   countdown=900)
         return mission
 
     def update(self, instance, validated_data):

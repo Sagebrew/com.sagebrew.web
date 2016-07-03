@@ -13,7 +13,6 @@ def send_reengage_message(mission_uuid, mission_type):
             'WHERE mission.submitted_for_review=FALSE ' \
             'RETURN mission' % mission_uuid
     res, _ = db.cypher_query(query)
-    print(res.one)
     if res.one is not None:
         # Trigger an event rather than send an email because intercom
         # only allows us to send personal or plain emails through the

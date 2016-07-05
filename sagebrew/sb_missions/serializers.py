@@ -81,6 +81,17 @@ class MissionSerializer(SBSerializer):
     location = serializers.SerializerMethodField()
     title_summary = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        super(MissionSerializer, self).__init__(*args, **kwargs)
+        self.fields['focus_name'].error_messages['blank'] = \
+            u'Please specify what you are advocating for'
+        self.fields['focus_name'].error_messages['null'] = \
+            u'Please specify where you are running and what you are running for'
+        self.fields['level'].error_messages['null'] = \
+            u'Please specify what level you are running at'
+        self.fields['district'].error_messages['null'] = \
+            u'Please specify which district you are running in'
+
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)

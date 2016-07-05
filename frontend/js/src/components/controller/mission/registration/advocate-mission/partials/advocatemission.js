@@ -29,8 +29,8 @@ export function load() {
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
-        localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
+        localStorage.removeItem(districtKey);
         localStorage.removeItem(levelKey);
     }
     var engine = new Bloodhound({
@@ -92,10 +92,14 @@ export function load() {
                     // The state level was selected
                     stateRequired.innerHTML = 'Select a State';
                     localStorage.setItem(levelKey, "state");
+                    localStorage.removeItem(locationKey);
+                    localStorage.removeItem(locationName);
                     districtRow.classList.remove('hidden');
                     districtSelection('state', stateInput, placeInput, districtRow);
                 } else if (this.id === "federal-selection") {
                     // The federal level was selected
+                    localStorage.removeItem(locationKey);
+                    localStorage.removeItem(locationName);
                     stateRequired.innerHTML = 'Select a State';
                     districtSelection('federal', stateInput, placeInput, districtRow);
                 }
@@ -121,6 +125,12 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
+            if ((location === null || location === undefined || typeof location === "undefined") && advocateInput.value) {
+                $.notify({message: "Please specify where you are advocating"},
+                    {type: "danger"});
+                greyPage.classList.add('sb_hidden');
+                return;
+            }
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
@@ -130,7 +140,11 @@ export function load() {
                     formatted_location_name: localStorage.getItem(affectedAreaKey),
                     location_name: location,
                     focus_on_type: "advocacy"
-                })
+                }),
+                error: function(XMLHttpRequest) {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    request.errorDisplay(XMLHttpRequest, null, null, true);
+                }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
                 onboarding.routeMissionSetupToEpic(data);

@@ -17,7 +17,9 @@ var request = require('api').request,
     stateUpper = "state_upper",
     stateLower = "state_lower",
     affectedAreaKey = "affectedArea",
-    clickMessageKey = "displayClickMessage";
+    clickMessageKey = "displayClickMessage",
+    tempStateLevelSelectionKey = "tempStateLevelSelectionKey",
+    districtRequiredKey = "districtRequired";
 
 
 export function load() {
@@ -43,6 +45,7 @@ export function load() {
         localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
         localStorage.removeItem(levelKey);
+        localStorage.removeItem(districtRequiredKey);
     }
     var engine = new Bloodhound({
         local: ["District Attorney", "Mayor", "Governor", "City Council",
@@ -115,6 +118,8 @@ export function load() {
                 localStorage.removeItem(locationName);
                 localStorage.removeItem(affectedAreaKey);
                 localStorage.removeItem(levelKey);
+                localStorage.removeItem(districtRequiredKey);
+                localStorage.removeItem(tempStateLevelSelectionKey);
                 stateInput.selectedIndex = 0;
             }
             if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
@@ -124,6 +129,7 @@ export function load() {
                 localStorage.removeItem(positionKey);
                 positionInputRow.classList.add('hidden');
                 districtSelector.innerHTML = districtHolderTemplate();
+                localStorage.removeItem(districtRequiredKey);
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
@@ -139,12 +145,14 @@ export function load() {
                     districtRow.classList.add('hidden');
                     localStorage.setItem(filterKey, "local");
                     localStorage.setItem(levelKey, "local");
+                    localStorage.removeItem(tempStateLevelSelectionKey);
                     positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
                     // Don't set level key here because we need to determine if we're
                     // in state upper or state lower
+                    localStorage.setItem(tempStateLevelSelectionKey, true);
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
@@ -153,6 +161,7 @@ export function load() {
                     // we want to ensure we cover hiding it if state was already selected.
                     districtRow.classList.add('hidden');
                     localStorage.setItem(levelKey, "federal");
+                    localStorage.removeItem(tempStateLevelSelectionKey);
                     districtSelection('federal', stateInput, placeInput, positionSelector);
                 } else{
                     // We've selected a position
@@ -182,6 +191,22 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
+            if (localStorage.getItem(tempStateLevelSelectionKey) && (localStorage.getItem(levelKey) !== "state_upper" && localStorage.getItem(levelKey) !== "state_lower" && localStorage.getItem(levelKey) !== "state")){
+                if (!localStorage.getItem(locationName)){
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    $.notify({message: "Please specify which state you are running in"}, {type: "danger"});
+                } else {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    $.notify({message: "Please specify what you are running for"}, {type: "danger"});
+                }
+                return;
+            }
+            if (localStorage.getItem(districtRequiredKey)) {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                $.notify({message: "Please specify which district you are running in"}, {type: "danger"});
+                return;
+            }
+
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
@@ -191,7 +216,11 @@ export function load() {
                     location_name: location,
                     formatted_location_name: localStorage.getItem(affectedAreaKey),
                     focus_on_type: "position"
-                })
+                }),
+                error: function(XMLHttpRequest) {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    request.errorDisplay(XMLHttpRequest, null, null, true);
+                }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
                 onboarding.routeMissionSetupToEpic(data);
@@ -258,6 +287,7 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts(stateUpper);
         } else {
             localStorage.setItem(levelKey, "federal");
@@ -268,9 +298,11 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts(stateLower);
         } else {
             localStorage.setItem(levelKey, "federal");
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts("federal");
         }
     } else if(identifier === "Other") {

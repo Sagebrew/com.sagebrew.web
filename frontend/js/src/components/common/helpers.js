@@ -515,7 +515,7 @@ export function allowClickErrorMessage(pacInput, clickMessageKey) {
         var targetClass = $(e.target).attr('class');
         // Check fo class of clicked item to ensure it is not an item in the
         // dropdown menu aka a valid location selection
-        if (targetClass.indexOf("pac-item") === -1 || targetClass.indexOf("pac-icon") === -1) {
+        if (targetClass.indexOf("pac-item") === -1 && targetClass.indexOf("pac-icon") === -1) {
             localStorage.setItem(clickMessageKey, true);
             pacInput.on("blur", function() {
                 var inputValue = pacInput.val(),

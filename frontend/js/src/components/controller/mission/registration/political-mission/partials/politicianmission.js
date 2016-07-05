@@ -25,7 +25,6 @@ export function load() {
         stateInput = document.getElementById('state-input'),
         placeInput = document.getElementById('pac-input'),
         districtRow = document.getElementById('district-row'),
-        startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
         positionSelector = document.getElementById('js-position-selector'),
         positionInputRow = document.getElementById('position-input-row'),
@@ -70,8 +69,6 @@ export function load() {
         });
     $("#position-input-tokenfield").attr("name", "tag_box");
     positionInput.bind('typeahead:select', function(ev, suggestion) {
-        // Activate button after a suggestion has been selected
-        startBtn.disabled = false;
         // Should remove the previous item to ensure that only the most
         // recent input is passed to the endpoint
         localStorage.removeItem(positionKey);
@@ -83,12 +80,10 @@ export function load() {
             required = document.getElementById('js-required');
         helpers.characterCountRemaining(positionInputCharLimit, positionInput, positionInputCharCount);
         if ($this.val().length <= 0) {
-            startBtn.disabled = true;
             required.classList.remove('sb_hidden');
             positionInputWrapper.removeClass("has-success");
             positionInputWrapper.addClass("has-error");
         } else if ($this.val().length > positionInputCharLimit) {
-            startBtn.disabled = true;
             positionInputWrapper.removeClass("has-success");
             positionInputWrapper.addClass("has-error");
         } else {
@@ -99,7 +94,6 @@ export function load() {
             localStorage.removeItem(positionKey);
             localStorage.setItem(positionKey, $this.val());
             // Activate button after a position has been input
-            startBtn.disabled = false;
         }
     });
     $app
@@ -122,7 +116,6 @@ export function load() {
                 localStorage.removeItem(affectedAreaKey);
                 localStorage.removeItem(levelKey);
                 stateInput.selectedIndex = 0;
-                startBtn.disabled = true;
             }
             if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
                 // If we select a position that was already selected we need to remove the districts and
@@ -131,7 +124,6 @@ export function load() {
                 localStorage.removeItem(positionKey);
                 positionInputRow.classList.add('hidden');
                 districtSelector.innerHTML = districtHolderTemplate();
-                startBtn.disabled = true;
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
@@ -167,7 +159,7 @@ export function load() {
                     // Since a position has been selected we can get the districts and enable the selector,
                     // if we need to.
                     localStorage.removeItem(districtKey);
-                    checkIfDistricts(this.id, districtRow, positionInputRow, startBtn);
+                    checkIfDistricts(this.id, districtRow, positionInputRow);
                 }
             }
             radioSelector(this);
@@ -179,40 +171,6 @@ export function load() {
             localStorage.setItem(districtKey, this.options[this.selectedIndex].innerHTML);
             // Since after the selection a click event isn't raised we need to add this to ensure
             // the user can move forward without needing to click somewhere
-            startBtn.disabled = false;
-        })
-        .on('click', '.registration', function() {
-            // Some additional logic to ensure the startBtn only goes on when it should for both local and
-            // Federal/State (district vs non-district)
-            if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) !== null){
-                // Local positions don't have districts so since a position has been selected enable the button
-                startBtn.disabled = false;
-            } else if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) === null){
-                // We need to have a position selected before allowing the user to click the start button
-                // so since none has been selected disable it.
-                startBtn.disabled = true;
-            }
-
-            // Enabling the button is handled by on change of js-district-selector select above
-            if(localStorage.getItem(filterKey) === "state" && localStorage.getItem(districtKey) === null) {
-                startBtn.disabled = true;
-                if(localStorage.getItem(positionKey) !== null) {
-                    startBtn.disabled = false;
-                }
-            }
-            if(localStorage.getItem(filterKey) === "federal") {
-                if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
-                    // Presidents and Senators don't have districts so we can enable the start button
-                    startBtn.disabled = false;
-                } else if (localStorage.getItem(districtKey) === null){
-                    // If we're not talking about Presidents or Senators we need a district so disable the
-                    // start button until a district is selected.
-                    startBtn.disabled = true;
-                    if(localStorage.getItem(positionKey) !== null) {
-                        startBtn.disabled = false;
-                    }
-                }
-            }
         })
         .on('click', '#js-start-btn', function(){
             greyPage.classList.remove('sb_hidden');
@@ -294,18 +252,16 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
     document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
 }
 
-function checkIfDistricts(identifier, districtRow, positionInputRow, startBtn) {
+function checkIfDistricts(identifier, districtRow, positionInputRow) {
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
             fillDistricts(stateUpper);
-            startBtn.disabled = true;
         } else {
             localStorage.setItem(levelKey, "federal");
             districtRow.classList.add('hidden');
-            startBtn.disabled = false;
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
@@ -313,21 +269,17 @@ function checkIfDistricts(identifier, districtRow, positionInputRow, startBtn) {
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
             fillDistricts(stateLower);
-            startBtn.disabled = true;
         } else {
             localStorage.setItem(levelKey, "federal");
             fillDistricts("federal");
-            startBtn.disabled = true;
         }
     } else if(identifier === "Other") {
         localStorage.setItem(levelKey, localStorage.getItem(filterKey));
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
-        startBtn.disabled = true;
     } else {
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.add('hidden');
-        startBtn.disabled = false;
     }
 }
 
@@ -371,49 +323,9 @@ function initAutocomplete() {
     autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
 
-    (function pacSelectFrist(input) {
-        var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
-        function addEventListenerWrapper(type, listener) {
-            if (type === "keydown") {
-                var origListener = listener;
-                listener = function(event) {
-                    var suggestionSelected = $(".pac-item-selected").length > 0;
-                    if ((event.which === 13 || event.which === 9) && !suggestionSelected) {
-                        var simulatedDownArrow = $.Event("keydown", {keyCode: 40, which: 40});
-                        origListener.apply(input, [simulatedDownArrow]);
-                    }
-                    origListener.apply(input, [event]);
-                };
-            }
-            _addEventListener.apply(input, [type, listener]);
-        }
+    helpers.allowTabLocationSelection(input);
 
-        if (input.addEventListener) {
-            input.addEventListener = addEventListenerWrapper;
-        }
-        else if (input.attachEvent){
-            input.attachEvent = addEventListenerWrapper;
-        }
-
-    })(input);
-
-    function removeBlurMessage() {
-        pacInput.off("blur");
-    }
-
-    $("body").on('mousedown', function() {
-        localStorage.setItem(clickMessageKey, true);
-        pacInput.on("blur", function() {
-            var inputValue = pacInput.val(),
-                displayClickMessage = localStorage.getItem(clickMessageKey);
-            if (inputValue && displayClickMessage) {
-                $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
-                    {type: "danger"});
-                localStorage.setItem(clickMessageKey, false);
-            }
-        });
-        window.setTimeout(removeBlurMessage, 100);
-    });
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey);
     
 
     autocomplete.addListener('place_changed', function() {
@@ -431,7 +343,6 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
-            document.getElementById('js-start-btn').disabled = true;
             return;
         }
         if (place.geometry.viewport) {

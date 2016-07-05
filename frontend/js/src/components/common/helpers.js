@@ -500,3 +500,65 @@ export function testPrivateBrowsing() {
         }
     }
 }
+
+/*
+ * When a user clicks off the selection box after typing a location into the
+ * Mission creation page, display an error telling them to select
+ * something from the dropdown.
+ */
+export function allowClickErrorMessage(pacInput, clickMessageKey) {
+    function removeBlurMessage() {
+        pacInput.off("blur");
+    }
+
+    $("body").on('mousedown', function(e) {
+        var targetClass = $(e.target).attr('class');
+        // Check fo class of clicked item to ensure it is not an item in the
+        // dropdown menu aka a valid location selection
+        if (targetClass.indexOf("pac-item") === -1 || targetClass.indexOf("pac-icon") === -1) {
+            localStorage.setItem(clickMessageKey, true);
+            pacInput.on("blur", function() {
+                var inputValue = pacInput.val(),
+                    displayClickMessage = localStorage.getItem(clickMessageKey);
+                if (inputValue && displayClickMessage) {
+                    $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
+                        {type: "danger"});
+                    localStorage.setItem(clickMessageKey, false);
+                }
+            });
+            window.setTimeout(removeBlurMessage, 100);
+        }
+    });
+}
+
+/*
+ * Allow users to hit tab to select the first suggested location in
+ * Mission signup instead of only enter.
+ */
+export function allowTabLocationSelection(input) {
+    (function pacSelectFrist(input) {
+        var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+        function addEventListenerWrapper(type, listener) {
+            if (type === "keydown") {
+                var origListener = listener;
+                listener = function(event) {
+                    var suggestionSelected = $(".pac-item-selected").length > 0;
+                    if ((event.which === 13 || event.which === 9) && !suggestionSelected) {
+                        var simulatedDownArrow = $.Event("keydown", {keyCode: 40, which: 40});
+                        origListener.apply(input, [simulatedDownArrow]);
+                    }
+                    origListener.apply(input, [event]);
+                };
+            }
+            _addEventListener.apply(input, [type, listener]);
+        }
+
+        if (input.addEventListener) {
+            input.addEventListener = addEventListenerWrapper;
+        }
+        else if (input.attachEvent){
+            input.attachEvent = addEventListenerWrapper;
+        }
+
+    })(input);
+}

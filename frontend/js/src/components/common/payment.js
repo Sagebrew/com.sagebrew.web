@@ -3,7 +3,8 @@ var paymentMethodTemplate = require('common/templates/payment_methods.hbs'),
     addPaymentMethodTemplate = require('common/templates/add_payment.hbs'),
     settings = require('settings').settings,
     request = require('api').request,
-    paymentMethodKey = "selectedPaymentMethod";
+    paymentMethodKey = "selectedPaymentMethod",
+    maxFreeMissionKey = "max_free_missions";
 
 
 export function listPaymentMethods(endpoint, usePaymentCallback,
@@ -74,9 +75,13 @@ export function addPayment(responseHandler, cancelRedirect) {
             addWarning: true
         };
     }
-    if (localStorage.getItem("max_free_missions")) {
+    console.log(localStorage.getItem(maxFreeMissionKey));
+    if (localStorage.getItem(maxFreeMissionKey)) {
         templateContext.maxFreeMissions = true;
+        localStorage.removeItem(maxFreeMissionKey);
     }
+    console.log(templateContext);
+    console.log(localStorage.getItem(maxFreeMissionKey));
     paymentForm.innerHTML = addPaymentMethodTemplate(templateContext);
 
     new Card({

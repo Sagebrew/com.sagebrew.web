@@ -5,7 +5,8 @@
 var navbar = require('./partials/navbar').initNavbar,
     settings = require('settings').settings,
     request = require('api').request,
-    testPrivate = require('common/helpers').testPrivateBrowsing;
+    testPrivate = require('common/helpers').testPrivateBrowsing,
+    maxFreeMissionKey = "max_free_missions";
 
 
 /**
@@ -33,7 +34,7 @@ export function load() {
             if (settings.profile.quest !== null) {
                 if (settings.profile.quest.missions !== null) {
                     if (settings.profile.quest.missions.length === 5 && settings.profile.quest.free_quest) {
-                        localStorage.setItem("max_free_missions", true);
+                        localStorage.setItem(maxFreeMissionKey, true);
                         greyPage.classList.add('sb_hidden');
                         window.location.href = "/quests/" + settings.profile.username + "/manage/add_payment/";
                     } else {

@@ -1,5 +1,7 @@
 var helpers = require('common/helpers'),
-    request = require('api').request;
+    request = require('api').request,
+    maxFreeMissionKey = "max_free_missions",
+    questAccountKey = "quest_account";
 
 export function stripeResponseHandler(status, response) {
     var $form = $('#payment-form'),
@@ -12,8 +14,9 @@ export function stripeResponseHandler(status, response) {
             // If we were previously at the plan upgrade page and didn't have a
             // card on file we redirect here. If the user enters a card we then
             // update the account to paid and redirect to the quest billing page.
-            if(localStorage.getItem('quest_account') === "upgrade"){
-                localStorage.removeItem('quest_account');
+            if(localStorage.getItem(questAccountKey) === "upgrade" || localStorage.getItem(maxFreeMissionKey)){
+                localStorage.removeItem(questAccountKey);
+                localStorage.removeItem(maxFreeMissionKey);
                 request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
                     account_type: "paid"
                 })}).done(function () {

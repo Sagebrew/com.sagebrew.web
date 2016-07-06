@@ -1,6 +1,7 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validators = require('common/validators');
+    validators = require('common/validators'),
+    facebook = require('common/facebook');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -33,7 +34,11 @@ export function load() {
         titleCharLimit = 70,
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
-        $saveProfilePicButton = $("#js-submit-profile-picture");
+        $saveProfilePicButton = $("#js-submit-profile-picture"),
+        shareURL = window.location.href.split('manage/general')[0];
+
+    facebook.sharing(missionId + "_FBShare", shareURL);
+    
     validators.missionManageValidator(socialForm, aboutCharLimit);
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
     // Handle title not being present in the case of a mission not being focused on a position

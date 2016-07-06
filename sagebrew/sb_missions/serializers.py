@@ -81,6 +81,27 @@ class MissionSerializer(SBSerializer):
     location = serializers.SerializerMethodField()
     title_summary = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        super(MissionSerializer, self).__init__(*args, **kwargs)
+        # Blank error message is for handling advocacy Mission creation
+        # errors. This is because when submitting via the frontend we do not
+        # submit a null value instead we submit an empty string.
+        # This means we can use these different error message keys to
+        # determine which response should be shown.
+        self.fields['focus_name'].error_messages['blank'] = \
+            u'Please specify what you are advocating for'
+        # Null error message is used when handling a political Mission.
+        # When submitting the focus_name value from the frontend we submit a
+        # null value if nothing is selected. This is because user input for
+        # political Missions is largely selection based instead of
+        # user entered strings.
+        self.fields['focus_name'].error_messages['null'] = \
+            u'Please specify where you are running and what you are running for'
+        self.fields['level'].error_messages['null'] = \
+            u'Please specify what level you are running at'
+        self.fields['district'].error_messages['null'] = \
+            u'Please specify which district you are running in'
+
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)

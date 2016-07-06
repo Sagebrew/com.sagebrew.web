@@ -16,7 +16,7 @@ var helpers = require('./helpers');
  * @param notifyFrom
  * @param notifyAlign
  */
-export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
+export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign, customFieldErrors) {
     notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
     notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
     var notificationMsg;
@@ -59,7 +59,11 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                         $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                     } else{
                         for (var key in notification) {
-                            notificationMsg = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                            if (customFieldErrors) {
+                                notificationMsg = notification[key][0];
+                            } else {
+                                notificationMsg = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                            }
                             $.notify({message: notificationMsg.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
                         }
                     }

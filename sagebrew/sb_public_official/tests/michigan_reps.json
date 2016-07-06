@@ -1,0 +1,295 @@
+[
+{
+"last_name": "Crawford",
+"updated_at": "2016-07-05 05:40:16",
+"sources": [
+{
+"url": "http://www.house.mi.gov/mhrpublic/frmRepList.aspx"
+}
+],
+"full_name": "Kathy Crawford",
+"id": "MIL000290",
+"first_name": "Kathy",
+"middle_name": "",
+"district": "38",
+"state": "mi",
+"party": "Republican",
+"all_ids": [
+"MIL000290"
+],
+"leg_id": "MIL000290",
+"boundary_id": "ocd-division/country:us/state:mi/sldl:38",
+"active": true,
+"roles": [
+{
+"term": "2015-2016",
+"end_date": null,
+"district": "38",
+"chamber": "lower",
+"state": "mi",
+"party": "Republican",
+"type": "member",
+"start_date": null
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000027",
+"chamber": "lower",
+"state": "mi",
+"subcommittee": null,
+"committee": "Families, Children, and Seniors",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000151",
+"chamber": "lower",
+"state": "mi",
+"subcommittee": null,
+"committee": "Workforce and Talent Development",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000029",
+"chamber": "lower",
+"state": "mi",
+"subcommittee": null,
+"committee": "Health Policy",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000037",
+"chamber": "lower",
+"state": "mi",
+"subcommittee": null,
+"committee": "Regulatory Reform",
+"position": "member",
+"type": "committee member"
+}
+],
+"url": "http://gophouse.org/representatives/southeast/kcrawford/",
+"created_at": "2015-01-14 17:15:11",
+"chamber": "lower",
+"offices": [
+{
+"fax": null,
+"name": "Capitol Office",
+"phone": "5173730827",
+"address": "S0887 Anderson House Office Building\n124 North Capitol Avenue\nLansing, MI 48933",
+"type": "capitol",
+"email": "KathyCrawford@house.mi.gov"
+}
+],
+"suffixes": ""
+},
+{
+"last_name": "Kowall",
+"updated_at": "2016-07-05 05:39:28",
+"sources": [
+{
+"url": "http://www.senate.michigan.gov/senatorinfo.html"
+}
+],
+"full_name": "Mike Kowall",
+"old_roles": {
+"2013-2014": [
+{
+"term": "2013-2014",
+"end_date": null,
+"district": "15",
+"chamber": "upper",
+"state": "mi",
+"party": "Republican",
+"type": "member",
+"start_date": null
+},
+{
+"term": "2013-2014",
+"committee_id": "MIC000132",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Economic Development",
+"position": "chair",
+"type": "committee member"
+},
+{
+"term": "2013-2014",
+"committee_id": "MIC000134",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Natural Resources, Environment and Great Lakes",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2013-2014",
+"committee_id": "MIC000138",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Transportation",
+"position": "majority vice chair",
+"type": "committee member"
+},
+{
+"term": "2013-2014",
+"committee_id": "MIC000140",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Reforms, Restructuring and Reinventing",
+"position": "member",
+"type": "committee member"
+}
+],
+"2011-2012": [
+{
+"term": "2011-2012",
+"end_date": null,
+"district": "15",
+"chamber": "upper",
+"state": "mi",
+"party": "Republican",
+"type": "member",
+"start_date": null
+},
+{
+"term": "2011-2012",
+"committee_id": "MIC000059",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Economic Development",
+"position": "chair",
+"type": "committee member"
+},
+{
+"term": "2011-2012",
+"committee_id": "MIC000069",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": " Natural Resources, Environment and Great Lakes",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2011-2012",
+"committee_id": "MIC000072",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Reforms, Restructuring and Reinventing",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2011-2012",
+"committee_id": "MIC000074",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Transportation",
+"position": "majority vice chair",
+"type": "committee member"
+}
+]
+},
+"id": "MIL000015",
+"first_name": "Mike",
+"middle_name": "",
+"district": "15",
+"office_phone": "517-373-1758",
+"state": "mi",
+"votesmart_id": "19994",
+"boundary_id": "ocd-division/country:us/state:mi/sldu:15",
+"csrfmiddlewaretoken": "6W0EVxLP4KAC1iZ0gGYjHaREUO0HtFaK",
+"+office_loc": "305 Farnum Bldg",
+"email": "",
+"all_ids": [
+"MIL000015"
+],
+"leg_id": "MIL000015",
+"party": "Republican",
+"active": true,
+"transparencydata_id": "098c34e93ec4483bb2053fd0b82d470e",
+"nickname": "",
+"photo_url": "http://www.misenategop.com/senators_headshots/Kowall.jpg",
+"+office_fax": "517-373-0938",
+"roles": [
+{
+"term": "2015-2016",
+"end_date": null,
+"district": "15",
+"chamber": "upper",
+"state": "mi",
+"party": "Republican",
+"type": "member",
+"start_date": null
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000158",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Commerce",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000137",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Government Operations",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000145",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Regulatory Reform",
+"position": "member",
+"type": "committee member"
+},
+{
+"term": "2015-2016",
+"committee_id": "MIC000175",
+"chamber": "upper",
+"state": "mi",
+"subcommittee": null,
+"committee": "Oversight",
+"position": "majority vice chair",
+"type": "committee member"
+}
+],
+"url": "http://www.senate.mi.gov/kowall",
+"country": "us",
+"created_at": "2011-04-07 20:15:35",
+"level": "state",
+"chamber": "upper",
+"offices": [
+{
+"fax": "517-373-0938",
+"name": "Capitol Office",
+"phone": "517-373-1758",
+"address": "S-309 State Capitol Building\nLansing, MI 48909",
+"type": "capitol",
+"email": null
+}
+],
+"suffixes": ""
+}
+]

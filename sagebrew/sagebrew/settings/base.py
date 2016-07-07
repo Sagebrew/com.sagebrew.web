@@ -596,7 +596,7 @@ ONBOARDING_TASKS = [
         "completed_title": "Shared on Facebook",
         "content": "Get the word out about your Mission by sharing it "
                    "on Facebook",
-        "icon": "fa fa-font",
+        "icon": "fa fa-facebook",
         "priority": 9,
         "url": "%s/quests/%s/manage/general/#fbshare",
         'type': 'quest'

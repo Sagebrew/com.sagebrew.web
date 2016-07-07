@@ -37,7 +37,7 @@ export function load() {
         $saveProfilePicButton = $("#js-submit-profile-picture"),
         shareURL = window.location.href.split('manage/general')[0];
 
-    facebook.sharing(missionId + "_FBShare", shareURL);
+    facebook.sharing(missionId + "_FBShare", shareURL, "/v1/missions/" + missionId + "/");
     
     validators.missionManageValidator(socialForm, aboutCharLimit);
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);

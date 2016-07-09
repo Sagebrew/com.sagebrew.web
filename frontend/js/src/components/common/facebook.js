@@ -10,7 +10,9 @@ export function sharing(buttonId, sharedURL, updateURL) {
             display: 'popup',
             href: sharedURL
         }, function(response) {
-            if (response.post_id && updateURL) {
+            // Check for an actual response object to be returned,
+            // only occurs on successful sharing
+            if (response !== undefined && updateURL) {
                 requests.patch({
                         url: updateURL,
                         data: JSON.stringify({shared_on_facebook: true})

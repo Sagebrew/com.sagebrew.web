@@ -559,7 +559,7 @@ ONBOARDING_TASKS = [
                    "on Facebook",
         "icon": "fa fa-facebook",
         "priority": 5,
-        "url": "%s/quests/%s/manage/general/#fbshare",
+        "url": "%s/missions/%s/%s/manage/general/",
         'type': 'mission'
     },
     {

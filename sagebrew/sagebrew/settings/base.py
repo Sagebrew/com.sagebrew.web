@@ -553,6 +553,16 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
+        "title": SHARE_ON_FACEBOOK,
+        "completed_title": "Shared on Facebook",
+        "content": "Get the word out about your Mission by sharing it "
+                   "on Facebook",
+        "icon": "fa fa-facebook",
+        "priority": 5,
+        "url": "%s/quests/%s/manage/general/#fbshare",
+        'type': 'mission'
+    },
+    {
         "title": MISSION_WALLPAPER_TITLE,
         "completed_title": "Mission Wallpaper Set",
         "content": "Replace the default image "
@@ -589,16 +599,6 @@ ONBOARDING_TASKS = [
         "icon": "fa fa-font",
         "priority": 8,
         "url": "%s/quests/%s/manage/general/#about",
-        'type': 'quest'
-    },
-    {
-        "title": SHARE_ON_FACEBOOK,
-        "completed_title": "Shared on Facebook",
-        "content": "Get the word out about your Mission by sharing it "
-                   "on Facebook",
-        "icon": "fa fa-facebook",
-        "priority": 9,
-        "url": "%s/quests/%s/manage/general/#fbshare",
         'type': 'quest'
     }
 ]

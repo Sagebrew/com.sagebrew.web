@@ -318,12 +318,9 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
         localStorage.removeItem(districtRequiredKey);
-    } else if(identifier === "President") {
-        localStorage.setItem(positionKey, identifier);
-        districtRow.classList.add('hidden');
-        localStorage.removeItem(districtRequiredKey);
     } else {
         localStorage.setItem(positionKey, identifier);
+        localStorage.removeItem(districtRequiredKey);
         districtRow.classList.add('hidden');
     }
 }

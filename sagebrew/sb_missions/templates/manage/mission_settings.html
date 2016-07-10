@@ -1,9 +1,6 @@
 {% extends "manage/mission_manage_base.html" %}
 {% load staticfiles %}
 {% block title %}Mission Settings{% endblock title %}
-{% block meta %}
-    {% include "partials/facebook_meta.html" with url=mission.url title=mission.title description=mission.about image_url=mission.wallpaper_pic  %}
-{% endblock meta %}
 {% block live %}
     <a name="wallpaper"></a>
     {% include "partials/image_upload_block.html" with title_text="Mission Wallpaper" save_button_text="Save Wallpaper" current_image=mission.wallpaper_pic required_width=450 required_height=450 %}

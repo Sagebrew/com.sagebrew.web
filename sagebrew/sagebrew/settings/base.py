@@ -568,7 +568,7 @@ ONBOARDING_TASKS = [
         "content": "Replace the default image "
                    "with one that reflects your Mission.",
         "icon": "fa fa-picture-o",
-        "priority": 5,
+        "priority": 6,
         "url": "%s/missions/%s/%s/manage/general/#wallpaper",
         'type': 'mission'
     },
@@ -577,7 +577,7 @@ ONBOARDING_TASKS = [
         "completed_title": "Summary Created",
         "content": "Attract users at a glance by summarizing your Mission",
         "icon": "fa fa-font",
-        "priority": 6,
+        "priority": 7,
         "url": "%s/missions/%s/%s/manage/general/#about",
         'type': 'mission'
     },
@@ -587,7 +587,7 @@ ONBOARDING_TASKS = [
         "content": "Replace the default image with one "
                    "that reflects yourself or your organization.",
         "icon": "fa fa-picture-o",
-        "priority": 7,
+        "priority": 8,
         "url": "%s/quests/%s/manage/general/#wallpaper",
         'type': 'quest'
     },
@@ -597,7 +597,7 @@ ONBOARDING_TASKS = [
         "content": "Build contributor confidence by describing yourself "
                    "or your organization.",
         "icon": "fa fa-font",
-        "priority": 8,
+        "priority": 9,
         "url": "%s/quests/%s/manage/general/#about",
         'type': 'quest'
     }

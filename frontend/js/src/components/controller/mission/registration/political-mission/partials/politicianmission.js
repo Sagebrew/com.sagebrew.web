@@ -170,6 +170,9 @@ export function load() {
                     localStorage.removeItem(districtKey);
                     checkIfDistricts(this.id, districtRow, positionInputRow);
                 }
+                if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
+                    localStorage.removeItem(levelKey);
+                }
             }
             radioSelector(this);
         })
@@ -206,7 +209,11 @@ export function load() {
                 $.notify({message: "Please specify which district you are running in"}, {type: "danger"});
                 return;
             }
-
+            if (location && !localStorage.getItem(positionKey)) {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                $.notify({message: "Please specify what you are running for"}, {type: "danger"});
+                return;
+            }
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
@@ -290,6 +297,7 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
             localStorage.setItem(districtRequiredKey, true);
             fillDistricts(stateUpper);
         } else {
+            localStorage.removeItem(districtRequiredKey);
             localStorage.setItem(levelKey, "federal");
             districtRow.classList.add('hidden');
         }
@@ -309,8 +317,10 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         localStorage.setItem(levelKey, localStorage.getItem(filterKey));
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
+        localStorage.removeItem(districtRequiredKey);
     } else {
         localStorage.setItem(positionKey, identifier);
+        localStorage.removeItem(districtRequiredKey);
         districtRow.classList.add('hidden');
     }
 }

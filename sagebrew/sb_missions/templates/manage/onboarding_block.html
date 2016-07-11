@@ -66,6 +66,19 @@
                                                     data-mission-slug="{{ mission.slug }}">
                                                     {{ task.content }}
                                                 </a>
+                                            {% elif task.title == "Share on Twitter" %}
+                                                <a class="twitter-share-button"
+                                                   href="{{ task.url }}"
+                                                   data-size="large"
+                                                   data-url="{{ mission.url }}"
+                                                   data-via="TrueSagebrew"
+                                                   data-related="sagebrew,politics"
+                                                   data-hashtags="sagebrew"
+                                                   data-text="Check out my new Mission on Sagebrew"
+                                                   data-mission-id="{{ mission.id }}"
+                                                   data-mission-slug="{{ mission.slug }}">
+                                                    {{ task.content }}
+                                                </a>
                                             {% else %}
                                                 <a id="href-{{ task.title|slugify }}" href="{{ task.url }}"
                                                     data-mission-id="{{ mission.id }}"
@@ -114,6 +127,14 @@
                                             <div class="block-content">
                                                 {% if task.title == "Share on Facebook" %}
                                                     <a id="{{ mission.id }}_FBShare" href="{{ task.url }}">
+                                                        {{ task.content }}
+                                                    </a>
+                                                {% elif task.title == "Share on Twitter" %}
+                                                    <a id="{{ mission.id }}_TwitterShare"
+                                                       href="https://twitter.com/share?text=Checkout my Mission on Sagebrew&url={{ mission.url }}"
+                                                       target="_blank"
+                                                       data-mission-id="{{ mission.id }}"
+                                                       data-mission-slug="{{ mission.slug }}">
                                                         {{ task.content }}
                                                     </a>
                                                 {% else %}

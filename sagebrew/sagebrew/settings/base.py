@@ -513,6 +513,7 @@ EPIC_TITLE = "Create Epic"
 MISSION_WALLPAPER_TITLE = "Mission Wallpaper"
 SUBMIT_FOR_REVIEW = "Submit For Review"
 SHARE_ON_FACEBOOK = "Share on Facebook"
+SHARE_ON_TWITTER = "Share on Twitter"
 ONBOARDING_TASKS = [
     {
         "title": MISSION_SETUP_TITLE,
@@ -563,12 +564,22 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
+        "title": SHARE_ON_TWITTER,
+        "completed_title": "Shared on Twitter",
+        "content": "Get the word out about your Mission by sharing it "
+                   "on Twitter",
+        "icon": "fa fa-twitter",
+        "priority": 6,
+        "url": "%s/missions/%s/%s/manage/general/",
+        'type': 'mission'
+    },
+    {
         "title": MISSION_WALLPAPER_TITLE,
         "completed_title": "Mission Wallpaper Set",
         "content": "Replace the default image "
                    "with one that reflects your Mission.",
         "icon": "fa fa-picture-o",
-        "priority": 6,
+        "priority": 7,
         "url": "%s/missions/%s/%s/manage/general/#wallpaper",
         'type': 'mission'
     },
@@ -577,7 +588,7 @@ ONBOARDING_TASKS = [
         "completed_title": "Summary Created",
         "content": "Attract users at a glance by summarizing your Mission",
         "icon": "fa fa-font",
-        "priority": 7,
+        "priority": 8,
         "url": "%s/missions/%s/%s/manage/general/#about",
         'type': 'mission'
     },
@@ -587,7 +598,7 @@ ONBOARDING_TASKS = [
         "content": "Replace the default image with one "
                    "that reflects yourself or your organization.",
         "icon": "fa fa-picture-o",
-        "priority": 8,
+        "priority": 9,
         "url": "%s/quests/%s/manage/general/#wallpaper",
         'type': 'quest'
     },
@@ -597,7 +608,7 @@ ONBOARDING_TASKS = [
         "content": "Build contributor confidence by describing yourself "
                    "or your organization.",
         "icon": "fa fa-font",
-        "priority": 9,
+        "priority": 10,
         "url": "%s/quests/%s/manage/general/#about",
         'type': 'quest'
     }

@@ -59,6 +59,7 @@ class MissionSerializer(SBSerializer):
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
     shared_on_facebook = serializers.BooleanField(required=False)
+    shared_on_twitter = serializers.BooleanField(required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -298,6 +299,8 @@ class MissionSerializer(SBSerializer):
             'submitted_for_review', instance.submitted_for_review)
         instance.shared_on_facebook = validated_data.get(
             'shared_on_facebook', instance.shared_on_facebook)
+        instance.shared_on_twitter = validated_data.get(
+            'shared_on_twitter', instance.shared_on_twitter)
         instance.saved_for_later = validated_data.get('saved_for_later',
                                                       instance.saved_for_later)
         if instance.submitted_for_review and not initial_review_state and not \
@@ -403,6 +406,12 @@ class MissionSerializer(SBSerializer):
                 '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.SHARE_ON_FACEBOOK))
+        if instance.shared_on_twitter:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.SHARE_ON_TWITTER))
         if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
             db.cypher_query(
                 'MATCH (mission:Mission {object_uuid: "%s"})-'

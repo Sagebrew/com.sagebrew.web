@@ -173,7 +173,6 @@ export function load() {
                 if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
                     localStorage.removeItem(levelKey);
                 }
-                console.log(localStorage.getItem(levelKey));
                 console.log(localStorage.getItem(tempStateLevelSelectionKey));
             }
             radioSelector(this);

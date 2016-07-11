@@ -192,7 +192,6 @@ class MissionBaseView(View):
             return redirect("500_Error")
         mission_dict = MissionSerializer(
             mission_obj, context={'request': request}).data
-        mission_dict['slug'] = slugify(mission_obj.get_mission_title())
 
         return render(request, self.template_name, {
             "mission": mission_dict,

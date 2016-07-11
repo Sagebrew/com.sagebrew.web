@@ -58,6 +58,7 @@ class MissionSerializer(SBSerializer):
     focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
+    shared_on_facebook = serializers.BooleanField(required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -295,6 +296,8 @@ class MissionSerializer(SBSerializer):
         initial_review_state = instance.submitted_for_review
         instance.submitted_for_review = validated_data.pop(
             'submitted_for_review', instance.submitted_for_review)
+        instance.shared_on_facebook = validated_data.get(
+            'shared_on_facebook', instance.shared_on_facebook)
         instance.saved_for_later = validated_data.get('saved_for_later',
                                                       instance.saved_for_later)
         if instance.submitted_for_review and not initial_review_state and not \
@@ -394,6 +397,12 @@ class MissionSerializer(SBSerializer):
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if instance.shared_on_facebook:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.SHARE_ON_FACEBOOK))
         if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
             db.cypher_query(
                 'MATCH (mission:Mission {object_uuid: "%s"})-'

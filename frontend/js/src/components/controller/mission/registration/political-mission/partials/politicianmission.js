@@ -324,7 +324,6 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         districtRow.classList.add('hidden');
         localStorage.removeItem(districtRequiredKey);
     } else {
-        console.log(identifier);
         if (localStorage.getItem(tempStateLevelSelectionKey)) {
             localStorage.setItem(levelKey, "state");
         }

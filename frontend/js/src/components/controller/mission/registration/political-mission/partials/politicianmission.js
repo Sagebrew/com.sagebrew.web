@@ -173,7 +173,6 @@ export function load() {
                 if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
                     localStorage.removeItem(levelKey);
                 }
-                console.log(localStorage.getItem(tempStateLevelSelectionKey));
             }
             radioSelector(this);
         })
@@ -200,9 +199,6 @@ export function load() {
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                     $.notify({message: "Please specify which state you are running in"}, {type: "danger"});
                 } else {
-                    console.log(localStorage.getItem(levelKey));
-                    console.log(localStorage.getItem(tempStateLevelSelectionKey));
-                    console.log(localStorage.getItem(locationName));
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                     $.notify({message: "Please specify what you are running for"}, {type: "danger"});
                 }
@@ -230,7 +226,7 @@ export function load() {
                 }),
                 error: function(XMLHttpRequest) {
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                    request.errorDisplay(XMLHttpRequest, null, null, true);
+                    request.errorDisplay(XMLHttpRequest, undefined, undefined, true);
                 }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');

@@ -173,6 +173,8 @@ export function load() {
                 if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
                     localStorage.removeItem(levelKey);
                 }
+                console.log(localStorage.getItem(levelKey));
+                console.log(localStorage.getItem(tempStateLevelSelectionKey));
             }
             radioSelector(this);
         })
@@ -199,12 +201,15 @@ export function load() {
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                     $.notify({message: "Please specify which state you are running in"}, {type: "danger"});
                 } else {
+                    console.log(localStorage.getItem(levelKey));
+                    console.log(localStorage.getItem(tempStateLevelSelectionKey));
+                    console.log(localStorage.getItem(locationName));
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                     $.notify({message: "Please specify what you are running for"}, {type: "danger"});
                 }
                 return;
             }
-            if (localStorage.getItem(districtRequiredKey)) {
+            if (localStorage.getItem(districtRequiredKey) && !localStorage.getItem(districtKey)) {
                 document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                 $.notify({message: "Please specify which district you are running in"}, {type: "danger"});
                 return;
@@ -319,6 +324,10 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         districtRow.classList.add('hidden');
         localStorage.removeItem(districtRequiredKey);
     } else {
+        console.log(identifier);
+        if (localStorage.getItem(tempStateLevelSelectionKey)) {
+            localStorage.setItem(levelKey, "state");
+        }
         localStorage.setItem(positionKey, identifier);
         localStorage.removeItem(districtRequiredKey);
         districtRow.classList.add('hidden');

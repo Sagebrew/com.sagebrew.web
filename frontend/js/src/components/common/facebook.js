@@ -18,7 +18,7 @@ export function sharing(buttonId, sharedURL, updateURL) {
                         data: JSON.stringify({shared_on_facebook: true})
                     })
                     .done(function() {
-                        $.notify({message: "Thanks for sharing your Mission!", type: "success"});
+                        $.notify({message: "Thanks for sharing your Mission!"}, {type: "success"});
                 });
             }
         });

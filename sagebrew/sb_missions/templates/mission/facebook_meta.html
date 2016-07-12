@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<meta name="author"               content="{{ quest.title }}">
+<meta property="og:url"           content="{{ mission.url }}" />
+<meta property="og:type"          content="website" />
+<meta property="og:title"         content="{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}" />
+<meta property="og:description"   content="{% if mission.about %}{{ mission.about }}{% else %}A {{mission.level_readable}} level {{mission.focus_on_type}} mission.{% endif %}" />
+    {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+<meta property="og:image"         content="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}" />

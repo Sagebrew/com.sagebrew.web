@@ -204,7 +204,7 @@ export function load() {
                 }
                 return;
             }
-            if (localStorage.getItem(districtRequiredKey)) {
+            if (localStorage.getItem(districtRequiredKey) && !localStorage.getItem(districtKey)) {
                 document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                 $.notify({message: "Please specify which district you are running in"}, {type: "danger"});
                 return;
@@ -226,7 +226,7 @@ export function load() {
                 }),
                 error: function(XMLHttpRequest) {
                     document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                    request.errorDisplay(XMLHttpRequest, null, null, true);
+                    request.errorDisplay(XMLHttpRequest, undefined, undefined, true);
                 }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
@@ -319,6 +319,9 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         districtRow.classList.add('hidden');
         localStorage.removeItem(districtRequiredKey);
     } else {
+        if (localStorage.getItem(tempStateLevelSelectionKey)) {
+            localStorage.setItem(levelKey, "state");
+        }
         localStorage.setItem(positionKey, identifier);
         localStorage.removeItem(districtRequiredKey);
         districtRow.classList.add('hidden');

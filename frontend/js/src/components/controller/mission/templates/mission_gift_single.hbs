@@ -1,0 +1,19 @@
+<div class="product-container row" style="height: 150px;">
+    <div class="product-image col-xs-2">
+        <img width="100px" src="{{product.image}}"/>
+    </div>
+    <div class="col-xs-5">
+        {{product.description}}
+    </div>
+    <div class="col-xs-2">
+        <div>{{product.price}}</div>
+    </div>
+    <div class="col-xs-3 js-add-to-selected">
+        <button id="{{product.id}}-add" class="btn btn-primary sb_btn sb_btn_fill"
+                data-product_id="{{product.id}}"
+                data-product_description="{{product.description}}"
+                data-product_price="{{product.price}}"
+                data-product_image="{{product.image}}">
+            Add to Selected Items</button>
+    </div>
+</div>

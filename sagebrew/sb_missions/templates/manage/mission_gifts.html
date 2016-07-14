@@ -1,0 +1,26 @@
+{% extends "layout/two-col-right.html" %}
+{% load staticfiles %}
+{% block title %}Mission Gifts{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <div class="block-content">
+            <input placeholder="Search for Items You Need"/>
+            <div id="js-gift-container"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_right %}
+    <div class="block">
+        <div class="block-title">
+            Selected Items
+        </div>
+        <div id="js-selected-gift-container" class="block-content">
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-mission-gifts');
+{% endblock %}

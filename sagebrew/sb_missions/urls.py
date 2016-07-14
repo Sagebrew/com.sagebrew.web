@@ -73,6 +73,11 @@ urlpatterns = patterns(
         MissionSettingsView.as_view(
             template_name='manage/mission_volunteers.html'),
         name="mission_volunteers"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/gifts/$',
+        MissionSettingsView.as_view(
+            template_name='manage/mission_gifts.html'),
+        name="mission_gifts"),
 
     # Donate
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'

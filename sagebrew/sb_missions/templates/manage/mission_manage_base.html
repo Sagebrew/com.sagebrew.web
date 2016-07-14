@@ -46,6 +46,11 @@
                         Volunteers
                     </a>
                 </li>
+                <li {% if "/manage/gifts/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_gifts" mission.id slug %}">
+                        Gifts
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

@@ -506,21 +506,33 @@ export function testPrivateBrowsing() {
  * Mission creation page, display an error telling them to select
  * something from the dropdown.
  */
-export function allowClickErrorMessage(pacInput, clickMessageKey) {
+export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
     function removeBlurMessage() {
         pacInput.off("blur");
     }
 
     $("body").on('mousedown', function(e) {
         var targetClass = $(e.target).attr('class');
-        // Check fo class of clicked item to ensure it is not an item in the
+        // Check for class of clicked item to ensure it is not an item in the
         // dropdown menu aka a valid location selection
-        if (targetClass.indexOf("pac-item") === -1 && targetClass.indexOf("pac-icon") === -1) {
+        if (!targetClass) {
+            localStorage.setItem(clickMessageKey, true);
+            pacInput.on("blur", function () {
+                var inputValue = pacInput.val(),
+                    displayClickMessage = localStorage.getItem(clickMessageKey);
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
+                    $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
+                        {type: "danger"});
+                    localStorage.setItem(clickMessageKey, false);
+                }
+            });
+            window.setTimeout(removeBlurMessage, 100);
+        } else if ((targetClass.indexOf("pac-item") === -1 && targetClass.indexOf("pac-icon") === -1)) {
             localStorage.setItem(clickMessageKey, true);
             pacInput.on("blur", function() {
                 var inputValue = pacInput.val(),
                     displayClickMessage = localStorage.getItem(clickMessageKey);
-                if (inputValue && displayClickMessage) {
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
                     $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                         {type: "danger"});
                     localStorage.setItem(clickMessageKey, false);

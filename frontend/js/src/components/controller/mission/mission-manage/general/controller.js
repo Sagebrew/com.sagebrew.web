@@ -1,8 +1,6 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validators = require('common/validators'),
-    facebook = require('common/facebook'),
-    twitter = require('common/twitter');
+    validators = require('common/validators');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -35,11 +33,7 @@ export function load() {
         titleCharLimit = 70,
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
-        $saveProfilePicButton = $("#js-submit-profile-picture"),
-        shareURL = window.location.href.split('manage/general')[0];
-
-    facebook.sharing(missionId + "_FBShare", shareURL, "/v1/missions/" + missionId + "/");
-    twitter.sharing(missionId + "_TwitterShare", "/v1/missions/" + missionId + "/");
+        $saveProfilePicButton = $("#js-submit-profile-picture");
     
     validators.missionManageValidator(socialForm, aboutCharLimit);
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);

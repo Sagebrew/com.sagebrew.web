@@ -3,7 +3,9 @@
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    facebook = require('common/facebook'),
+    twitter = require('common/twitter');
 
 /**
  * Meta.
@@ -25,9 +27,22 @@ export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
         missionID = helpers.args(1),
-        missionSlug = helpers.args(2);
+        missionSlug = helpers.args(2),
+        shareURL = window.location.href.split('manage/general')[0];
     $('[data-toggle="tooltip"]').tooltip();
+
+
+    
+    
     $app
+        .on('click', "#" + missionID + "_FBShare", function(event) {
+            event.preventDefault();
+            facebook.sharing(shareURL, "/v1/missions/" + missionID + "/");
+        })
+        .on('click', "#" + missionID + "_TwitterShare", function(event) {
+            event.preventDefault();
+            twitter.sharing("/v1/missions/" + missionID + "/");
+        })
         .on('click', '#href-submit-for-review', function () {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');

@@ -184,6 +184,9 @@ export function load() {
             // Since after the selection a click event isn't raised we need to add this to ensure
             // the user can move forward without needing to click somewhere
         })
+        .on('change', '#pac-input', function() {
+            localStorage.removeItem(locationKey);
+        })
         .on('click', '#js-start-btn', function(){
             greyPage.classList.remove('sb_hidden');
             Intercom('trackEvent', 'setup-mission');
@@ -370,7 +373,7 @@ function initAutocomplete() {
 
     helpers.allowTabLocationSelection(input);
 
-    helpers.allowClickErrorMessage(pacInput, clickMessageKey);
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey);
     
 
     autocomplete.addListener('place_changed', function() {
@@ -398,6 +401,7 @@ function initAutocomplete() {
         }
         localStorage.setItem(locationKey, place.place_id);
         localStorage.setItem(affectedAreaKey, affectedArea);
+        localStorage.setItem(clickMessageKey, false);
         request.post({
             url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)

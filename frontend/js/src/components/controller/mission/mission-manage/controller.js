@@ -39,8 +39,7 @@ export function load() {
             event.preventDefault();
             facebook.sharing(shareURL, "/v1/missions/" + missionID + "/");
         })
-        .on('click', "#" + missionID + "_TwitterShare", function(event) {
-            event.preventDefault();
+        .on('click', "#" + missionID + "_TwitterShare", function() {
             twitter.sharing("/v1/missions/" + missionID + "/");
         })
         .on('click', '#href-submit-for-review', function () {

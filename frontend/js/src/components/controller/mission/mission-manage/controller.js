@@ -28,11 +28,8 @@ export function load() {
         $app = $(".app-sb"),
         missionID = helpers.args(1),
         missionSlug = helpers.args(2),
-        shareURL = window.location.href.split('manage/general')[0];
+        shareURL = "/missions/" + missionID + "/" + missionSlug + "/";
     $('[data-toggle="tooltip"]').tooltip();
-
-
-    
     
     $app
         .on('click', "#" + missionID + "_FBShare", function(event) {

@@ -31,7 +31,8 @@ class Product(SBObject):
     """
     # Can use ItemLookup from Amazon to get more information such as price,
     # availability, etc. using the amazon_id
-    amazon_id = StringProperty()
+    vendor_id = StringProperty()
+    vendor_name = StringProperty()
 
     # Whether or not this item has been purchased for the Mission
     purchased = BooleanProperty(default=False)

@@ -5,19 +5,17 @@
     addresses = require('common/addresses'),
     */
 var settings = require('settings').settings,
+    request = require('api').request,
     amazon = require('amazon-product-api'),
     individualGiftTemplate = require('../../mission/templates/mission_gift_single.hbs'),
     individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs');
 
 export function search(container, selectedContainer) {
-    /*
     var client = amazon.createClient({
-        awsId: "AKIAJMKAKDDVVIMLTK7Q",
-        awsSecret: "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",
-        awsTag: "mytag-20" //associate tag id
+        awsId: "AKIAI5PAWWJNUQPPXL3Q",
+        awsSecret: "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",
+        awsTag: "sagebrew-20" //associate tag id
     });
-    console.log(settings);
-    console.log('here');
     client.itemSearch({
         director: 'Quentin Tarantino',
         actor: 'Samuel L. Jackson',
@@ -32,9 +30,13 @@ export function search(container, selectedContainer) {
             console.log(response);
         }
     });
-    */
-    console.log(settings);
-    console.log(amazon);
+    request.get({url: 'https://webservices.amazon.com/onca/xml?AWSAccessKeyId=AKIAI5PAWWJNUQPPXL3Q&Actor=Samuel%20L.%20Jackson&AssociateTag=sagebrew-20&AudienceRating=R&Condition=All&Director=Quentin%20Tarantino&ItemPage=1&Keywords=&Operation=ItemSearch&ResponseGroup=ItemAttributes%2COffers%2CImages&SearchIndex=DVD&Service=AWSECommerceService&Timestamp=2016-07-16T22%3A21%3A33.035Z&Version=2013-08-01&Signature=xc5eGJ1XVxblDim4QdtrMXqGm5PPjX6QSDnVhMv9JiM%3D'})
+        .done(function(res, that) {
+            console.log(res);
+            console.log(that);
+            console.log('here');
+        });
+
     var testProducts = [
         {
             "id": 1,

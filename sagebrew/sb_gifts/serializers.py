@@ -26,7 +26,8 @@ class GiftlistSerializer(SBSerializer):
 
 
 class ProductSerializer(SBSerializer):
-    amazon_id = serializers.CharField(required=False)
+    vendor_id = serializers.CharField(required=False)
+    vendor_name = serializers.CharField(required=True)
     purchased = serializers.BooleanField(required=False)
 
     giftlist = serializers.SerializerMethodField()

@@ -17,7 +17,7 @@ export function sharing(sharedURL, updateURL) {
                     data: JSON.stringify({shared_on_facebook: true})
                 })
                 .done(function() {
-                    location.reload()
+                    location.reload();
             });
         }
     });

@@ -31,6 +31,12 @@ def setup_onboarding(quest, mission):
         if onboarding_task['type'] == "quest":
             onboarding_task['url'] = onboarding_task['url'] % (
                 settings.WEB_ADDRESS, quest.owner_username)
+        if onboarding_task['title'] == settings.SHARE_ON_FACEBOOK:
+            if mission.shared_on_facebook:
+                onboarding_task['completed'] = True
+        if onboarding_task['title'] == settings.SHARE_ON_TWITTER:
+            if mission.shared_on_twitter:
+                onboarding_task['completed'] = True
         onboarding_task.pop('type', None)
         # Necessary to ensure idempotency
         check_query = 'MATCH (mission:Mission {object_uuid: "%s"})' \

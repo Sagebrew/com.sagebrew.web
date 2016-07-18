@@ -3,7 +3,8 @@ var missions = require('common/missions'),
     settings = require('settings').settings,
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     questSummaryTemplate = require('controller/quest/quest-view/templates/quest_summary.hbs'),
-    profileSummaryTemplate = require('controller/section-profile/templates/profile_summary.hbs');
+    profileSummaryTemplate = require('controller/section-profile/templates/profile_summary.hbs'),
+    maps = require('common/static_map').init;
 
 export const meta = {
     controller: "mission/mission-view/endorsements",
@@ -30,6 +31,7 @@ export function load() {
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $endorsmentContainer = $('#js-endorsements-container'),
         $endorsementList = $("#js-endorsements-list");
+    maps("/v1/missions/" + missionId + "/", "map", true);
     if($endorsementList !== undefined && $endorsementList !== "undefined") {
         $endorsementList.sb_contentLoader({
             emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom"><p>' + 'Check Back Later For New Endorsements</p></div></div>',

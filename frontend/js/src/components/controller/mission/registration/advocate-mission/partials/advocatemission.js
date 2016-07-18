@@ -10,14 +10,14 @@ var request = require('api').request,
     locationName = "advocateMissionLocationName",
     levelKey = 'advocateMissionLevel',
     districtKey = 'advocateDistrict',
-    affectedAreaKey = "affectedArea";
+    affectedAreaKey = "affectedArea",
+    clickMessageKey = "displayClickMessage";
 
 
 export function load() {
     var $app = $(".app-sb"),
         placeInput = document.getElementById('pac-input'),
         stateInput = document.getElementById('state-input'),
-        startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
         districtRow = document.getElementById('district-row'),
         advocateInput = document.getElementById('advocate-input'),
@@ -29,8 +29,8 @@ export function load() {
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
-        localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
+        localStorage.removeItem(districtKey);
         localStorage.removeItem(levelKey);
     }
     var engine = new Bloodhound({
@@ -71,7 +71,6 @@ export function load() {
                 localStorage.removeItem(levelKey);
                 stateInput.selectedIndex = 0;
                 districtRow.classList.add('hidden');
-                startBtn.disabled = true;
             }
             if (!(this.classList.contains("radio-selected") && this.classList.contains("js-level"))) {
                 // TODO: REUSE
@@ -86,7 +85,6 @@ export function load() {
                     localStorage.setItem(levelKey, "local");
                     // To the user we clear the place input so we need to
                     // disable the start button and clear the locations
-                    startBtn.disabled = true;
                     placeInput.value = "";
                     localStorage.removeItem(locationKey);
                     localStorage.removeItem(locationName);
@@ -94,12 +92,16 @@ export function load() {
                     // The state level was selected
                     stateRequired.innerHTML = 'Select a State';
                     localStorage.setItem(levelKey, "state");
+                    localStorage.removeItem(locationKey);
+                    localStorage.removeItem(locationName);
                     districtRow.classList.remove('hidden');
-                    districtSelection('state', stateInput, placeInput, startBtn, districtRow);
+                    districtSelection('state', stateInput, placeInput, districtRow);
                 } else if (this.id === "federal-selection") {
                     // The federal level was selected
+                    localStorage.removeItem(locationKey);
+                    localStorage.removeItem(locationName);
                     stateRequired.innerHTML = 'Select a State';
-                    districtSelection('federal', stateInput, placeInput, startBtn, districtRow);
+                    districtSelection('federal', stateInput, placeInput, districtRow);
                 }
             }
             radioSelector(this);
@@ -112,31 +114,9 @@ export function load() {
             localStorage.setItem(districtKey, this.options[this.selectedIndex].innerHTML);
             // Since after the selection a click event isn't raised we need to add this to ensure
             // the user can move forward without needing to click somewhere
-            startBtn.disabled = false;
         })
-        .on('click', '.registration', function() {
-            if(localStorage.getItem(levelKey) === "local" &&
-                    advocateInput.value.length > 0 &&
-                    localStorage.getItem(locationKey) !== null){
-                startBtn.disabled = false;
-            } else if (localStorage.getItem(levelKey) === "state" &&
-                    advocateInput.value.length > 0 &&
-                    localStorage.getItem(locationKey) !== null) {
-                // If state is selected and no district then we connect up to state
-                // If a state and district are selected we follow a similiar approach
-                // as federal where we link up to the district
-                // Level of mission is set to state
-                startBtn.disabled = false;
-            } else if (localStorage.getItem(levelKey) === "federal" &&
-                    advocateInput.value.length > 0) {
-                // If no state is selected then federal defaults to United States of America
-                // If a state is selected and no district is defaults to the state
-                // If both a state and district are selected linked to district
-                // Level of mission is set to federal
-                startBtn.disabled = false;
-            } else {
-                startBtn.disabled = true;
-            }
+        .on('change', '#pac-input', function() {
+            localStorage.removeItem(locationKey);
         })
         .on('click', '#js-start-btn', function(){
             greyPage.classList.remove('sb_hidden');
@@ -148,6 +128,12 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
+            if ((location === null || location === undefined || typeof location === "undefined") && advocateInput.value) {
+                $.notify({message: "Please specify where you are advocating"},
+                    {type: "danger"});
+                greyPage.classList.add('sb_hidden');
+                return;
+            }
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
@@ -157,7 +143,11 @@ export function load() {
                     formatted_location_name: localStorage.getItem(affectedAreaKey),
                     location_name: location,
                     focus_on_type: "advocacy"
-                })
+                }),
+                error: function(XMLHttpRequest) {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    request.errorDisplay(XMLHttpRequest, null, null, true);
+                }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
                 onboarding.routeMissionSetupToEpic(data);
@@ -188,7 +178,7 @@ export function load() {
     helpers.loadMap(initAutocomplete, "places");
 }
 
-function districtSelection(level, stateInput, placeInput, startBtn, districtRow) {
+function districtSelection(level, stateInput, placeInput, districtRow) {
     /**
      * If the user had previous selected local we need to clear out
      * the running area since the location on the map now represents
@@ -200,7 +190,6 @@ function districtSelection(level, stateInput, placeInput, startBtn, districtRow)
         // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
-        startBtn.disabled = true;
     }
     stateInput.classList.remove('hidden');
     placeInput.classList.add('hidden');
@@ -269,20 +258,19 @@ function initAutocomplete() {
             if(localStorage.getItem(levelKey) === "federal"){
                 document.getElementById('district-row').classList.remove('hidden');
             }
-            if(localStorage.getItem(levelKey) === "state"){
-                // If we're looking at a state we can enable the start button
-                // because a user doesn't have to input a district
-                document.getElementById('js-start-btn').disabled = false;
-            }
             var service = new google.maps.places.PlacesService(map);
             service.textSearch(requestQuery, callback);
 
         });
-    var autocomplete = new google.maps.places.Autocomplete(input);
+    var autocomplete = new google.maps.places.Autocomplete(input),
+        pacInput = $("#pac-input");
     autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
 
-
+    helpers.allowTabLocationSelection(input);
+    
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey);
+    
     autocomplete.addListener('place_changed', function() {
         var place = autocomplete.getPlace(),
             greyPage = document.getElementById('sb-greyout-page'),
@@ -299,7 +287,6 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
-            document.getElementById('js-start-btn').disabled = true;
             return;
         }
 
@@ -323,7 +310,6 @@ function initAutocomplete() {
             /** This is a local city search, if we find something
              * we should enable the start button
              */
-            document.getElementById('js-start-btn').disabled = false;
             greyPage.classList.add('sb_hidden');
         });
     });
@@ -346,7 +332,6 @@ function initAutocomplete() {
                 url: '/v1/locations/add_external_id/',
                 data: JSON.stringify(place)
             }).done(function () {
-                document.getElementById('js-start-btn').disabled = false;
                 greyPage.classList.add('sb_hidden');
             });
         } else {

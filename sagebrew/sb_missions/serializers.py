@@ -58,6 +58,8 @@ class MissionSerializer(SBSerializer):
     focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
+    shared_on_facebook = serializers.BooleanField(required=False)
+    shared_on_twitter = serializers.BooleanField(required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -80,6 +82,27 @@ class MissionSerializer(SBSerializer):
     level_readable = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     title_summary = serializers.SerializerMethodField()
+
+    def __init__(self, *args, **kwargs):
+        super(MissionSerializer, self).__init__(*args, **kwargs)
+        # Blank error message is for handling advocacy Mission creation
+        # errors. This is because when submitting via the frontend we do not
+        # submit a null value instead we submit an empty string.
+        # This means we can use these different error message keys to
+        # determine which response should be shown.
+        self.fields['focus_name'].error_messages['blank'] = \
+            u'Please specify what you are advocating for'
+        # Null error message is used when handling a political Mission.
+        # When submitting the focus_name value from the frontend we submit a
+        # null value if nothing is selected. This is because user input for
+        # political Missions is largely selection based instead of
+        # user entered strings.
+        self.fields['focus_name'].error_messages['null'] = \
+            u'Please specify where you are running and what you are running for'
+        self.fields['level'].error_messages['null'] = \
+            u'Please specify what level you are running at'
+        self.fields['district'].error_messages['null'] = \
+            u'Please specify which district you are running in'
 
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
@@ -274,6 +297,10 @@ class MissionSerializer(SBSerializer):
         initial_review_state = instance.submitted_for_review
         instance.submitted_for_review = validated_data.pop(
             'submitted_for_review', instance.submitted_for_review)
+        instance.shared_on_facebook = validated_data.get(
+            'shared_on_facebook', instance.shared_on_facebook)
+        instance.shared_on_twitter = validated_data.get(
+            'shared_on_twitter', instance.shared_on_twitter)
         instance.saved_for_later = validated_data.get('saved_for_later',
                                                       instance.saved_for_later)
         if instance.submitted_for_review and not initial_review_state and not \
@@ -373,6 +400,18 @@ class MissionSerializer(SBSerializer):
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if instance.shared_on_facebook:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.SHARE_ON_FACEBOOK))
+        if instance.shared_on_twitter:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.SHARE_ON_TWITTER))
         if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
             db.cypher_query(
                 'MATCH (mission:Mission {object_uuid: "%s"})-'

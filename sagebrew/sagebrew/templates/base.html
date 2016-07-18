@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    {% block meta %}{% endblock %}
     <title>{% block title %}Sagebrew{% endblock title %}</title>
     {% block description %}{% endblock description %}
     {% block properties %}{% endblock properties %}
@@ -53,6 +53,7 @@
     </div>
 {% include "partials/intercom.html" %}
 {% include "partials/facebook.html" %}
+{% include "partials/twitter.html" %}
 {% block scripts %}
     <script src="{% static 'js/vendor.js' %}"></script>
     <script src="{% static 'js/sagebrew.js' %}"></script>

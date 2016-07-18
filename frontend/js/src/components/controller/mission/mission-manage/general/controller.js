@@ -34,6 +34,7 @@ export function load() {
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture");
+    
     validators.missionManageValidator(socialForm, aboutCharLimit);
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
     // Handle title not being present in the case of a mission not being focused on a position

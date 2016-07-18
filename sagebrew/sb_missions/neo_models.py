@@ -69,6 +69,11 @@ class Mission(Searchable):
     # "state"
     level = StringProperty()
 
+    # Whether or not the owner has shared their Mission on Facebook though the
+    # Onboarding Task
+    shared_on_facebook = BooleanProperty(default=False)
+    shared_on_twitter = BooleanProperty(default=False)
+
     # The mission may have seperate pages than the core Quest does
     facebook = StringProperty()
     linkedin = StringProperty()

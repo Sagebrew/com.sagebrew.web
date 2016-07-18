@@ -1,7 +1,8 @@
 var request = require('api').request,
     moment = require('moment'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    maps = require('common/static_map').init;
 
 export const meta = {
     controller: "mission/mission-view/updates",
@@ -26,7 +27,8 @@ export function load() {
     require('plugin/contentloader');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper");
-
+    
+    maps("/v1/missions/" + missionId + "/", "map", true);
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',

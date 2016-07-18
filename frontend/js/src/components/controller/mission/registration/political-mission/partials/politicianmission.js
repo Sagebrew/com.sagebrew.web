@@ -16,7 +16,10 @@ var request = require('api').request,
     levelKey = 'politicianMissionLevel',
     stateUpper = "state_upper",
     stateLower = "state_lower",
-    affectedAreaKey = "affectedArea";
+    affectedAreaKey = "affectedArea",
+    clickMessageKey = "displayClickMessage",
+    tempStateLevelSelectionKey = "tempStateLevelSelectionKey",
+    districtRequiredKey = "districtRequired";
 
 
 export function load() {
@@ -24,7 +27,6 @@ export function load() {
         stateInput = document.getElementById('state-input'),
         placeInput = document.getElementById('pac-input'),
         districtRow = document.getElementById('district-row'),
-        startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
         positionSelector = document.getElementById('js-position-selector'),
         positionInputRow = document.getElementById('position-input-row'),
@@ -43,6 +45,7 @@ export function load() {
         localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
         localStorage.removeItem(levelKey);
+        localStorage.removeItem(districtRequiredKey);
     }
     var engine = new Bloodhound({
         local: ["District Attorney", "Mayor", "Governor", "City Council",
@@ -69,8 +72,6 @@ export function load() {
         });
     $("#position-input-tokenfield").attr("name", "tag_box");
     positionInput.bind('typeahead:select', function(ev, suggestion) {
-        // Activate button after a suggestion has been selected
-        startBtn.disabled = false;
         // Should remove the previous item to ensure that only the most
         // recent input is passed to the endpoint
         localStorage.removeItem(positionKey);
@@ -82,12 +83,10 @@ export function load() {
             required = document.getElementById('js-required');
         helpers.characterCountRemaining(positionInputCharLimit, positionInput, positionInputCharCount);
         if ($this.val().length <= 0) {
-            startBtn.disabled = true;
             required.classList.remove('sb_hidden');
             positionInputWrapper.removeClass("has-success");
             positionInputWrapper.addClass("has-error");
         } else if ($this.val().length > positionInputCharLimit) {
-            startBtn.disabled = true;
             positionInputWrapper.removeClass("has-success");
             positionInputWrapper.addClass("has-error");
         } else {
@@ -98,7 +97,6 @@ export function load() {
             localStorage.removeItem(positionKey);
             localStorage.setItem(positionKey, $this.val());
             // Activate button after a position has been input
-            startBtn.disabled = false;
         }
     });
     $app
@@ -120,8 +118,9 @@ export function load() {
                 localStorage.removeItem(locationName);
                 localStorage.removeItem(affectedAreaKey);
                 localStorage.removeItem(levelKey);
+                localStorage.removeItem(districtRequiredKey);
+                localStorage.removeItem(tempStateLevelSelectionKey);
                 stateInput.selectedIndex = 0;
-                startBtn.disabled = true;
             }
             if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
                 // If we select a position that was already selected we need to remove the districts and
@@ -130,7 +129,7 @@ export function load() {
                 localStorage.removeItem(positionKey);
                 positionInputRow.classList.add('hidden');
                 districtSelector.innerHTML = districtHolderTemplate();
-                startBtn.disabled = true;
+                localStorage.removeItem(districtRequiredKey);
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
@@ -146,12 +145,14 @@ export function load() {
                     districtRow.classList.add('hidden');
                     localStorage.setItem(filterKey, "local");
                     localStorage.setItem(levelKey, "local");
+                    localStorage.removeItem(tempStateLevelSelectionKey);
                     positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
                     // Don't set level key here because we need to determine if we're
                     // in state upper or state lower
+                    localStorage.setItem(tempStateLevelSelectionKey, true);
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
@@ -160,13 +161,17 @@ export function load() {
                     // we want to ensure we cover hiding it if state was already selected.
                     districtRow.classList.add('hidden');
                     localStorage.setItem(levelKey, "federal");
+                    localStorage.removeItem(tempStateLevelSelectionKey);
                     districtSelection('federal', stateInput, placeInput, positionSelector);
                 } else{
                     // We've selected a position
                     // Since a position has been selected we can get the districts and enable the selector,
                     // if we need to.
                     localStorage.removeItem(districtKey);
-                    checkIfDistricts(this.id, districtRow, positionInputRow, startBtn);
+                    checkIfDistricts(this.id, districtRow, positionInputRow);
+                }
+                if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
+                    localStorage.removeItem(levelKey);
                 }
             }
             radioSelector(this);
@@ -178,40 +183,9 @@ export function load() {
             localStorage.setItem(districtKey, this.options[this.selectedIndex].innerHTML);
             // Since after the selection a click event isn't raised we need to add this to ensure
             // the user can move forward without needing to click somewhere
-            startBtn.disabled = false;
         })
-        .on('click', '.registration', function() {
-            // Some additional logic to ensure the startBtn only goes on when it should for both local and
-            // Federal/State (district vs non-district)
-            if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) !== null){
-                // Local positions don't have districts so since a position has been selected enable the button
-                startBtn.disabled = false;
-            } else if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) === null){
-                // We need to have a position selected before allowing the user to click the start button
-                // so since none has been selected disable it.
-                startBtn.disabled = true;
-            }
-
-            // Enabling the button is handled by on change of js-district-selector select above
-            if(localStorage.getItem(filterKey) === "state" && localStorage.getItem(districtKey) === null) {
-                startBtn.disabled = true;
-                if(localStorage.getItem(positionKey) !== null) {
-                    startBtn.disabled = false;
-                }
-            }
-            if(localStorage.getItem(filterKey) === "federal") {
-                if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
-                    // Presidents and Senators don't have districts so we can enable the start button
-                    startBtn.disabled = false;
-                } else if (localStorage.getItem(districtKey) === null){
-                    // If we're not talking about Presidents or Senators we need a district so disable the
-                    // start button until a district is selected.
-                    startBtn.disabled = true;
-                    if(localStorage.getItem(positionKey) !== null) {
-                        startBtn.disabled = false;
-                    }
-                }
-            }
+        .on('change', '#pac-input', function() {
+            localStorage.removeItem(locationKey);
         })
         .on('click', '#js-start-btn', function(){
             greyPage.classList.remove('sb_hidden');
@@ -223,6 +197,26 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
+            if (localStorage.getItem(tempStateLevelSelectionKey) && (localStorage.getItem(levelKey) !== "state_upper" && localStorage.getItem(levelKey) !== "state_lower" && localStorage.getItem(levelKey) !== "state")){
+                if (!localStorage.getItem(locationName)){
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    $.notify({message: "Please specify which state you are running in"}, {type: "danger"});
+                } else {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    $.notify({message: "Please specify what you are running for"}, {type: "danger"});
+                }
+                return;
+            }
+            if (localStorage.getItem(districtRequiredKey) && !localStorage.getItem(districtKey)) {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                $.notify({message: "Please specify which district you are running in"}, {type: "danger"});
+                return;
+            }
+            if (location && !localStorage.getItem(positionKey)) {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                $.notify({message: "Please specify what you are running for"}, {type: "danger"});
+                return;
+            }
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
@@ -232,7 +226,11 @@ export function load() {
                     location_name: location,
                     formatted_location_name: localStorage.getItem(affectedAreaKey),
                     focus_on_type: "position"
-                })
+                }),
+                error: function(XMLHttpRequest) {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                    request.errorDisplay(XMLHttpRequest, undefined, undefined, true);
+                }
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
                 onboarding.routeMissionSetupToEpic(data);
@@ -293,40 +291,43 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
     document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
 }
 
-function checkIfDistricts(identifier, districtRow, positionInputRow, startBtn) {
+function checkIfDistricts(identifier, districtRow, positionInputRow) {
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts(stateUpper);
-            startBtn.disabled = true;
         } else {
+            localStorage.removeItem(districtRequiredKey);
             localStorage.setItem(levelKey, "federal");
             districtRow.classList.add('hidden');
-            startBtn.disabled = false;
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts(stateLower);
-            startBtn.disabled = true;
         } else {
             localStorage.setItem(levelKey, "federal");
+            localStorage.setItem(districtRequiredKey, true);
             fillDistricts("federal");
-            startBtn.disabled = true;
         }
     } else if(identifier === "Other") {
         localStorage.setItem(levelKey, localStorage.getItem(filterKey));
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
-        startBtn.disabled = true;
+        localStorage.removeItem(districtRequiredKey);
     } else {
+        if (localStorage.getItem(tempStateLevelSelectionKey)) {
+            localStorage.setItem(levelKey, "state");
+        }
         localStorage.setItem(positionKey, identifier);
+        localStorage.removeItem(districtRequiredKey);
         districtRow.classList.add('hidden');
-        startBtn.disabled = false;
     }
 }
 
@@ -364,10 +365,16 @@ function initAutocomplete() {
             service.textSearch(requestQuery, callback);
         });
 
-    var autocomplete = new google.maps.places.Autocomplete(input);
+
+    var autocomplete = new google.maps.places.Autocomplete(input),
+        pacInput = $("#pac-input");
     autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
 
+    helpers.allowTabLocationSelection(input);
+
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey);
+    
 
     autocomplete.addListener('place_changed', function() {
         var place = autocomplete.getPlace(),
@@ -384,7 +391,6 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
-            document.getElementById('js-start-btn').disabled = true;
             return;
         }
         if (place.geometry.viewport) {
@@ -395,6 +401,7 @@ function initAutocomplete() {
         }
         localStorage.setItem(locationKey, place.place_id);
         localStorage.setItem(affectedAreaKey, affectedArea);
+        localStorage.setItem(clickMessageKey, false);
         request.post({
             url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)

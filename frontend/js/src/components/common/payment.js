@@ -3,7 +3,9 @@ var paymentMethodTemplate = require('common/templates/payment_methods.hbs'),
     addPaymentMethodTemplate = require('common/templates/add_payment.hbs'),
     settings = require('settings').settings,
     request = require('api').request,
-    paymentMethodKey = "selectedPaymentMethod";
+    paymentMethodKey = "selectedPaymentMethod",
+    maxFreeMissionKey = "max_free_missions",
+    questAccountKey = "quest_account";
 
 
 export function listPaymentMethods(endpoint, usePaymentCallback,
@@ -68,13 +70,14 @@ export function addPayment(responseHandler, cancelRedirect) {
         greyPage = document.getElementById('sb-greyout-page'),
         templateContext = {};
     Stripe.setPublishableKey(settings.api.stripe);
-    if(localStorage.getItem("quest_account") === "upgrade"){
+    if(localStorage.getItem(questAccountKey) === "upgrade"){
         templateContext = {
             warningMsg: "Please add a credit card to upgrade to a Pro account",
             addWarning: true
         };
     }
-    if (localStorage.getItem("max_free_missions")) {
+
+    if (localStorage.getItem(maxFreeMissionKey)) {
         templateContext.maxFreeMissions = true;
     }
     paymentForm.innerHTML = addPaymentMethodTemplate(templateContext);

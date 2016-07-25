@@ -506,7 +506,7 @@ export function testPrivateBrowsing() {
  * Mission creation page, display an error telling them to select
  * something from the dropdown.
  */
-export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
+export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey, placeChangedKey) {
     function removeBlurMessage() {
         pacInput.off("blur");
     }
@@ -520,7 +520,7 @@ export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
             pacInput.on("blur", function () {
                 var inputValue = pacInput.val(),
                     displayClickMessage = localStorage.getItem(clickMessageKey);
-                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey) && !localStorage.getItem(placeChangedKey)) {
                     $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                         {type: "danger"});
                     localStorage.setItem(clickMessageKey, false);
@@ -532,7 +532,7 @@ export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
             pacInput.on("blur", function() {
                 var inputValue = pacInput.val(),
                     displayClickMessage = localStorage.getItem(clickMessageKey);
-                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey) && !localStorage.getItem(placeChangedKey)) {
                     $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                         {type: "danger"});
                     localStorage.setItem(clickMessageKey, false);

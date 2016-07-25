@@ -153,6 +153,9 @@ export function load() {
                     // Don't set level key here because we need to determine if we're
                     // in state upper or state lower
                     localStorage.setItem(tempStateLevelSelectionKey, true);
+                    if (this.classList.contains("radio-selected")) {
+                        localStorage.removeItem(tempStateLevelSelectionKey);
+                    }
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){

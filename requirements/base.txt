@@ -52,3 +52,4 @@ sumy==0.4.0
 imagehash==1.0
 pyicu==1.9.2
 python-google-places==1.1.0
+html5lib==1.0b8

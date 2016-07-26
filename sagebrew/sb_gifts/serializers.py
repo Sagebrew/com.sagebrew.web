@@ -1,9 +1,6 @@
 from rest_framework import serializers
 
-from neomodel import db
-
 from api.serializers import SBSerializer
-from .neo_models import Giftlist, Product
 
 
 class GiftlistSerializer(SBSerializer):

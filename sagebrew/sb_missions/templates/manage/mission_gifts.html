@@ -3,12 +3,14 @@
 {% block title %}Mission Gifts{% endblock title %}
 
 {% block live %}
-    <div class="block">
+    <div class="block block-type-title">
         <div class="block-content">
+            <h1>Search</h1>
             <input placeholder="Search for Items You Need"/>
-            <div id="js-gift-container"></div>
         </div>
     </div>
+
+    <div id="js-gift-container" class="row list-container"></div>
 {% endblock %}
 
 {% block sidebar_right %}

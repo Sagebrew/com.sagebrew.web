@@ -1,19 +1,23 @@
-<div class="product-container row" style="height: 150px;">
-    <div class="product-image col-xs-2">
-        <img width="100px" src="{{product.image}}"/>
-    </div>
-    <div class="col-xs-5">
-        {{product.description}}
-    </div>
-    <div class="col-xs-2">
-        <div>{{product.price}}</div>
-    </div>
-    <div class="col-xs-3 js-add-to-selected">
-        <button id="{{product.id}}-add" class="btn btn-primary sb_btn sb_btn_fill"
-                data-product_id="{{product.id}}"
-                data-product_description="{{product.description}}"
-                data-product_price="{{product.price}}"
-                data-product_image="{{product.image}}">
-            Add to Selected Items</button>
+<div class="product-container col-sm-3 margin-bottom-20">
+    <div class="block block-state-inactive block-state-incomplete" id="df7bcca8-42eb-11e6-8f81-080027ca3ef9" data-slug="treasurer">
+        <div class="block-hero-image" style="height: 150px;overflow: hidden;">
+            <img class="width-100" src="{{product.image}}">
+        </div>
+        <a class="block-title js-position" data-id="df7bcca8-42eb-11e6-8f81-080027ca3ef9" data-slug="treasurer" target="_blank" href="https://www.amazon.com/gp/product/B016HLFW44/ref=br_asw_pdt-2?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=&pf_rd_r=TXR82WBD0BXGSFKG4K4V&pf_rd_t=36701&pf_rd_p=461017d1-4ad7-4432-a5db-d7f656deafd7&pf_rd_i=desktop">{{product.description}}</a>
+        <div class="block-content" style="height: 170px;overflow: hidden;">
+            <p>
+                    {{product.price}}
+            </p>
+        </div>
+        <div class="block-footer">
+            <div class="col-xs-12 js-add-to-selected">
+                <button id="{{product.id}}-add" class="btn btn-primary sb_btn sb_btn_fill"
+                        data-product_id="{{product.id}}"
+                        data-product_description="{{product.description}}"
+                        data-product_price="{{product.price}}"
+                        data-product_image="{{product.image}}">
+                    Add to Selected Items</button>
+            </div>
+        </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-from neomodel import (db, RelationshipTo, StringProperty, BooleanProperty)
+from neomodel import (RelationshipTo, StringProperty, BooleanProperty)
 
 from api.neo_models import SBObject
 

@@ -19,7 +19,8 @@ var request = require('api').request,
     affectedAreaKey = "affectedArea",
     clickMessageKey = "displayClickMessage",
     tempStateLevelSelectionKey = "tempStateLevelSelectionKey",
-    districtRequiredKey = "districtRequired";
+    districtRequiredKey = "districtRequired",
+    inPlaceChangedKey = "inPlaceChangedKey";
 
 
 export function load() {
@@ -153,6 +154,9 @@ export function load() {
                     // Don't set level key here because we need to determine if we're
                     // in state upper or state lower
                     localStorage.setItem(tempStateLevelSelectionKey, true);
+                    if (this.classList.contains("radio-selected")) {
+                        localStorage.removeItem(tempStateLevelSelectionKey);
+                    }
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
@@ -373,10 +377,11 @@ function initAutocomplete() {
 
     helpers.allowTabLocationSelection(input);
 
-    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey);
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey, inPlaceChangedKey);
     
 
     autocomplete.addListener('place_changed', function() {
+        localStorage.setItem(inPlaceChangedKey, true);
         var place = autocomplete.getPlace(),
             greyPage = document.getElementById('sb-greyout-page'),
             affectedArea = place.formatted_address;
@@ -385,12 +390,14 @@ function initAutocomplete() {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            localStorage.removeItem(inPlaceChangedKey);
             return;
         }
         if (place.name === "Random") {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            localStorage.removeItem(inPlaceChangedKey);
             return;
         }
         if (place.geometry.viewport) {
@@ -402,6 +409,7 @@ function initAutocomplete() {
         localStorage.setItem(locationKey, place.place_id);
         localStorage.setItem(affectedAreaKey, affectedArea);
         localStorage.setItem(clickMessageKey, false);
+        localStorage.removeItem(inPlaceChangedKey);
         request.post({
             url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)

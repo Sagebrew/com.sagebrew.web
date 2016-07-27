@@ -7,6 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
 from elasticsearch import Elasticsearch
+from amazon.api import AmazonAPI
 
 from sagebrew import errors
 from api.utils import (spawn_task)
@@ -74,6 +75,37 @@ class SearchViewSet(ListAPIView):
         # just for us later down the line
         spawn_task(task_func=update_search_query, task_param=task_param)
         return res['hits']['hits']
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+        except ValidationError:
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
+        page = self.paginate_queryset(queryset)
+        return self.get_paginated_response(page)
+
+
+class AmazonProductSearchViewSet(ListAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q", "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR", "sagebrew-20")
+        # amazon = AmazonAPI(settings.AMAZON_ACCESS_KEY, settings.AMAZON_SECRET_KEY, settings.AMAZON_ASSOC_TAG)
+        queryset = []
+        query_param = self.request.query_params.get("query", "")
+        if query_param:
+            products = amazon.search_n(n=15, Keywords=query_param, SearchIndex="All")
+            for product in products:
+                queryset.append({
+                    "title": product.title,
+                    "image": product.large_image_url,
+                    "price": product.price_and_currency[0],
+                    "currency": product.price_and_currency[1],
+                    "asin": product.asin,
+                    "url": product.offer_url
+                })
+        return queryset
 
     def list(self, request, *args, **kwargs):
         try:

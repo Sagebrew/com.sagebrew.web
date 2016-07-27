@@ -189,6 +189,7 @@ INSTALLED_APPS = (
     'googleplaces',
     'neomodel',
     "opbeat.contrib.django",
+    "amazon",
     'sb_solutions',
     'sb_accounting',
     'sb_address',

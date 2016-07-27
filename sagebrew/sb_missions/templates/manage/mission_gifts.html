@@ -5,8 +5,10 @@
 {% block live %}
     <div class="block block-type-title">
         <div class="block-content">
-            <h1>Search</h1>
-            <input placeholder="Search for Items You Need"/>
+            <h1>Search: </h1>
+            <input id="js-search-input"
+                   placeholder="Type here!"
+                   type="text"/>
         </div>
     </div>
 
@@ -17,6 +19,7 @@
     <div class="block">
         <div class="block-title">
             Selected Items
+            <button class="btn btn-primary sb_btn js-position" id="js-save-list">Save List</button>
         </div>
         <div id="js-selected-gift-container" class="block-content">
         </div>

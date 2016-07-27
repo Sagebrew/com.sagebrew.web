@@ -95,16 +95,18 @@ class AmazonProductSearchViewSet(ListAPIView):
         queryset = []
         query_param = self.request.query_params.get("query", "")
         if query_param:
-            products = amazon.search_n(n=15, Keywords=query_param, SearchIndex="All")
+            products = amazon.search_n(n=15, Keywords=query_param,
+                                       SearchIndex="All")
             for product in products:
-                queryset.append({
-                    "title": product.title,
-                    "image": product.large_image_url,
-                    "price": product.price_and_currency[0],
-                    "currency": product.price_and_currency[1],
-                    "asin": product.asin,
-                    "url": product.offer_url
-                })
+                if product.price_and_currency[0]:
+                    queryset.append({
+                        "title": product.title,
+                        "image": product.large_image_url,
+                        "price": product.price_and_currency[0],
+                        "currency": product.price_and_currency[1],
+                        "asin": product.asin,
+                        "url": product.offer_url
+                    })
         return queryset
 
     def list(self, request, *args, **kwargs):

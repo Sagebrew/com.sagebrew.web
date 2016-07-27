@@ -25,8 +25,6 @@ export function init() {
 export function load() {
     var giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-gift-container");
-    console.log('here');
-    console.log(goods);
     goods.search(giftContainer, selectedGiftContainer);
 }
 

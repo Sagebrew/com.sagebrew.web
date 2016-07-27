@@ -1,4 +1,4 @@
-from neomodel import (RelationshipTo, StringProperty, BooleanProperty)
+from neomodel import (db, RelationshipTo, StringProperty, BooleanProperty)
 
 from api.neo_models import SBObject
 
@@ -22,6 +22,13 @@ class Giftlist(SBObject):
     # Which Mission has this list of gifts they want from their supporters
     mission = RelationshipTo("sb_missions.neo_models.Mission", "LIST_FOR")
 
+    def get_products(self):
+        query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
+                '(p:Product) RETURN p' % (self.object_uuid)
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        return [Product.inflate(row[0]) for row in res]
+
 
 class Product(SBObject):
     """
@@ -30,9 +37,16 @@ class Product(SBObject):
     Giftlist owned by Missions.
     """
     # Can use ItemLookup from Amazon to get more information such as price,
-    # availability, etc. using the amazon_id
+    # availability, etc. using the vendor_id
+    # Initially we only utilize the Amazon Product API so we can only lookup
+    # via ASIN (Amazon Search Identification Number)
+    # which is set as vendor_id here
     vendor_id = StringProperty()
-    vendor_name = StringProperty()
+    # Initially we only utilize Amazon Product Search so we set
+    # amazon by default
+    # In the future we can utilize many more product search engines
+    # and allow for more in depth look ups across multiple services
+    vendor_name = StringProperty(default="amazon")
 
     # Whether or not this item has been purchased for the Mission
     purchased = BooleanProperty(default=False)
@@ -40,3 +54,10 @@ class Product(SBObject):
     # relationships
     # Which list this product is in
     giftlist = RelationshipTo("sb_gifts.neo_models.Giftlist", "IN_LIST")
+
+    def get_giftlist(self):
+        query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \
+                '(g:Giftlist) RETURN g'
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        return Giftlist.inflate(res[0][0])

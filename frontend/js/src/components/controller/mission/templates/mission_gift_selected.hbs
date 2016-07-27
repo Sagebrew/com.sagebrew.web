@@ -1,12 +1,12 @@
 <div class="selected-product-container row" style="height: 95px;">
-    <div class="product-image col-xs-2">
-        <img width="40px" src="{{product.image}}"/>
+    <div class="col-xs-2">
+        <img class="gift-image-selected" width="75px" src="{{product.image}}"/>
     </div>
     <div class="col-xs-5">
         <a class="gift-title-selected" target="_blank" href="{{product.url}}">{{product.title}}</a>
     </div>
     <div class="col-xs-5">
-        <div>{{product.price}}</div>
-        <button id="{{product.id}}-remove" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">Remove</button>
+        <div>${{product.price}}</div>
+        <button id="{{product.asin}}-remove" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">Remove</button>
     </div>
 </div>

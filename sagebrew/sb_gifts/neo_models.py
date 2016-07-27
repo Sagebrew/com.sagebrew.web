@@ -29,6 +29,20 @@ class Giftlist(SBObject):
         [row[0].pull() for row in res]
         return [Product.inflate(row[0]) for row in res]
 
+    def get_product_vendor_ids(self):
+        query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
+                '(p:Product) RETURN p.vendor_id' % (self.object_uuid)
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    def get_mission(self):
+        from sb_missions.neo_models import Mission
+        query = 'MATCH (g:Giftlist {object_uuid:"%s"})-[:LIST_FOR]->' \
+                '(m:Mission) RETURN m'
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        return Mission.inflate(res.one)
+
 
 class Product(SBObject):
     """
@@ -57,7 +71,7 @@ class Product(SBObject):
 
     def get_giftlist(self):
         query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \
-                '(g:Giftlist) RETURN g'
+                '(g:Giftlist) RETURN g' % (self.object_uuid)
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
-        return Giftlist.inflate(res[0][0])
+        return Giftlist.inflate(res.one)

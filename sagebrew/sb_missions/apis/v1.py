@@ -12,5 +12,6 @@ urlpatterns = patterns(
     url(r'^', include(router.urls)),
     (r'^missions/', include('sb_updates.apis.relations.v1')),
     (r'^missions/', include('sb_donations.apis.relations.v1')),
-    (r'^missions/', include('sb_volunteers.apis.relations.v1'))
+    (r'^missions/', include('sb_volunteers.apis.relations.v1')),
+    (r'^missions/', include('sb_gifts.apis.relations.v1'))
 )

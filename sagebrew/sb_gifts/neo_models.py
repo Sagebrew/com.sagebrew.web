@@ -22,23 +22,32 @@ class Giftlist(SBObject):
     # Which Mission has this list of gifts they want from their supporters
     mission = RelationshipTo("sb_missions.neo_models.Mission", "LIST_FOR")
 
+    def get_product(self, vendor_id, vendor_name):
+        query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
+                '(p:Product {vendor_id:"%s", vendor_name:"%s"}) RETURN p' \
+                % (self.object_uuid, vendor_id, vendor_name)
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return Product.inflate(res.one)
+        return None
+
     def get_products(self):
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
-                '(p:Product) RETURN p' % (self.object_uuid)
+                '(p:Product) RETURN p' % self.object_uuid
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Product.inflate(row[0]) for row in res]
 
     def get_product_vendor_ids(self):
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
-                '(p:Product) RETURN p.vendor_id' % (self.object_uuid)
+                '(p:Product) RETURN p.vendor_id' % self.object_uuid
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
     def get_mission(self):
         from sb_missions.neo_models import Mission
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})-[:LIST_FOR]->' \
-                '(m:Mission) RETURN m'
+                '(m:Mission) RETURN m' % self.object_uuid
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return Mission.inflate(res.one)

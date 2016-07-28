@@ -1,7 +1,7 @@
 var request = require('api').request,
-    volunteerTableTemplate = require('common/templates/volunteer_table.hbs'),
-    humanize = require('common/helpers').humanizeString,
-    goods = require('../../../donations/partials/goods');
+    args = require('common/helpers').args,
+    goods = require('../../../donations/partials/goods'),
+    individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs');
 
 export const meta = {
     controller: "mission/mission-manage/gifts",
@@ -24,8 +24,10 @@ export function init() {
  */
 export function load() {
     var giftContainer = $("#js-gift-container"),
-        selectedGiftContainer = $("#js-selected-gift-container");
+        selectedGiftContainer = $("#js-selected-gift-container"),
+        missionId = args(1);
     goods.search(giftContainer, selectedGiftContainer);
+    goods.populateSelected(missionId, selectedGiftContainer);
 }
 
 /**

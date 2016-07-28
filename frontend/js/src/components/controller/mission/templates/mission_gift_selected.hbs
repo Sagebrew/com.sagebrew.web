@@ -1,12 +1,19 @@
-<div class="selected-product-container row" style="height: 95px;">
+<div class="selected-product-container row"
+     data-vendor_id="{{product.asin}}"
+     style="height: 95px;">
     <div class="col-xs-2">
-        <img class="gift-image-selected" width="75px" src="{{product.image}}"/>
+        <img class="gift-image-selected"
+             width="75px"
+             src="{{product.image}}"/>
     </div>
     <div class="col-xs-5">
-        <a class="gift-title-selected" target="_blank" href="{{product.url}}">{{product.title}}</a>
+        <a class="gift-title-selected"
+           target="_blank"
+           href="{{product.url}}">{{product.title}}</a>
     </div>
     <div class="col-xs-5">
         <div>${{product.price}}</div>
-        <button id="{{product.asin}}-remove" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">Remove</button>
+        <button id="{{product.asin}}-remove"
+                class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove js-remove">Remove</button>
     </div>
 </div>

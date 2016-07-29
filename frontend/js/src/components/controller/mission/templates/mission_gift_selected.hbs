@@ -13,7 +13,11 @@
     </div>
     <div class="col-xs-5">
         <div>${{product.price}}</div>
-        <button id="{{product.asin}}-remove"
-                class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove js-remove">Remove</button>
+        <button class="btn btn-primary sb_btn sb_btn_fill js-remove"
+                data-product_id="{{product.asin}}"
+                data-product_description="{{product.title}}"
+                data-product_price="{{product.price}}"
+                data-product_image="{{product.image}}">
+            Remove</button>
     </div>
 </div>

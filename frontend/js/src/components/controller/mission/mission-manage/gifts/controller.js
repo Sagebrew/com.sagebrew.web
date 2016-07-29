@@ -1,7 +1,5 @@
-var request = require('api').request,
-    args = require('common/helpers').args,
-    goods = require('../../../donations/partials/goods'),
-    individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs');
+var args = require('common/helpers').args,
+    goods = require('../../../donations/partials/goods');
 
 export const meta = {
     controller: "mission/mission-manage/gifts",

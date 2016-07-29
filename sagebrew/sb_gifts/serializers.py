@@ -1,6 +1,7 @@
 from amazon.api import AmazonAPI
 from rest_framework import serializers
 
+from api.utils import chunk_list, gather_request_data
 from api.serializers import SBSerializer
 from sb_missions.serializers import MissionSerializer
 
@@ -52,8 +53,34 @@ class GiftlistSerializer(SBSerializer):
         return MissionSerializer(obj.get_mission()).data
 
     def get_products(self, obj):
-        return [ProductSerializer(product).data
-                for product in obj.get_products()]
+        request, expand, _, _, _ = gather_request_data(self.context)
+        serialized_products =  [ProductSerializer(product).data
+                                for product in obj.get_products()]
+        if expand == 'true':
+            vendor_ids = [product['vendor_id']
+                          for product in serialized_products]
+            amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q",
+                               "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR",
+                               "sagebrew-20")
+            for sub_list in chunk_list(vendor_ids, 10):
+                sub_ids = ",".join(sub_list)
+                products = amazon.lookup(ItemId=sub_ids)
+                if not hasattr(products, '__iter__'):
+                    products = [products]
+                for product in products:
+                    match = next((l for l in serialized_products
+                                  if l['vendor_id'] == product.asin), None)
+                    if match is not None:
+                        price, currency = product.price_and_currency
+                        match['information'] = {
+                            "title": product.title,
+                            "image": product.large_image_url,
+                            "price": price,
+                            "currency": currency,
+                            "asin": product.asin,
+                            "url": product.offer_url
+                        }
+        return serialized_products
 
 
 class ProductSerializer(SBSerializer):
@@ -62,7 +89,6 @@ class ProductSerializer(SBSerializer):
     purchased = serializers.BooleanField(required=False)
 
     giftlist = serializers.SerializerMethodField()
-    information = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # Currently we don't allow users to create Products.
@@ -81,21 +107,4 @@ class ProductSerializer(SBSerializer):
     def get_giftlist(self, obj):
         return obj.get_giftlist().object_uuid
 
-    def get_information(self, obj):
-        info = {}
-        if obj.vendor_name == "amazon":
-            # TODO move these strings into settings variables
-            amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q",
-                               "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR",
-                               "sagebrew-20")
-            product = amazon.lookup(ItemId=obj.vendor_id)
-            price, currency = product.price_and_currency
-            info = {
-                "title": product.title,
-                "image": product.large_image_url,
-                "price": price,
-                "currency": currency,
-                "asin": product.asin,
-                "url": product.offer_url
-            }
-        return info
+

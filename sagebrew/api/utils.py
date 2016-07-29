@@ -490,3 +490,8 @@ def remove_smart_quotes(content):
         return content
     return content.replace(u"\u2018", "'").replace(u"\u2019", "'")\
         .replace(u"\u201c", '"').replace(u"\u201d", '"')
+
+
+def chunk_list(to_be_chunked, chunk_length):
+    return (to_be_chunked[i:i+chunk_length]
+            for i in range(0, len(to_be_chunked), chunk_length))

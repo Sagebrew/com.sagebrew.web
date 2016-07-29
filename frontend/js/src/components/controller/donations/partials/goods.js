@@ -77,7 +77,7 @@ export function search(container, selectedContainer) {
 
 export function populateSelected(missionId, selectedContainer) {
     selectedContainer.append('<div class="loader"></div>');
-    request.get({url: "/v1/missions/" + missionId + "/giftlist/"})
+    request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
         .done(function(response) {
             var results = response.products;
             for (var product in results) {

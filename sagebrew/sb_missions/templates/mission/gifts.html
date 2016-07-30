@@ -17,34 +17,42 @@
         <div class="block-title">
             Selected Items
         </div>
-        <div id="js-selected-gift-container" class="block-content">
+        <p id="js-no-selected-gifts"
+           class="no-margin-top-bottom font-size-14 gift-image">
+            Select what you would like to Gift to the Mission
+            from their Gift List to the left!
+        </p>
+        <div id="js-selected-gift-container" class="block-content no-bottom-padding">
         </div>
         <div class="block-content no-margin-bottom">
-            <button class="btn btn-primary sb_btn js-position"
-                    id="js-place-order">Place Order</button>
             <div class="block order-cost-wrapper">
                 <div>
                     Items: $<div id="js-items-price"
                                  class="order-cost-part">0.00</div>
                 </div>
                 <div>
-                    Shipping & handling: $<div id="js-items-price"
+                    Shipping & handling: $<div id="js-shipping-handling-price"
                                                class="order-cost-part">0.00</div>
                 </div>
                 <div>
-                    Estimated tax: $<div id="js-items-price"
+                    Estimated tax: $<div id="js-estimated-tax-price"
                                          class="order-cost-part">0.00</div>
                 </div>
                 <div>
-                    Total before Sagebrew charge: $<div id="js-items-price"
+                    Before Sagebrew charge: $<div id="js-before-sb-price"
                                                         class="order-cost-part">0.00</div>
                 </div>
-
+                <div>
+                     Sagebrew charge: $<div id="js-sb-charge-price"
+                                            class="order-cost-part">0.00</div>
+                </div>
             </div>
             <div>
-                Order total: $<div id="js-items-price"
+                Order total: $<div id="js-order-total-price"
                                    class="order-cost-part">0.00</div>
             </div>
+            <button class="btn btn-primary sb_btn js-position"
+                    id="js-place-order">Proceed with Order</button>
         </div>
     </div>
 {% endblock %}

@@ -77,6 +77,8 @@ class Product(SBObject):
     # relationships
     # Which list this product is in
     giftlist = RelationshipTo("sb_gifts.neo_models.Giftlist", "IN_LIST")
+    # Which orders this product is included in
+    orders = RelationshipTo("sb_orders.neo_models.Order", "INCLUDED_IN")
 
     def get_giftlist(self):
         query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \

@@ -52,9 +52,9 @@ export function search(container, selectedContainer) {
                 data: JSON.stringify({
                     product_ids: productIds
                 })
-            }).done(function(response){
+            }).done(function(){
                 greyPage.addClass("sb_hidden");
-                $.notify({message: "Succesfully Save Selected Gift List!"}, {type: "success"});
+                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
             });
 
         });
@@ -89,4 +89,37 @@ export function populateSelected(missionId, selectedContainer) {
             }
             selectedContainer.find(".loader").remove();
         });
+}
+
+export function calculateTotals() {
+    var itemTotal = 0.00,
+        shipping = 0.00,
+        estimatedTax,
+        beforeSb,
+        sbCharge,
+        orderTotal,
+        objectPrice;
+    // loop through all elements which hold price data for each object in the
+    // selected list
+    $(".js-remove").each(function(index, obj) {
+        var $this = $(obj);
+        objectPrice = $this.data("product_price");
+        itemTotal += objectPrice;
+    });
+
+    // make calculations
+    estimatedTax = itemTotal * 0.06;
+    beforeSb = itemTotal + estimatedTax + shipping;
+    sbCharge = (itemTotal) * 0.07;
+    orderTotal = itemTotal + estimatedTax + sbCharge + shipping;
+
+    // .toFixed(2) formats float values to x.xx for cash
+    return {
+        itemTotal: itemTotal.toFixed(2),
+        estimatedTax: estimatedTax.toFixed(2),
+        shipping: shipping.toFixed(2),
+        beforeSb: beforeSb.toFixed(2),
+        sbCharge: sbCharge.toFixed(2),
+        orderTotal: orderTotal.toFixed(2)
+    };
 }

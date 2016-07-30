@@ -1,12 +1,17 @@
 <div class="product-container col-sm-3 margin-bottom-20">
     <div class="block block-state-inactive block-state-incomplete">
         <div class="block-hero-image gift-image" style="height: 150px;overflow: hidden;">
-            <img class="" src="{{product.image}}">
+            <a target="_blank" href="{{product.url}}">
+                <img class="" src="{{product.image}}">
+            </a>
         </div>
         <a class="gift-title block-title" target="_blank" href="{{product.url}}">{{product.title}}</a>
         <div class="block-content" style="height: 170px;overflow: hidden;">
             <p>
                 ${{product.price}}
+            </p>
+            <p class="font-size-14">
+                Fulfilled by <a href="http://amzn.to/2acfwCm">Amazon</a>
             </p>
         </div>
         <div class="block-footer">

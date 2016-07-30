@@ -1,3 +1,4 @@
+/* global $ */
 var request = require('api').request,
     args = require('common/helpers').args,
     goods = require('../../../donations/partials/goods'),
@@ -24,10 +25,17 @@ export function init() {
  * Load
  */
 export function load() {
-    var giftContainer = $("#js-gift-container"),
+    var app = $(".app-sb"),
+        giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-gift-container"),
         missionId = args(1),
-        app = $(".app-sb");
+        noSelectedGifts = $("#js-no-selected-gifts"),
+        itemTotalContainer = $("#js-items-price"),
+        shippingHandlingContainer = $("#js-shipping-handling-price"),
+        estimatedTaxContainer = $("#js-estimated-tax-price"),
+        beforeSbContainer = $("#js-before-sb-price"),
+        sbChargeContainer = $("#js-sb-charge-price"),
+        orderTotalContainer = $("#js-order-total-price");
 
     giftContainer.append('<div class="loader"></div>');
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
@@ -51,10 +59,23 @@ export function load() {
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
                     "price" : $this.data("product_price")
-                };
+                },
+                calculatedTotals;
             selectedGiftContainer.append(
                 individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();
+            calculatedTotals = goods.calculateTotals(selectedGiftContainer);
+            
+            // Display calculated totals in order info box
+            itemTotalContainer.text(calculatedTotals.itemTotal);
+            shippingHandlingContainer.text(calculatedTotals.shipping);
+            estimatedTaxContainer.text(calculatedTotals.estimatedTax);
+            beforeSbContainer.text(calculatedTotals.beforeSb);
+            sbChargeContainer.text(calculatedTotals.sbCharge);
+            orderTotalContainer.text(calculatedTotals.orderTotal);
+            if (!noSelectedGifts.hasClass("sb_hidden")) {
+                noSelectedGifts.addClass("sb_hidden");
+            }
         })
         .on('click', '.js-remove', function() {
             var $this = $(this),
@@ -63,10 +84,25 @@ export function load() {
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
                     "price" : $this.data("product_price")
-                };
+                },
+                calculatedTotals;
             giftContainer.append(
                 individualGiftTemplate({"product": productDetails}));
             $this.closest(".selected-product-container").remove();
+
+            calculatedTotals = goods.calculateTotals(selectedGiftContainer);
+
+            // Display calculated totals in order info box
+            itemTotalContainer.text(calculatedTotals.itemTotal);
+            shippingHandlingContainer.text(calculatedTotals.shipping);
+            estimatedTaxContainer.text(calculatedTotals.estimatedTax);
+            beforeSbContainer.text(calculatedTotals.beforeSb);
+            sbChargeContainer.text(calculatedTotals.sbCharge);
+            orderTotalContainer.text(calculatedTotals.orderTotal);
+            console.log(selectedGiftContainer.length);
+            if (!$(".selected-product-container").length) {
+                noSelectedGifts.removeClass("sb_hidden");
+            }
         });
 }
 

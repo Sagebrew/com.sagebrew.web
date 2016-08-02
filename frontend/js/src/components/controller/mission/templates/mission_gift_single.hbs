@@ -6,15 +6,18 @@
             </a>
         </div>
         <a class="gift-title block-title" target="_blank" href="{{product.url}}">{{product.title}}</a>
-        <div class="block-content" style="height: 170px;overflow: hidden;">
-            <p>
-                ${{product.price}}
+        <div class="block-content" style="height: 120px;overflow: hidden;">
+            <p class="font-size-14 no-margin-bottom">
+                Amazon.com Price: ${{product.price}}
+            </p>
+            <p class="font-size-14">
+                (as of {{{product.time}}})
             </p>
             <p class="font-size-14">
                 Fulfilled by <a href="http://amzn.to/2acfwCm">Amazon</a>
             </p>
         </div>
-        <div class="block-footer">
+        <div class="gift-footer">
             <div class="col-xs-12 js-add-to-selected">
                 <button class="btn btn-primary sb_btn sb_btn_fill js-add"
                         data-product_id="{{product.asin}}"

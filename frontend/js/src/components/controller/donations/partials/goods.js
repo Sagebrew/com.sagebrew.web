@@ -20,12 +20,23 @@ export function search(container, selectedContainer) {
                     url: "/v1/product_search/?query=" + value
                 }).done(function(res) {
                     container.empty();
-                    var results = res.results;
+                    var results = res.results,
+                        now = new Date($.now()),
+                        time = now.getHours() + ":" + now.getMinutes() +
+                            ' GMT - <a href="#" onclick="return false;" ' +
+                            'data-toggle="tooltip" title="Product prices and ' +
+                            'availability are accurate as of the date/time ' +
+                            'indicated and are subject to change. Any price and ' +
+                            'availability information displayed on relevant Amazon ' +
+                            'Site(s), as applicable at the time of purchase will ' +
+                            'apply to the purchase of this product.">Details</a>';
                     for (var product in results) {
                         if (res.results.hasOwnProperty(product)){
+                            results[product].time = time;
                             container.append(individualGiftTemplate({"product": results[product]}));
                         }
                     }
+                    $('[data-toggle="tooltip"]').tooltip();
                     greyPage.addClass("sb_hidden");
                 });
             } else {
@@ -91,7 +102,7 @@ export function populateSelected(missionId, selectedContainer) {
         });
 }
 
-export function calculateTotals() {
+export function calculateTotals(missionRate) {
     var itemTotal = 0.00,
         shipping = 0.00,
         estimatedTax,
@@ -108,9 +119,10 @@ export function calculateTotals() {
     });
 
     // make calculations
+    console.log(settings);
     estimatedTax = itemTotal * 0.06;
     beforeSb = itemTotal + estimatedTax + shipping;
-    sbCharge = (itemTotal) * 0.07;
+    sbCharge = (itemTotal) * missionRate;
     orderTotal = itemTotal + estimatedTax + sbCharge + shipping;
 
     // .toFixed(2) formats float values to x.xx for cash

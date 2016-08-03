@@ -39,7 +39,6 @@ export function load() {
         missionRate = 0.07;
     request.get({url: "/v1/missions/" + missionId + "/"})
         .done(function(response) {
-            console.log(response);
             if (response.quest.account_type === "free") {
                 missionRate = 0.07;
             } else if (response.quest.account_type === "paid") {
@@ -79,7 +78,17 @@ export function load() {
                     "title": $this.data("product_description"),
                     "price" : $this.data("product_price")
                 },
-                calculatedTotals;
+                calculatedTotals,
+                now = new Date($.now()),
+                time = now.getHours() + ":" + now.getMinutes() +
+                    ' GMT - <a href="#" onclick="return false;" ' +
+                    'data-toggle="tooltip" title="Product prices and ' +
+                    'availability are accurate as of the date/time ' +
+                    'indicated and are subject to change. Any price and ' +
+                    'availability information displayed on relevant Amazon ' +
+                    'Site(s), as applicable at the time of purchase will ' +
+                    'apply to the purchase of this product.">Details</a>';
+            productDetails.time = time;
             selectedGiftContainer.append(
                 individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();

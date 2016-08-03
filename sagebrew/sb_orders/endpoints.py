@@ -16,3 +16,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
+
+    def list(self, request, *args, **kwargs):
+        return Response({"details": "Sorry we don't allow users to query all "
+                                    "Orders on the site.",
+                         "status": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)

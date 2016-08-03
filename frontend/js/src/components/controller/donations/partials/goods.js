@@ -77,7 +77,17 @@ export function search(container, selectedContainer) {
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
                     "price" : $this.data("product_price")
-                };
+                },
+                now = new Date($.now()),
+                time = now.getHours() + ":" + now.getMinutes() +
+                    ' GMT - <a href="#" onclick="return false;" ' +
+                    'data-toggle="tooltip" title="Product prices and ' +
+                    'availability are accurate as of the date/time ' +
+                    'indicated and are subject to change. Any price and ' +
+                    'availability information displayed on relevant Amazon ' +
+                    'Site(s), as applicable at the time of purchase will ' +
+                    'apply to the purchase of this product.">Details</a>';
+            productDetails.time = time;
             selectedContainer.append(individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();
         })
@@ -90,14 +100,25 @@ export function populateSelected(missionId, selectedContainer) {
     selectedContainer.append('<div class="loader"></div>');
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
         .done(function(response) {
-            var results = response.products;
+            var results = response.products,
+                now = new Date($.now()),
+                time = now.getHours() + ":" + now.getMinutes() +
+                    ' GMT - <a href="#" onclick="return false;" ' +
+                    'data-toggle="tooltip" title="Product prices and ' +
+                    'availability are accurate as of the date/time ' +
+                    'indicated and are subject to change. Any price and ' +
+                    'availability information displayed on relevant Amazon ' +
+                    'Site(s), as applicable at the time of purchase will ' +
+                    'apply to the purchase of this product.">Details</a>';
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
+                    results[product].information.time = time;
                     selectedContainer.append(
                         individualSelectedGiftTemplate(
                             {"product": results[product].information}));
                 }
             }
+            $('[data-toggle="tooltip"]').tooltip();
             selectedContainer.find(".loader").remove();
         });
 }

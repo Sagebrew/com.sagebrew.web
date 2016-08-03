@@ -1,4 +1,4 @@
-from neomodel import (db, RelationshipTo, StringProperty, BooleanProperty,
+from neomodel import (db, RelationshipTo, IntegerProperty, BooleanProperty,
                       DateTimeProperty)
 
 from api.neo_models import SBObject
@@ -9,6 +9,7 @@ class Order(SBObject):
     # Whether or not the order has been processed by us. Updated when we
     # complete the order through the Council page.
     completed = BooleanProperty(default=False)
+    total = IntegerProperty()
 
     # When the order was placed
     placed = DateTimeProperty(default=get_current_time)

@@ -1,12 +1,12 @@
 var settings = require('settings').settings,
     request = require('api').request,
     args = require('common/helpers').args,
+    moment = require('moment'),
     individualGiftTemplate = require('../../mission/templates/mission_gift_single.hbs'),
     individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs');
 
 export function search(container, selectedContainer) {
     var input = $("#js-search-input"),
-        saveButton = $("#js-save-list"),
         greyPage = $("#sb-greyout-page"),
         app = $(".app-sb"),
         missionId = args(1);
@@ -21,22 +21,13 @@ export function search(container, selectedContainer) {
                 }).done(function(res) {
                     container.empty();
                     var results = res.results,
-                        now = new Date($.now()),
-                        time = now.getHours() + ":" + now.getMinutes() +
-                            ' GMT - <a href="#" onclick="return false;" ' +
-                            'data-toggle="tooltip" title="Product prices and ' +
-                            'availability are accurate as of the date/time ' +
-                            'indicated and are subject to change. Any price and ' +
-                            'availability information displayed on relevant Amazon ' +
-                            'Site(s), as applicable at the time of purchase will ' +
-                            'apply to the purchase of this product.">Details</a>';
+                        time = moment().format("h:mm a");
                     for (var product in results) {
                         if (res.results.hasOwnProperty(product)){
                             results[product].time = time;
                             container.append(individualGiftTemplate({"product": results[product]}));
                         }
                     }
-                    $('[data-toggle="tooltip"]').tooltip();
                     greyPage.addClass("sb_hidden");
                 });
             } else {
@@ -50,9 +41,21 @@ export function search(container, selectedContainer) {
                 return false;
             }
         });
-    saveButton
-        .on("click", function(e) {
-            e.preventDefault();
+    app
+        .on("click", ".js-add", function() {
+            var $this = $(this),
+                productDetails = {
+                    "asin": $this.data("product_id"),
+                    "image": $this.data("product_image"),
+                    "title": $this.data("product_description"),
+                    "price" : $this.data("product_price")
+                },
+                time = moment().format("h:mm a");
+            productDetails.time = time;
+            selectedContainer.append(individualSelectedGiftTemplate({"product": productDetails}));
+            $this.closest(".product-container").remove();
+
+            // auto save when product is added to giftlist
             greyPage.removeClass("sb_hidden");
             var productIds = [];
             $(".selected-product-container").each(function(i, obj) {
@@ -67,29 +70,6 @@ export function search(container, selectedContainer) {
                 greyPage.addClass("sb_hidden");
                 $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
             });
-
-        });
-    app
-        .on("click", ".js-add", function() {
-            var $this = $(this),
-                productDetails = {
-                    "asin": $this.data("product_id"),
-                    "image": $this.data("product_image"),
-                    "title": $this.data("product_description"),
-                    "price" : $this.data("product_price")
-                },
-                now = new Date($.now()),
-                time = now.getHours() + ":" + now.getMinutes() +
-                    ' GMT - <a href="#" onclick="return false;" ' +
-                    'data-toggle="tooltip" title="Product prices and ' +
-                    'availability are accurate as of the date/time ' +
-                    'indicated and are subject to change. Any price and ' +
-                    'availability information displayed on relevant Amazon ' +
-                    'Site(s), as applicable at the time of purchase will ' +
-                    'apply to the purchase of this product.">Details</a>';
-            productDetails.time = time;
-            selectedContainer.append(individualSelectedGiftTemplate({"product": productDetails}));
-            $this.closest(".product-container").remove();
         })
         .on("click", ".js-remove", function() {
             $(this).closest(".selected-product-container").remove();
@@ -101,15 +81,7 @@ export function populateSelected(missionId, selectedContainer) {
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
         .done(function(response) {
             var results = response.products,
-                now = new Date($.now()),
-                time = now.getHours() + ":" + now.getMinutes() +
-                    ' GMT - <a href="#" onclick="return false;" ' +
-                    'data-toggle="tooltip" title="Product prices and ' +
-                    'availability are accurate as of the date/time ' +
-                    'indicated and are subject to change. Any price and ' +
-                    'availability information displayed on relevant Amazon ' +
-                    'Site(s), as applicable at the time of purchase will ' +
-                    'apply to the purchase of this product.">Details</a>';
+                time = moment().format("h:mm a");
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
                     results[product].information.time = time;
@@ -118,12 +90,15 @@ export function populateSelected(missionId, selectedContainer) {
                             {"product": results[product].information}));
                 }
             }
-            $('[data-toggle="tooltip"]').tooltip();
             selectedContainer.find(".loader").remove();
         });
 }
 
 export function calculateTotals(missionRate) {
+    /**
+     * Calculate order totals
+     * @type {number}
+     */
     var itemTotal = 0.00,
         shipping = 0.00,
         estimatedTax,
@@ -140,7 +115,6 @@ export function calculateTotals(missionRate) {
     });
 
     // make calculations
-    console.log(settings);
     estimatedTax = itemTotal * 0.06;
     beforeSb = itemTotal + estimatedTax + shipping;
     sbCharge = (itemTotal) * missionRate;

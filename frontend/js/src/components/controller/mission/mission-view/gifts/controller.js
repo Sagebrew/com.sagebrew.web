@@ -1,6 +1,8 @@
 /* global $ */
 var request = require('api').request,
+    settings = require('settings').settings,
     args = require('common/helpers').args,
+    moment = require('moment'),
     goods = require('../../../donations/partials/goods'),
     individualGiftTemplate = require('../../templates/mission_gift_single.hbs'),
     individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs');
@@ -25,6 +27,7 @@ export function init() {
  * Load
  */
 export function load() {
+    console.log(settings);
     var app = $(".app-sb"),
         giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-gift-container"),
@@ -49,24 +52,16 @@ export function load() {
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
         .done(function(response) {
             var results = response.products,
-                now = new Date($.now()),
-                time = now.getHours() + ':' + now.getMinutes() +
-                    ' GMT - <a href="#" onclick="return false;" ' +
-                    'data-toggle="tooltip" title="Product prices and ' +
-                    'availability are accurate as of the date/time ' +
-                    'indicated and are subject to change. Any price and ' +
-                    'availability information displayed on relevant Amazon ' +
-                    'Site(s), as applicable at the time of purchase will ' +
-                    'apply to the purchase of this product.">Details</a>';
+                time = moment().format("h:mm a");
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
                     results[product].information.time = time;
+                    results[product].information.object_uuid = results[product].id;
                     giftContainer.append(
                         individualGiftTemplate(
                             {"product": results[product].information}));
                 }
             }
-            $('[data-toggle="tooltip"]').tooltip();
             giftContainer.find(".loader").remove();
         });
     app
@@ -76,18 +71,11 @@ export function load() {
                     "asin": $this.data("product_id"),
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
-                    "price" : $this.data("product_price")
+                    "price" : $this.data("product_price"),
+                    "object_uuid": $this.data("object_uuid")
                 },
                 calculatedTotals,
-                now = new Date($.now()),
-                time = now.getHours() + ":" + now.getMinutes() +
-                    ' GMT - <a href="#" onclick="return false;" ' +
-                    'data-toggle="tooltip" title="Product prices and ' +
-                    'availability are accurate as of the date/time ' +
-                    'indicated and are subject to change. Any price and ' +
-                    'availability information displayed on relevant Amazon ' +
-                    'Site(s), as applicable at the time of purchase will ' +
-                    'apply to the purchase of this product.">Details</a>';
+                time = moment().format("h:mm a");
             productDetails.time = time;
             selectedGiftContainer.append(
                 individualSelectedGiftTemplate({"product": productDetails}));
@@ -111,7 +99,8 @@ export function load() {
                     "asin": $this.data("product_id"),
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
-                    "price" : $this.data("product_price")
+                    "price" : $this.data("product_price"),
+                    "object_uuid": $this.data("object_uuid")
                 },
                 calculatedTotals;
             giftContainer.append(
@@ -130,6 +119,28 @@ export function load() {
             if (!$(".selected-product-container").length) {
                 noSelectedGifts.removeClass("sb_hidden");
             }
+        })
+        .on('click', '#js-place-order', function(e) {
+            e.preventDefault();
+            var productIds = [],
+                greyPage = $(".sb-greyout-page"),
+                total = $("#js-order-total-price").text();
+            greyPage.removeClass("sb_hidden");
+            $(".selected-product-container").each(function(i, obj) {
+                productIds.push($(obj).data("object_uuid"));
+            });
+            total = parseInt(parseFloat(total) * 100, 10);
+            request.post({
+                url: "/v1/orders/",
+                data: JSON.stringify({
+                    product_ids: productIds,
+                    total: total
+                })
+            }).done(function(response){
+                greyPage.addClass("sb_hidden");
+                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
+                console.log(response);
+            });
         });
 }
 

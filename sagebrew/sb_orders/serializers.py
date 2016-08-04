@@ -26,7 +26,7 @@ class OrderSerializer(SBSerializer):
         total = validated_data.get('total', 0)
         if total <= 0:
             raise serializers.ValidationError("Total cannot be $0 or less")
-        order = Order(total=total)
+        order = Order(total=total).save()
         for product_id in product_ids:
             product = Product.nodes.get(object_uuid=product_id)
             product.orders.connect(order)

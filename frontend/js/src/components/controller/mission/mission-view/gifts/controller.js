@@ -27,11 +27,11 @@ export function init() {
  * Load
  */
 export function load() {
-    console.log(settings);
     var app = $(".app-sb"),
         giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-gift-container"),
         missionId = args(1),
+        slug = args(2),
         noSelectedGifts = $("#js-no-selected-gifts"),
         itemTotalContainer = $("#js-items-price"),
         shippingHandlingContainer = $("#js-shipping-handling-price"),
@@ -134,12 +134,15 @@ export function load() {
                 url: "/v1/orders/",
                 data: JSON.stringify({
                     product_ids: productIds,
-                    total: total
+                    total: total,
+                    mission: missionId
                 })
             }).done(function(response){
                 greyPage.addClass("sb_hidden");
-                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
-                console.log(response);
+                // TODO take to payment processing pages, if no default card 
+                // have them input a card
+                localStorage.setItem(missionId + "_OrderId", response.id);
+                window.location.href = "/missions/" + missionId + "/" + slug + "/gifts/payment/";
             });
         });
 }

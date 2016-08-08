@@ -3,7 +3,9 @@ var settings = require('settings').settings,
     args = require('common/helpers').args,
     moment = require('moment'),
     individualGiftTemplate = require('../../mission/templates/mission_gift_single.hbs'),
-    individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs');
+    individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs'),
+    individualCheckoutGiftTemplate = require('../../mission/templates/mission_gift_single_checkout.hbs');
+
 
 export function search(container, selectedContainer) {
     var input = $("#js-search-input"),
@@ -76,6 +78,7 @@ export function search(container, selectedContainer) {
         });
 }
 
+
 export function populateSelected(missionId, selectedContainer) {
     selectedContainer.append('<div class="loader"></div>');
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
@@ -93,6 +96,7 @@ export function populateSelected(missionId, selectedContainer) {
             selectedContainer.find(".loader").remove();
         });
 }
+
 
 export function calculateTotals(missionRate) {
     /**
@@ -129,4 +133,27 @@ export function calculateTotals(missionRate) {
         sbCharge: sbCharge.toFixed(2),
         orderTotal: orderTotal.toFixed(2)
     };
+}
+
+
+export function populateCheckout(missionId, productContainer) {
+    var orderId = localStorage.getItem(missionId + "_OrderId");
+    request.get({url: "/v1/orders/" + orderId + "/?expand=true"})
+        .done(function(response) {
+            console.log(response);
+            var results = response.products,
+                time = moment().format("h:mm a"),
+                orderTotalKey = missionId + "orderTotal";
+            for (var product in results) {
+                if (results.hasOwnProperty(product)) {
+                    results[product].information.time = time;
+                    results[product].information.object_uuid = results[product].id;
+                    productContainer.append(
+                        individualCheckoutGiftTemplate(
+                            {"product": results[product].information}));
+                }
+            }
+            localStorage.setItem(orderTotalKey, results.total);
+            productContainer.find(".loader").remove();
+        });
 }

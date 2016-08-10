@@ -33,7 +33,7 @@ class OrderSerializer(SBSerializer):
 
     payment_method = serializers.CharField(required=False, write_only=True,
                                            allow_null=True)
-
+    tracking_url = serializers.CharField(required=False)
     placed = serializers.DateTimeField(required=False)
     completed = serializers.BooleanField(required=False)
     paid = serializers.BooleanField(required=False)
@@ -58,6 +58,27 @@ class OrderSerializer(SBSerializer):
         for product_id in product_ids:
             product = Product.nodes.get(object_uuid=product_id)
             product.orders.connect(order)
+
+        message_data = {
+            'message_type': 'email',
+            'subject': 'Submit Mission For Review',
+            'body': 'Hi Team,\n%s has submitted an Order. '
+                    'Please review it in the <a href="%s">'
+                    'council area</a>. '
+                    % (order.owner_username,
+                       reverse('council_orders',
+                               request=self.context.get('request'))),
+            'template': "personal",
+            'from_user': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON},
+            'to_user': {
+                'type': "user",
+                'user_id': settings.INTERCOM_USER_ID_DEVON}
+        }
+        serializer = IntercomMessageSerializer(data=message_data)
+        if serializer.is_valid():
+            serializer.save()
 
         return order
 

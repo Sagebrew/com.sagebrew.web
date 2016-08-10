@@ -136,14 +136,16 @@ export function calculateTotals(missionRate) {
 }
 
 
-export function populateCheckout(missionId, productContainer) {
+export function populateCheckout(missionId, productContainer, orderTotalContainer) {
     var orderId = localStorage.getItem(missionId + "_OrderId");
     request.get({url: "/v1/orders/" + orderId + "/?expand=true"})
         .done(function(response) {
-            console.log(response);
             var results = response.products,
                 time = moment().format("h:mm a"),
-                orderTotalKey = missionId + "orderTotal";
+                orderTotalKey = missionId + "orderTotal",
+                total = response.total.toString();
+            orderTotalContainer.text(total.slice(0, total.length-2) +
+                "." + total.slice(total.length - 2));
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
                     results[product].information.time = time;

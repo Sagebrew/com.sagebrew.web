@@ -18,6 +18,8 @@ class Order(SBObject):
 
     stripe_charge_id = StringProperty()
 
+    tracking_url = StringProperty()
+
     # When the order was placed
     placed = DateTimeProperty(default=get_current_time)
     owner_username = StringProperty()

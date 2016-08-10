@@ -105,6 +105,7 @@ class MissionSerializer(SBSerializer):
             u'Please specify which district you are running in'
 
     def create(self, validated_data):
+        from sb_gifts.neo_models import Giftlist
         from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest {owner_username: "%s"}) WITH quest ' \
@@ -156,6 +157,8 @@ class MissionSerializer(SBSerializer):
                               'images/wallpaper_capitol_2.jpg'),
                           formatted_location_name=formatted_location_name)\
             .save()
+        giftlist = Giftlist().save()
+        giftlist.mission.connect(mission)
         if focus_type == "position":
             if level == "federal":
                 if district:

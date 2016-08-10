@@ -1,5 +1,5 @@
 var request = require('api').request,
-    unverifiedPositionTemplate = require('controller/council/templates/unverified_positions.hbs'),
+    uncompletedOrderTemplate = require('controller/council/templates/order.hbs'),
     moment = require('moment');
 
 
@@ -22,24 +22,28 @@ export function init() {
  * Load
  */
 export function load() {
-    var positionWrapper = $("#js-position-verification-wrapper");
-    request.get({url: "/v1/council/orders/"})
+    var orderWrapper = $("#js-order-completion-wrapper");
+    request.get({url: "/v1/orders/"})
         .done(function(data){
-            positionWrapper.append(unverifiedPositionTemplate({positions:data}));
-            $(".position-created").each(function(){
+            for (var product in data.results) {
+                if (data.results.hasOwnProperty(product)) {
+                    var total = data.results[product].total.toString();
+                    data.results[product].total = (total.slice(0, total.length-2) +
+                        "." + total.slice(total.length - 2));
+                }
+            }
+            orderWrapper.append(
+                uncompletedOrderTemplate(
+                    {
+                        order: data.results,
+                        pending_completion: true
+                    }));
+            $(".order-created").each(function(){
                 var $this = $(this),
                     momentTime = moment($this.html()).format("dddd, MMMM Do YYYY, h:mm a");
                 $this.html(momentTime);
             });
             $('[data-toggle="tooltip"]').tooltip();
-            $(".js-verify-position").on('click', function(event){
-                event.preventDefault();
-                var $this = $(this);
-                request.patch({url: "/v1/positions/" + $(this).data('object_uuid') + "/council_update/", data: JSON.stringify({"verified": true})})
-                    .done(function(){
-                        $this.closest('tr').remove();
-                    });
-            });
         });
 
 }

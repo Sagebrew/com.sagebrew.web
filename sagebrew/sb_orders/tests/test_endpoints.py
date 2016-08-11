@@ -172,11 +172,12 @@ class MissionEndpointTests(APITestCase):
             email=self.pleb.email
         )
         self.pleb.stripe_customer_id = customer['id']
-        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.stripe_default_card_id = customer['default_source']
         self.pleb.save()
 
-        order = Order(completed=False, paid=True,
-                      owner_username=self.pleb.username).save()
+        order = Order(completed=False, paid=False,
+                      owner_username=self.pleb.username,
+                      total=1000).save()
 
         url = reverse("orders-detail", kwargs={'object_uuid': order.object_uuid})
 
@@ -184,6 +185,9 @@ class MissionEndpointTests(APITestCase):
             "mission": self.mission.object_uuid,
             "payment_method": self.pleb.stripe_default_card_id
         }
+        self.assertFalse(order.paid)
         response = self.client.put(url, data=order_data, format="json")
 
-        print response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['paid'])
+        order.delete()

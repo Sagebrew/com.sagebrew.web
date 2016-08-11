@@ -1,5 +1,6 @@
 import pytz
 import time
+import requests_mock
 from uuid import uuid1
 from datetime import datetime
 
@@ -227,3 +228,19 @@ class SearchEndpointTests(APITestCase):
                                       "filter operations.",
                             status_code=status.HTTP_400_BAD_REQUEST)
         self.question.delete()
+
+
+class AmazonProductSearchEndpointTests(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        cache.clear()
+
+    def test_product_search(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('product-search-list') + "?query=water"
+        response = self.client.get(url, format='json')
+        print response
+

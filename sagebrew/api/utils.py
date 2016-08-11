@@ -493,5 +493,5 @@ def remove_smart_quotes(content):
 
 
 def chunk_list(to_be_chunked, chunk_length):
-    return (to_be_chunked[i:i+chunk_length]
+    return (to_be_chunked[i:i + chunk_length]
             for i in range(0, len(to_be_chunked), chunk_length))

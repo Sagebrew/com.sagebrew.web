@@ -90,14 +90,22 @@ class AmazonProductSearchViewSet(ListAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        # TODO move these strings into settings variables
-        amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q", "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR", "sagebrew-20")
-        # amazon = AmazonAPI(settings.AMAZON_ACCESS_KEY, settings.AMAZON_SECRET_KEY, settings.AMAZON_ASSOC_TAG)
+        from logging import getLogger
+        logger = getLogger("loggly_logs")
+        amazon = AmazonAPI(settings.AMAZON_KEY,
+                           settings.AMAZON_SECRET_KEY,
+                           settings.AMAZON_ASSOCIATE_TAG)
+        logger.info(amazon)
         queryset = []
         query_param = self.request.query_params.get("query", "")
         if query_param:
-            products = amazon.search_n(n=15, Keywords=query_param,
-                                       SearchIndex="All")
+            try:
+                products = amazon.search_n(n=15, Keywords=query_param,
+                                           SearchIndex="All")
+            except Exception as e:
+                logger.info(e)
+                logger.info(e.message)
+                logger.info(amazon)
             for product in products:
                 price, currency = product.price_and_currency
                 queryset.append({

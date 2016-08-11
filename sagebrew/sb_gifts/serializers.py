@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from amazon.api import AmazonAPI
 from rest_framework import serializers
 
@@ -5,7 +7,7 @@ from api.utils import chunk_list, gather_request_data
 from api.serializers import SBSerializer
 from sb_missions.serializers import MissionSerializer
 
-from .neo_models import Giftlist, Product
+from .neo_models import Product
 
 
 class GiftlistSerializer(SBSerializer):
@@ -54,14 +56,14 @@ class GiftlistSerializer(SBSerializer):
 
     def get_products(self, obj):
         request, expand, _, _, _ = gather_request_data(self.context)
-        serialized_products =  [ProductSerializer(product).data
-                                for product in obj.get_products()]
+        serialized_products = [ProductSerializer(product).data
+                               for product in obj.get_products()]
         if expand == 'true':
             vendor_ids = [product['vendor_id']
                           for product in serialized_products]
-            amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q",
-                               "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR",
-                               "sagebrew-20")
+            amazon = AmazonAPI(settings.AMAZON_KEY,
+                               settings.AMAZON_SECRET_KEY,
+                               settings.AMAZON_ASSOCIATE_TAG)
             for sub_list in chunk_list(vendor_ids, 10):
                 sub_ids = ",".join(sub_list)
                 products = amazon.lookup(ItemId=sub_ids)
@@ -93,7 +95,7 @@ class ProductSerializer(SBSerializer):
     def create(self, validated_data):
         # Currently we don't allow users to create Products.
         # May be implemented if people want to sell yard signs or
-        # something in the future.
+        # something that they personally fund/create in the future.
         pass
 
     def update(self, instance, validated_data):
@@ -106,5 +108,3 @@ class ProductSerializer(SBSerializer):
 
     def get_giftlist(self, obj):
         return obj.get_giftlist().object_uuid
-
-

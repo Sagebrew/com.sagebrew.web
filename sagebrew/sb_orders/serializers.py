@@ -143,9 +143,9 @@ class OrderSerializer(SBSerializer):
         if expand == 'true':
             vendor_ids = [product['vendor_id']
                           for product in serialized_products]
-            amazon = AmazonAPI("AKIAI5PAWWJNUQPPXL3Q",
-                               "/XylsuBQopHlYC63+ZBjZ9HqEPmPHsH/9pMOPRjR",
-                               "sagebrew-20")
+            amazon = AmazonAPI(settings.AMAZON_KEY,
+                               settings.AMAZON_SECRET_KEY,
+                               settings.AMAZON_ASSOCIATE_TAG)
             for sub_list in chunk_list(vendor_ids, 10):
                 sub_ids = ",".join(sub_list)
                 products = amazon.lookup(ItemId=sub_ids)

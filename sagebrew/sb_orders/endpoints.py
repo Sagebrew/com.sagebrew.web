@@ -81,6 +81,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 serializer.save()
 
             mission = order.get_mission()
+
             message_data = {
                 'message_type': 'email',
                 'subject': 'Submit Mission For Review',

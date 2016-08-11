@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from sb_base.utils import NeoQuerySet
 from sb_base.serializers import IntercomMessageSerializer
 from sb_missions.neo_models import Mission
+from plebs.neo_models import Pleb
 
 from .neo_models import Order
 from .serializers import OrderSerializer
@@ -62,12 +63,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.tracking_url = tracking_url
             order.completed = True
             order.save()
+            order_owner = Pleb.get(order.owner_username)
             message_data = {
                 'message_type': 'email',
                 'subject': 'Submit Mission For Review',
                 'body': 'Hi %s,\nYour Order has been processed and you '
                         'can track the delivery here:\n\n%s '
-                        % (order.owner_username, tracking_url),
+                        % (order_owner.first_name, tracking_url),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",
@@ -81,14 +83,14 @@ class OrderViewSet(viewsets.ModelViewSet):
                 serializer.save()
 
             mission = order.get_mission()
-
+            mission_owner = Pleb.get(mission.owner_username)
             message_data = {
                 'message_type': 'email',
                 'subject': 'Submit Mission For Review',
                 'body': 'Hi %s,\nSomeone has sent you a Gift from your '
                         'Giftlist!\nYou can track the delivery here:\n\n'
                         '%s'
-                        % (order.owner_username, tracking_url),
+                        % (mission_owner.first_name, tracking_url),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",

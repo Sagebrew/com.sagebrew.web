@@ -94,7 +94,7 @@ urlpatterns = patterns(
             template_name='donations/payment.html'),
         name="mission_donation_payment"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
-        r'donate/gifts/$', ContributionMissionView.as_view(
+        r'gifts/donate/$', ContributionMissionView.as_view(
             template_name="mission/gifts.html"),
         name="mission_donation_gifts"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'

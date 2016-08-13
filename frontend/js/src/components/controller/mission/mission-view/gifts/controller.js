@@ -4,7 +4,7 @@ var request = require('api').request,
     args = require('common/helpers').args,
     moment = require('moment'),
     goods = require('../../../donations/partials/goods'),
-    individualGiftTemplate = require('../../templates/mission_gift_single.hbs'),
+    individualGiftTemplate = require('../../templates/mission_gift.hbs'),
     individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs');
 
 export const meta = {
@@ -72,11 +72,10 @@ export function load() {
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
                     "price" : $this.data("product_price"),
-                    "object_uuid": $this.data("object_uuid")
+                    "object_uuid": $this.data("object_uuid"),
+                    "time": moment().format("h:mm a")
                 },
-                calculatedTotals,
-                time = moment().format("h:mm a");
-            productDetails.time = time;
+                calculatedTotals;
             selectedGiftContainer.append(
                 individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();
@@ -139,8 +138,6 @@ export function load() {
                 })
             }).done(function(response){
                 greyPage.addClass("sb_hidden");
-                // TODO take to payment processing pages, if no default card 
-                // have them input a card
                 localStorage.setItem(missionId + "_OrderId", response.id);
                 window.location.href = "/missions/" + missionId + "/" + slug + "/gifts/payment/";
             });

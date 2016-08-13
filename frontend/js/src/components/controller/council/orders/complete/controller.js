@@ -1,5 +1,5 @@
 var request = require('api').request,
-    individualCheckoutGiftTemplate = require('../../../mission/templates/mission_gift_single_checkout.hbs'),
+    individualCheckoutGiftTemplate = require('../../../mission/templates/mission_gift_checkout.hbs'),
     moment = require('moment'),
     args = require('common/helpers').args;
 
@@ -28,30 +28,28 @@ export function load() {
     request.get({url: "/v1/orders/" + orderId + "/?expand=true"})
         .done(function(response){
             var results = response.products,
-                time = moment().format("h:mm a"),
-                total = response.total.toString();
+                time = moment().format("h:mm a");
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
                     results[product].information.object_uuid = results[product].id;
+                    results[product].information.time = time;
                     giftContainer.append(
                         individualCheckoutGiftTemplate(
                             {"product": results[product].information}));
                 }
             }
         });
-
     $("#js-submit-completed").on("click", function(e){
         e.preventDefault();
-        var trackingUrl = $("#js-tracking-url").val();
-        if (trackingUrl) {
-            request.put(
-                {
-                    url: "/v1/orders/" + orderId + "/"
-                }
-            )
-        }
+        var orderId = args(2);
+        request.post({
+            url: "/v1/orders/" + orderId + "/complete_order/",
+            data: JSON.stringify({tracking_url: $("#js-tracking-url").val()})
+        })
+            .done(function(response) {
+                console.log(response);
+            });
     });
-
 }
 
 /**

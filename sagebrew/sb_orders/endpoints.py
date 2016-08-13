@@ -49,14 +49,20 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"details": "Sorry we don't allow users "
                                         "to query all "
                                         "Orders on the site.",
-                             "status": status.HTTP_200_OK},
-                            status=status.HTTP_200_OK)
+                             "status": status.HTTP_403_FORBIDDEN},
+                            status=status.HTTP_403_FORBIDDEN)
         return super(OrderViewSet, self).list(request, *args, **kwargs)
 
     @detail_route(methods=['POST'],
-                  permission_classes=[IsAuthenticated, IsAdminUser],
+                  permission_classes=[IsAuthenticated,],
                   serializer_class=OrderSerializer)
-    def complete_order(self, request, object_uuid):
+    def complete_order(self, request, object_uuid=None):
+        if request.user.username != "tyler_wiersing" \
+                and request.user.username != "devon_bleibtrey":
+            return Response({"detail": "You do not have permission to "
+                                       "perform this action.",
+                             "status_code": status.HTTP_403_FORBIDDEN},
+                            status=status.HTTP_403_FORBIDDEN)
         order = self.get_object()
         tracking_url = request.data.get("tracking_url", None)
         if tracking_url:
@@ -66,7 +72,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order_owner = Pleb.get(order.owner_username)
             message_data = {
                 'message_type': 'email',
-                'subject': 'Submit Mission For Review',
+                'subject': 'Sagebrew Order Processed',
                 'body': 'Hi %s,\nYour Order has been processed and you '
                         'can track the delivery here:\n\n%s '
                         % (order_owner.first_name, tracking_url),
@@ -86,7 +92,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             mission_owner = Pleb.get(mission.owner_username)
             message_data = {
                 'message_type': 'email',
-                'subject': 'Submit Mission For Review',
+                'subject': 'Someone has given you a Gift!',
                 'body': 'Hi %s,\nSomeone has sent you a Gift from your '
                         'Giftlist!\nYou can track the delivery here:\n\n'
                         '%s'
@@ -102,4 +108,4 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():
                 serializer.save()
-        return OrderSerializer(order).data
+        return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)

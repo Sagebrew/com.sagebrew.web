@@ -23,8 +23,6 @@
     <script type="text/javascript">
         {{ js_settings|safe }}
     </script>
-    {% comment %}
-    TODO uncomment this
     <script>
         (function(h,o,t,j,a,r){
             h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
@@ -35,7 +33,6 @@
             a.appendChild(r);
         })(window,document,'//static.hotjar.com/c/hotjar-','.js?sv=');
     </script>
-    {% endcomment %}
 </head>
 <body class="{% block body_class %}{% endblock body_class %}">
     <div id="sb-greyout-page" class="sb_hidden"><div class="loader centered-loader"></div></div>

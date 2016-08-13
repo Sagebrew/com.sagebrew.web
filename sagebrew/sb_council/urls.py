@@ -36,7 +36,7 @@ urlpatterns = patterns(
     url(r'^orders/completed/$',
         CouncilView.as_view(template_name="council/orders.html"),
         name='council_orders_completed'),
-    url(r'^orders/(?P<object_uuid>[A-Za-z0-9.@_%+-]{2,36})/complete/$',
+    url(r'^orders/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/complete/$',
         CouncilView.as_view(template_name="council/order_complete.html"),
         name='council_orders_completion')
 )

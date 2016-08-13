@@ -1,6 +1,7 @@
 var request = require('api').request,
     uncompletedOrderTemplate = require('controller/council/templates/order.hbs'),
-    moment = require('moment');
+    moment = require('moment'),
+    args = require('common/helpers').args;
 
 
 export const meta = {
@@ -27,9 +28,9 @@ export function load() {
         .done(function(data){
             for (var product in data.results) {
                 if (data.results.hasOwnProperty(product)) {
-                    var total = data.results[product].total.toString();
-                    data.results[product].total = (total.slice(0, total.length-2) +
-                        "." + total.slice(total.length - 2));
+                    var total = data.results[product].total;
+                    data.results[product].total = total / 100.0;
+                    data.results[product].created = moment(data.results[product].created).format("dddd, MMMM Do YYYY, h:mm a");
                 }
             }
             orderWrapper.append(
@@ -38,14 +39,9 @@ export function load() {
                         order: data.results,
                         pending_completion: true
                     }));
-            $(".order-created").each(function(){
-                var $this = $(this),
-                    momentTime = moment($this.html()).format("dddd, MMMM Do YYYY, h:mm a");
-                $this.html(momentTime);
-            });
             $('[data-toggle="tooltip"]').tooltip();
         });
-
+    
 }
 
 /**

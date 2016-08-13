@@ -6,7 +6,7 @@ from api.neo_models import SBObject
 class Giftlist(SBObject):
     """
     Giftlists are lists of Products which users can purchase for a Mission.
-    They are list of items available on Amazon and found via the
+    They are a list of items available on Amazon and found via the
     Amazon Product API.
 
     Initially a Mission will only be able to have one Giftlist and they will
@@ -28,6 +28,7 @@ class Giftlist(SBObject):
                 % (self.object_uuid, vendor_id, vendor_name)
         res, _ = db.cypher_query(query)
         if res.one:
+            res.one.pull()
             return Product.inflate(res.one)
         return None
 

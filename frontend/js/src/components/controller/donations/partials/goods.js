@@ -2,9 +2,9 @@ var settings = require('settings').settings,
     request = require('api').request,
     args = require('common/helpers').args,
     moment = require('moment'),
-    individualGiftTemplate = require('../../mission/templates/mission_gift_single.hbs'),
+    individualGiftTemplate = require('../../mission/templates/mission_gift.hbs'),
     individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs'),
-    individualCheckoutGiftTemplate = require('../../mission/templates/mission_gift_single_checkout.hbs');
+    individualCheckoutGiftTemplate = require('../../mission/templates/mission_gift_checkout.hbs');
 
 
 export function search(container, selectedContainer) {
@@ -23,6 +23,7 @@ export function search(container, selectedContainer) {
                 }).done(function(res) {
                     container.empty();
                     var results = res.results,
+                    // the time format here will format in this style: "5:46 pm"
                         time = moment().format("h:mm a");
                     for (var product in results) {
                         if (res.results.hasOwnProperty(product)){
@@ -50,10 +51,9 @@ export function search(container, selectedContainer) {
                     "asin": $this.data("product_id"),
                     "image": $this.data("product_image"),
                     "title": $this.data("product_description"),
-                    "price" : $this.data("product_price")
-                },
-                time = moment().format("h:mm a");
-            productDetails.time = time;
+                    "price": $this.data("product_price"),
+                    "time": moment().format("h:mm a")
+                };
             selectedContainer.append(individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();
 
@@ -143,9 +143,8 @@ export function populateCheckout(missionId, productContainer, orderTotalContaine
             var results = response.products,
                 time = moment().format("h:mm a"),
                 orderTotalKey = missionId + "orderTotal",
-                total = response.total.toString();
-            orderTotalContainer.text(total.slice(0, total.length-2) +
-                "." + total.slice(total.length - 2));
+                total = response.total;
+            orderTotalContainer.text(total / 100.0);
             for (var product in results) {
                 if (results.hasOwnProperty(product)) {
                     results[product].information.time = time;

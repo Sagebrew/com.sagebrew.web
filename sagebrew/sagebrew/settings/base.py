@@ -303,8 +303,8 @@ GOOGLE_MAPS_API_SERVER = environ.get("GOOGLE_MAPS_API",
                                      "AIzaSyA0oDFTNqlan-vNsGvJv9HckKoMqlV5Nqo")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
-AMAZON_KEY = environ.get("AMAZON_KEY", "")
-AMAZON_SECRET_KEY = environ.get("AMAZON_SECRET_KEY", "")
+AMAZON_PROMOTION_API_KEY = environ.get("AMAZON_PROMOTION_API_KEY", "")
+AMAZON_PROMOTION_API_SECRET_KEY = environ.get("AMAZON_PROMOTION_API_SECRET_KEY", "")
 AMAZON_ASSOCIATE_TAG = environ.get("AMAZON_ASSOCIATE_TAG", "")
 
 EMAIL_BACKEND = 'django_ses.SESBackend'

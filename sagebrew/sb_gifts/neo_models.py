@@ -8,12 +8,6 @@ class Giftlist(SBObject):
     Giftlists are lists of Products which users can purchase for a Mission.
     They are a list of items available on Amazon and found via the
     Amazon Product API.
-
-    Initially a Mission will only be able to have one Giftlist and they will
-    be able to add or remove items from it via the management area of settings.
-    In the future Missions will be able to have multiple Giftlists and set up
-    events to require a certain number of gifts or money to be
-    provided to run the event.
     """
     # Whether or not the list is currently able to be viewed by the public or
     # if it is still being edited

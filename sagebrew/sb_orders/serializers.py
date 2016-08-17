@@ -155,8 +155,8 @@ class OrderSerializer(SBSerializer):
         if expand == 'true':
             vendor_ids = [product['vendor_id']
                           for product in serialized_products]
-            amazon = AmazonAPI(settings.AMAZON_KEY,
-                               settings.AMAZON_SECRET_KEY,
+            amazon = AmazonAPI(settings.AMAZON_PROMOTION_API_KEY,
+                               settings.AMAZON_PROMOTION_API_SECRET_KEY,
                                settings.AMAZON_ASSOCIATE_TAG)
             for sub_list in chunk_list(vendor_ids, 10):
                 sub_ids = ",".join(sub_list)

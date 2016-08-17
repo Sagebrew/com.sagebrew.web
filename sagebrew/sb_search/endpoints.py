@@ -90,8 +90,8 @@ class AmazonProductSearchViewSet(ListAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        amazon = AmazonAPI(settings.AMAZON_KEY,
-                           settings.AMAZON_SECRET_KEY,
+        amazon = AmazonAPI(settings.AMAZON_PROMOTION_API_KEY,
+                           settings.AMAZON_PROMOTION_API_SECRET_KEY,
                            settings.AMAZON_ASSOCIATE_TAG)
         queryset = []
         query_param = self.request.query_params.get("query", "")

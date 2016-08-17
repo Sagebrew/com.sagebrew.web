@@ -39,7 +39,7 @@ class GiftlistSerializer(SBSerializer):
         '''
         current_ids = instance.get_product_vendor_ids()
         # call set() here to ensure no duplicates
-        new_ids = list(set(validated_data.get("product_ids", [])))
+        new_ids = validated_data.get("product_ids", [])
         for new_id in new_ids:
             if new_id not in current_ids:
                 product = Product(vendor_id=new_id).save()
@@ -50,6 +50,10 @@ class GiftlistSerializer(SBSerializer):
                     vendor_id=old_id, vendor_name="amazon")
                 product.giftlist.disconnect(instance)
         return instance.save()
+
+    def validate_product_ids(self, value):
+        # remove duplicates from the list of product ids
+        return list(set(value))
 
     def get_mission(self, obj):
         return MissionSerializer(obj.get_mission()).data
@@ -88,7 +92,6 @@ class GiftlistSerializer(SBSerializer):
 class ProductSerializer(SBSerializer):
     vendor_id = serializers.CharField(required=False)
     vendor_name = serializers.CharField(required=True)
-    purchased = serializers.BooleanField(required=False)
 
     giftlist = serializers.SerializerMethodField()
 

@@ -1,6 +1,6 @@
-var settings = require('settings').settings,
-    request = require('api').request,
+var request = require('api').request,
     args = require('common/helpers').args,
+    currencyRound = require('common/helpers').currencyRoundUp,
     moment = require('moment'),
     individualGiftTemplate = require('../../mission/templates/mission_gift.hbs'),
     individualSelectedGiftTemplate = require('../../mission/templates/mission_gift_selected.hbs'),
@@ -75,6 +75,22 @@ export function search(container, selectedContainer) {
         })
         .on("click", ".js-remove", function() {
             $(this).closest(".selected-product-container").remove();
+
+            // auto save when product is added to giftlist
+            greyPage.removeClass("sb_hidden");
+            var productIds = [];
+            $(".selected-product-container").each(function(i, obj) {
+                productIds.push($(obj).data("vendor_id"));
+            });
+            request.patch({
+                url: "/v1/missions/" + missionId + "/giftlist/",
+                data: JSON.stringify({
+                    product_ids: productIds
+                })
+            }).done(function(){
+                greyPage.addClass("sb_hidden");
+                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
+            });
         });
 }
 
@@ -126,12 +142,12 @@ export function calculateTotals(missionRate) {
 
     // .toFixed(2) formats float values to x.xx for cash
     return {
-        itemTotal: itemTotal.toFixed(2),
-        estimatedTax: estimatedTax.toFixed(2),
-        shipping: shipping.toFixed(2),
-        beforeSb: beforeSb.toFixed(2),
-        sbCharge: sbCharge.toFixed(2),
-        orderTotal: orderTotal.toFixed(2)
+        itemTotal: currencyRound(itemTotal.toFixed(2)),
+        estimatedTax: currencyRound(estimatedTax.toFixed(2)),
+        shipping: currencyRound(shipping.toFixed(2)),
+        beforeSb: currencyRound(beforeSb.toFixed(2)),
+        sbCharge: currencyRound(sbCharge.toFixed(2)),
+        orderTotal: currencyRound(orderTotal.toFixed(2))
     };
 }
 

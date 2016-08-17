@@ -67,7 +67,9 @@ class Product(SBObject):
     vendor_name = StringProperty(default="amazon")
 
     # Whether or not this item has been purchased for the Mission
-    purchased = BooleanProperty(default=False)
+    # Not currently use as nothing is ever removed from the front-facing
+    # mission Giftlist unless the Mission owner removes it from the list
+    # purchased = BooleanProperty(default=False)
 
     # relationships
     # Which list this product is in

@@ -574,3 +574,12 @@ export function allowTabLocationSelection(input) {
 
     })(input);
 }
+
+
+/*
+ * Round up a float value with the format of x.xx
+ * This is done in places handling currency amounts so as to avoid losing money
+ */
+export function currencyRoundUp(cashValue) {
+    return Math.ceil(cashValue * 100) / 100;
+}

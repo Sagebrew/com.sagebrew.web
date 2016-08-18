@@ -14,13 +14,23 @@
         <div class="block-content clearfix">
             <h1>Gifts</h1>
             <ul class="nav nav-pills">
+                <li {% if "/gifts/choose/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "/gifts/choose/" in request.path %}#{% else %}{% url "gift_choose" quest.owner_username %}{% endif %}">
+                        Choose
+                    </a>
+                </li>
                 {% if request.user.is_authenticated == False %}
-                    <li {% if "donate/choose/" in request.path or "/donate/amount/" in request.path %}class="disabled" {% elif "/donate/name/" in request.path %}class="active" {% endif %}>
-                        <a href="{% if "donate/choose/" in request.path or "/donate/name/" in request.path or "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
+                    <li {% if "gifts/choose/" in request.path or "/gifts/donate/" in request.path %}class="disabled" {% elif "/gifts/name/" in request.path %}class="active" {% endif %}>
+                        <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path or "/gifts/payment/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
                             Sign Up
                         </a>
                     </li>
                 {% endif %}
+                <li {% if "/gifts/donate/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_donation_gifts" selected.id selected.slug %}">
+                        Select
+                    </a>
+                </li>
                 <li {% if "/gifts/payment/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_gifts_payment" selected.id selected.slug %}">
                         Payment

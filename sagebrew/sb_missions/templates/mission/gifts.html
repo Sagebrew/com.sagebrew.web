@@ -1,4 +1,4 @@
-{% extends "layout/two-col-right.html" %}
+{% extends "gifts/base.html" %}
 {% load staticfiles %}
 {% block title %}Mission Gifts{% endblock title %}
 
@@ -20,14 +20,14 @@
     </div>
 {% endblock %}
 
-{% block sidebar_right %}
+{% block sidebar_left %}
     <div class="block">
         <div class="block-title">
             Selected Items
         </div>
         <p id="js-no-selected-gifts"
            class="no-margin-top-bottom font-size-14 gift-image">
-            Add Gifts from the left!
+            Add Gifts from the right!
         </p>
         <div id="js-selected-gift-container" class="block-content no-bottom-padding">
         </div>

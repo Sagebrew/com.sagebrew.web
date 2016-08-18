@@ -24,6 +24,12 @@ urlpatterns = patterns(
             template_name='mission/endorse_base.html'),
         name="endorse_choose"),
 
+    # Gift
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
+        r'gifts/choose/$', ContributionQuestView.as_view(
+        template_name='gifts/mission.html'),
+        name="gift_choose"),
+
     # Manage
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/banking/$',
         QuestSettingsView.as_view(template_name="manage/quest_banking.html"),

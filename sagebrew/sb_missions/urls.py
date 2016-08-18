@@ -93,6 +93,9 @@ urlpatterns = patterns(
         ContributionMissionView.as_view(
             template_name='donations/payment.html'),
         name="mission_donation_payment"),
+
+
+    # Gift
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'gifts/donate/$', ContributionMissionView.as_view(
             template_name="mission/gifts.html"),
@@ -102,6 +105,10 @@ urlpatterns = patterns(
         ContributionMissionView.as_view(
             template_name='gifts/payment.html'),
         name="mission_gifts_payment"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'gifts/name/$',
+        ContributionMissionView.as_view(template_name='gifts/name.html'),
+        name="mission_gift_name"),
 
 
     # Volunteer

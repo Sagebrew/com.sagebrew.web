@@ -48,6 +48,10 @@ class ContributionMissionView(View):
                 reverse("mission_endorse", kwargs=reverse_params) and \
                 not request.user.is_authenticated():
             return redirect("mission_endorse_name", **reverse_params)
+        elif request.path == \
+                reverse("mission_donation_gifts", kwargs=reverse_params) and \
+                not request.user.is_authenticated():
+            return redirect("mission_gift_name", **reverse_params)
         mission_dict = MissionSerializer(
             mission, context={'request': request}).data
         if mission_dict['about'] is None or mission_dict['about'] == '':

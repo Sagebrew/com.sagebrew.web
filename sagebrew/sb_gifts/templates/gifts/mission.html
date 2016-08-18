@@ -1,0 +1,34 @@
+{% extends "contribution_mission_selector.html" %}
+
+{% block secondary_nav %}
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Gifts</h1>
+            <ul class="nav nav-pills">
+                <li {% if "/gifts/choose/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "/gifts/choose/" in request.path %}#{% else %}{% url "gift_choose" quest.owner_username %}{% endif %}">
+                        Choose
+                    </a>
+                </li>
+                {% if request.user.is_authenticated == False %}
+                    <li {% if "gifts/choose/" in request.path %}class="disabled" {% elif "/gifts/name/" in request.path %}class="active" {% endif %}>
+                        <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path %}#{% else %}{% url "mission_gift_name" selected.id selected.slug %}{% endif %}">
+                            Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+                <li {% if "/gifts/choose/" in request.path or request.user.is_authenticated == False %}class="disabled" {% elif "/gifts/choose/" not in request.path and "gifts/name/" not in request.path %}class="active" {% endif %}>
+                    <a href="{% if "gift/choose/" in request.path %}#{% endif %}">
+                        Select
+                    </a>
+                </li>
+                <li {% if "/gifts/choose/" in request.path or request.user.is_authenticated == False %}class="disabled" {% elif "/gifts/choose/" not in request.path and "gifts/name/" not in request.path %}class="active" {% endif %}>
+                    <a href="{% if "gifts/choose/" in request.path %}#{% endif %}">
+                        Payment
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+{% endblock %}

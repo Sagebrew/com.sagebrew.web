@@ -62,7 +62,9 @@ class GiftlistSerializer(SBSerializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         serialized_products = [ProductSerializer(product).data
                                for product in obj.get_products()]
-        if expand == 'true':
+        if expand == 'true': # pragma: no cover
+            # Not covering this as we have no good way to mock a request to
+            # the amazon api as they use request signatures. - Devon Bleibtrey
             vendor_ids = [product['vendor_id']
                           for product in serialized_products]
             amazon = AmazonAPI(settings.AMAZON_PROMOTION_API_KEY,

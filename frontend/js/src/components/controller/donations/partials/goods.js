@@ -54,7 +54,7 @@ export function search(container, selectedContainer) {
                     "price": $this.data("product_price"),
                     "time": moment().format("h:mm a")
                 };
-            selectedContainer.append(individualSelectedGiftTemplate({"product": productDetails}));
+            selectedContainer.prepend(individualSelectedGiftTemplate({"product": productDetails}));
             $this.closest(".product-container").remove();
 
             // auto save when product is added to giftlist
@@ -70,7 +70,6 @@ export function search(container, selectedContainer) {
                 })
             }).done(function(){
                 greyPage.addClass("sb_hidden");
-                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
             });
         })
         .on("click", ".js-remove", function() {
@@ -89,7 +88,6 @@ export function search(container, selectedContainer) {
                 })
             }).done(function(){
                 greyPage.addClass("sb_hidden");
-                $.notify({message: "Successfully Saved Gift List!"}, {type: "success"});
             });
         });
 }
@@ -120,9 +118,6 @@ export function calculateTotals(missionRate) {
      * @type {number}
      */
     var itemTotal = 0.00,
-        shipping = 0.00,
-        estimatedTax,
-        beforeSb,
         sbCharge,
         orderTotal,
         objectPrice;
@@ -135,19 +130,14 @@ export function calculateTotals(missionRate) {
     });
 
     // make calculations
-    estimatedTax = itemTotal * 0.06;
-    beforeSb = itemTotal + estimatedTax + shipping;
     sbCharge = (itemTotal) * missionRate;
-    orderTotal = itemTotal + estimatedTax + sbCharge + shipping;
+    orderTotal = itemTotal + sbCharge;
 
     // .toFixed(2) formats float values to x.xx for cash
     return {
-        itemTotal: currencyRound(itemTotal.toFixed(2)),
-        estimatedTax: currencyRound(estimatedTax.toFixed(2)),
-        shipping: currencyRound(shipping.toFixed(2)),
-        beforeSb: currencyRound(beforeSb.toFixed(2)),
-        sbCharge: currencyRound(sbCharge.toFixed(2)),
-        orderTotal: currencyRound(orderTotal.toFixed(2))
+        itemTotal: currencyRound(itemTotal).toFixed(2),
+        sbCharge: currencyRound(sbCharge).toFixed(2),
+        orderTotal: currencyRound(orderTotal).toFixed(2)
     };
 }
 

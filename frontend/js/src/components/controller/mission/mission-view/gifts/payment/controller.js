@@ -1,10 +1,10 @@
 /* global $ */
-var request = require('api').request,
-    settings = require('settings').settings,
+var settings = require('settings').settings,
     args = require('common/helpers').args,
     goods = require('../../../../donations/partials/goods'),
     payment = require('common/payment'),
-    giftPayment = require('./partials/giftpayment');
+    giftPayment = require('./partials/giftpayment'),
+    donationPayment = require('../../../../donations/payment/partials/donationpayment');
 
 export const meta = {
     controller: "mission/mission-view/gifts/payment",
@@ -35,8 +35,8 @@ export function load() {
     goods.populateCheckout(missionId, selectedGiftContainer, orderTotalContainer);
     
     payment.listPaymentMethods("/v1/me/", giftPayment.usePaymentCallback,
-        giftPayment.stripeResponseHandler,
-        giftPayment.giftCancelRedirect);
+        donationPayment.stripeResponseHandler,
+        donationPayment.donationCancelRedirect);
 }
 
 /**

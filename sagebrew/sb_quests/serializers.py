@@ -69,6 +69,7 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    application_fee = serializers.FloatField(read_only=True)
     # https://stripe.com/docs/connect/identity-verification
     # #confirming-id-verification
     # fields_needed is a list of fields that are still required for

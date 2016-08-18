@@ -46,8 +46,8 @@ export function load() {
             url: "/v1/orders/" + orderId + "/complete_order/",
             data: JSON.stringify({tracking_url: $("#js-tracking-url").val()})
         })
-            .done(function(response) {
-                console.log(response);
+            .done(function() {
+                window.location.href = "/council/orders/";
             });
     });
 }

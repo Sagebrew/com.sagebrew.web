@@ -34,19 +34,13 @@ export function load() {
         slug = args(2),
         noSelectedGifts = $("#js-no-selected-gifts"),
         itemTotalContainer = $("#js-items-price"),
-        shippingHandlingContainer = $("#js-shipping-handling-price"),
-        estimatedTaxContainer = $("#js-estimated-tax-price"),
-        beforeSbContainer = $("#js-before-sb-price"),
         sbChargeContainer = $("#js-sb-charge-price"),
         orderTotalContainer = $("#js-order-total-price"),
         missionRate = 0.07;
     request.get({url: "/v1/missions/" + missionId + "/"})
         .done(function(response) {
-            if (response.quest.account_type === "free") {
-                missionRate = 0.07;
-            } else if (response.quest.account_type === "paid") {
-                missionRate = 0.05;
-            }
+            missionRate = response.quest.application_fee +
+                settings.api.stripe_transaction_fee;
         });
     giftContainer.append('<div class="loader"></div>');
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
@@ -83,9 +77,6 @@ export function load() {
             
             // Display calculated totals in order info box
             itemTotalContainer.text(calculatedTotals.itemTotal);
-            shippingHandlingContainer.text(calculatedTotals.shipping);
-            estimatedTaxContainer.text(calculatedTotals.estimatedTax);
-            beforeSbContainer.text(calculatedTotals.beforeSb);
             sbChargeContainer.text(calculatedTotals.sbCharge);
             orderTotalContainer.text(calculatedTotals.orderTotal);
             if (!noSelectedGifts.hasClass("sb_hidden")) {
@@ -110,9 +101,6 @@ export function load() {
 
             // Display calculated totals in order info box
             itemTotalContainer.text(calculatedTotals.itemTotal);
-            shippingHandlingContainer.text(calculatedTotals.shipping);
-            estimatedTaxContainer.text(calculatedTotals.estimatedTax);
-            beforeSbContainer.text(calculatedTotals.beforeSb);
             sbChargeContainer.text(calculatedTotals.sbCharge);
             orderTotalContainer.text(calculatedTotals.orderTotal);
             if (!$(".selected-product-container").length) {

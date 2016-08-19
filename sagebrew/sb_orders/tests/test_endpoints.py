@@ -13,14 +13,9 @@ from rest_framework.test import APITestCase
 from neomodel import db
 
 from plebs.neo_models import Address
-from plebs.serializers import PlebSerializerNeo
 from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
 from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
 from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
 from sb_gifts.neo_models import Product, Giftlist
 from sb_orders.neo_models import Order
 
@@ -179,7 +174,8 @@ class OrderEndpointTests(APITestCase):
                       owner_username=self.pleb.username,
                       total=1000).save()
 
-        url = reverse("orders-detail", kwargs={'object_uuid': order.object_uuid})
+        url = reverse("orders-detail",
+                      kwargs={'object_uuid': order.object_uuid})
 
         order_data = {
             "mission": self.mission.object_uuid,

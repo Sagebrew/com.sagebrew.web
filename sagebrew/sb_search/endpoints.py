@@ -89,7 +89,9 @@ class SearchViewSet(ListAPIView):
 class AmazonProductSearchViewSet(ListAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self):  # pragma: no cover
+        # Not covering this as we have no good way to mock a request to
+        # the amazon api as they use request signatures. - Devon Bleibtrey
         amazon = AmazonAPI(settings.AMAZON_PROMOTION_API_KEY,
                            settings.AMAZON_PROMOTION_API_SECRET_KEY,
                            settings.AMAZON_ASSOCIATE_TAG)
@@ -110,7 +112,9 @@ class AmazonProductSearchViewSet(ListAPIView):
                 })
         return queryset
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):  # pragma: no cover
+        # Not covering this as we have no good way to mock a request to
+        # the amazon api as they use request signatures. - Devon Bleibtrey
         try:
             queryset = self.get_queryset()
         except ValidationError:

@@ -3,7 +3,7 @@ from django.conf import settings
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 
 from sb_base.utils import NeoQuerySet
 from sb_base.serializers import IntercomMessageSerializer
@@ -54,7 +54,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return super(OrderViewSet, self).list(request, *args, **kwargs)
 
     @detail_route(methods=['POST'],
-                  permission_classes=[IsAuthenticated,],
+                  permission_classes=[IsAuthenticated, ],
                   serializer_class=OrderSerializer)
     def complete_order(self, request, object_uuid=None):
         if request.user.username != "tyler_wiersing" \

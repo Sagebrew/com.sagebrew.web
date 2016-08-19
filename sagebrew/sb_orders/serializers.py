@@ -14,7 +14,6 @@ from sb_base.serializers import IntercomMessageSerializer
 from plebs.neo_models import Pleb
 from sb_gifts.neo_models import Product
 from sb_gifts.serializers import ProductSerializer
-from sb_missions.neo_models import Mission
 
 from .neo_models import Order
 
@@ -152,7 +151,7 @@ class OrderSerializer(SBSerializer):
         request, expand, _, _, _ = gather_request_data(self.context)
         serialized_products = [ProductSerializer(product).data
                                for product in obj.get_products()]
-        if expand == 'true': # pragma: no cover
+        if expand == 'true':  # pragma: no cover
             # Not covering this as we have no good way to mock a request to
             # the amazon api as they use request signatures. - Devon Bleibtrey
             vendor_ids = [product['vendor_id']

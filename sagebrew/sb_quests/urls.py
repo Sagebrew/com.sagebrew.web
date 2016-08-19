@@ -27,7 +27,7 @@ urlpatterns = patterns(
     # Gift
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
         r'gifts/choose/$', ContributionQuestView.as_view(
-        template_name='gifts/mission.html'),
+            template_name='gifts/mission.html'),
         name="gift_choose"),
 
     # Manage

@@ -25,7 +25,7 @@ from sb_gifts.neo_models import Product, Giftlist
 from sb_orders.neo_models import Order
 
 
-class MissionEndpointTests(APITestCase):
+class OrderEndpointTests(APITestCase):
 
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
@@ -67,7 +67,7 @@ class MissionEndpointTests(APITestCase):
         url = reverse("orders-list")
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data['details'],
                          "Sorry we don't allow users to query all "
                          "Orders on the site.")

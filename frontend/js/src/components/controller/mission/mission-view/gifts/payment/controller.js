@@ -29,10 +29,9 @@ export function load() {
     var app = $(".app-sb"),
         giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-items"),
-        missionId = args(1),
-        orderTotalContainer = $("#js-order-total");
+        missionId = args(1);
     giftContainer.append('<div class="loader"></div>');
-    goods.populateCheckout(missionId, selectedGiftContainer, orderTotalContainer);
+    goods.populateCheckout(missionId, selectedGiftContainer);
     
     payment.listPaymentMethods("/v1/me/", giftPayment.usePaymentCallback,
         donationPayment.stripeResponseHandler,

@@ -1,5 +1,6 @@
 var request = require('api').request,
     args = require('common/helpers').args,
+    settings = require('settings').settings,
     currencyRound = require('common/helpers').currencyRoundUp,
     moment = require('moment'),
     individualGiftTemplate = require('../../mission/templates/mission_gift.hbs'),
@@ -142,8 +143,11 @@ export function calculateTotals(missionRate) {
 }
 
 
-export function populateCheckout(missionId, productContainer, orderTotalContainer) {
-    var orderId = localStorage.getItem(missionId + "_OrderId");
+export function populateCheckout(missionId, productContainer) {
+    var orderId = localStorage.getItem(missionId + "_OrderId"),
+        itemPrice = $("#js-items-price"),
+        orderTotalContainer = $("#js-order-total"),
+        sbPrice = $("#js-sb-charge-price");
     request.get({url: "/v1/orders/" + orderId + "/?expand=true"})
         .done(function(response) {
             var results = response.products,
@@ -160,6 +164,15 @@ export function populateCheckout(missionId, productContainer, orderTotalContaine
                             {"product": results[product].information}));
                 }
             }
+            request.get({url: "/v1/missions/" + missionId + "/"})
+                .done(function(response) {
+                    var missionRate = response.quest.application_fee + settings.api.stripe_transaction_fee,
+                        calculated = calculateTotals(missionRate);
+                    console.log(calculated);
+                    itemPrice.text(calculated.itemTotal);
+                    orderTotalContainer.text(calculated.orderTotal);
+                    sbPrice.text(calculated.sbCharge);
+                });
             localStorage.setItem(orderTotalKey, results.total);
             productContainer.find(".loader").remove();
         });

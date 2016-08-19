@@ -77,7 +77,8 @@ class GiftlistEndpointTest(APITestCase):
         }
 
         res = self.client.put(url, data=data, format="json")
-        self.assertEqual(res.data['products'][0]['id'], data['product_ids'][0])
+        self.assertEqual(res.data['products'][0]['vendor_id'],
+                         data['product_ids'][0])
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_update_remove(self):

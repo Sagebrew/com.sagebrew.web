@@ -1,9 +1,5 @@
 from uuid import uuid1
 from django.test import TestCase
-from django.contrib.auth.models import User
-from django.core.cache import cache
-
-from neomodel import db
 
 from sb_missions.neo_models import Mission
 from sb_gifts.neo_models import Giftlist, Product

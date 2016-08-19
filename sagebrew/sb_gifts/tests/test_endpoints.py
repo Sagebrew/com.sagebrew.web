@@ -79,6 +79,7 @@ class GiftlistEndpointTest(APITestCase):
 
         self.assertEqual(res.data['products'][0]['id'], product.object_uuid)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        product.delete()
 
     def test_update_remove(self):
         product = Product(vendor_id="00000000").save()
@@ -94,3 +95,4 @@ class GiftlistEndpointTest(APITestCase):
 
         self.assertEqual(res.data['products'], [])
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        product.delete()

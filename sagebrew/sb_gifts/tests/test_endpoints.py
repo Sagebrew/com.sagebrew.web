@@ -42,7 +42,9 @@ class GiftlistEndpointTest(APITestCase):
                                focus_name="advocacy",
                                location_name="11").save()
         self.quest.missions.connect(self.mission)
-        self.giftlist = Giftlist().save()
+        self.giftlist = self.mission.get_giftlist()
+        if not self.giftlist:
+            self.giftlist = Giftlist().save()
         self.giftlist.mission.connect(self.mission)
         self.email2 = "bounce@simulator.amazonses.com"
         self.pleb2 = create_user_util_test(self.email2)
@@ -67,22 +69,19 @@ class GiftlistEndpointTest(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_update(self):
-        product = Product(vendor_id="00000000").save()
         self.client.force_authenticate(user=self.user)
         url = reverse("mission-giftlist",
                       kwargs={"object_uuid": self.mission.object_uuid})
         data = {
-            "product_ids": [product.vendor_id]
+            "product_ids": [str(uuid1())]
         }
 
         res = self.client.put(url, data=data, format="json")
-
-        self.assertEqual(res.data['products'][0]['id'], product.object_uuid)
+        self.assertEqual(res.data['products'][0]['id'], data['product_ids'][0])
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        product.delete()
 
     def test_update_remove(self):
-        product = Product(vendor_id="00000000").save()
+        product = Product(vendor_id=str(uuid1())).save()
         self.client.force_authenticate(user=self.user)
         url = reverse("mission-giftlist",
                       kwargs={"object_uuid": self.mission.object_uuid})

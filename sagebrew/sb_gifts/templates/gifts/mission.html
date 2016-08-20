@@ -5,7 +5,7 @@
         <div class="block-content clearfix">
             <h1>Gifts</h1>
             <ul class="nav nav-pills">
-                <li {% if "/gifts/choose/" in request.path %}class="active" {% endif %}>
+                <li {% if "/gifts/choose/" in request.path %}class="active"{% endif %}>
                     <a href="{% if "/gifts/choose/" in request.path %}#{% else %}{% url "gift_choose" quest.owner_username %}{% endif %}">
                         Choose
                     </a>
@@ -18,12 +18,12 @@
                     </li>
                 {% endif %}
                 <li {% if "/gifts/choose/" in request.path or request.user.is_authenticated == False %}class="disabled" {% elif "/gifts/choose/" not in request.path and "gifts/name/" not in request.path %}class="active" {% endif %}>
-                    <a href="{% if "gift/choose/" in request.path %}#{% endif %}">
+                    <a href="{% if "gifts/donate/" in request.path or "gifts/choose/" in request.path %}#{% else %}{% url "mission_donation_gifts" selected.id selected.slug %}{% endif %}">
                         Select
                     </a>
                 </li>
                 <li {% if "/gifts/choose/" in request.path or request.user.is_authenticated == False %}class="disabled" {% elif "/gifts/choose/" not in request.path and "gifts/name/" not in request.path %}class="active" {% endif %}>
-                    <a href="{% if "gifts/choose/" in request.path %}#{% endif %}">
+                    <a href="{% if "gifts/payment/" in request.path or "gifts/choose/" in request.path %}#{% else %}{% url "mission_gifts_payment" selected.id selected.slug %}{% endif %}">
                         Payment
                     </a>
                 </li>

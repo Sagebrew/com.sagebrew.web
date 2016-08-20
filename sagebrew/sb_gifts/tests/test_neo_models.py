@@ -49,7 +49,7 @@ class TestGiftlistNeoModels(TestCase):
         self.assertEqual(mission, res)
 
 
-class TestGiftlistNeoModels(TestCase):
+class TestProductNeoModels(TestCase):
     def setUp(self):
         self.giftlist = Giftlist().save()
 

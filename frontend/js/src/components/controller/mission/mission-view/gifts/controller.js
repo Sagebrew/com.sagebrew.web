@@ -47,15 +47,21 @@ export function load() {
         .done(function(response) {
             var results = response.products,
                 time = moment().format("h:mm a");
-            for (var product in results) {
-                if (results.hasOwnProperty(product)) {
-                    results[product].information.time = time;
-                    results[product].information.object_uuid = results[product].id;
-                    giftContainer.append(
-                        individualGiftTemplate(
-                            {"product": results[product].information}));
+            if (results !== []) {
+                for (var product in results) {
+                    if (results.hasOwnProperty(product)) {
+                        results[product].information.time = time;
+                        results[product].information.object_uuid = results[product].id;
+                        giftContainer.append(
+                            individualGiftTemplate(
+                                {"product": results[product].information}));
+                    }
                 }
+            } else {
+                $("#js-place-order").remove();
+                $("#js-disclaimer").text("Sorry this Mission has not setup their Giftlist yet!");
             }
+
             giftContainer.find(".loader").remove();
         });
     app

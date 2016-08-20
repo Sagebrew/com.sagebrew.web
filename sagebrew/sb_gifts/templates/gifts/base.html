@@ -21,18 +21,18 @@
                 </li>
                 {% if request.user.is_authenticated == False %}
                     <li {% if "gifts/choose/" in request.path or "/gifts/donate/" in request.path %}class="disabled" {% elif "/gifts/name/" in request.path %}class="active" {% endif %}>
-                        <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path or "/gifts/payment/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
+                        <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
                             Sign Up
                         </a>
                     </li>
                 {% endif %}
-                <li {% if "/gifts/donate/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_donation_gifts" selected.id selected.slug %}">
+                <li {% if "/gifts/donate/" in request.path %}class="active" {% else %}class="disabled" {% endif %}>
+                    <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path or "/gifts/donate/" in request.path %}#{% else %}{% url "mission_donation_gifts" selected.id selected.slug %}{% endif %}">
                         Select
                     </a>
                 </li>
-                <li {% if "/gifts/payment/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_gifts_payment" selected.id selected.slug %}">
+                <li {% if "/gifts/payment/" in request.path %}class="active" {% else %}class="disabled" {% endif %}>
+                    <a href="{% if "gifts/choose/" in request.path or "/gifts/name/" in request.path or "/gifts/donate/" in request.path or "/gifts/payment/" in request.path %}#{% else %}{% url "mission_gifts_payment" selected.id selected.slug %}{% endif %}">
                         Payment
                     </a>
                 </li>

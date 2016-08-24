@@ -1,0 +1,24 @@
+<div class="selected-product-container row"
+     data-vendor_id="{{product.asin}}"
+     style="height: 95px;">
+    <div class="col-xs-2">
+        <a target="_blank" href="{{product.url}}">
+            <img class="gift-image-selected"
+                 width="75px"
+                 src="{{product.image}}"/>
+        </a>
+    </div>
+    <div class="col-xs-10">
+        <a class="gift-title-selected"
+           target="_blank"
+           href="{{product.url}}">{{product.title}}</a>
+        <div class="font-size-12">${{product.price}}</div>
+        <button class="btn btn-primary sb_btn sb_btn_fill js-remove"
+                data-product_id="{{product.asin}}"
+                data-product_description="{{product.title}}"
+                data-product_price="{{product.price}}"
+                data-product_image="{{product.image}}"
+                data-object_uuid="{{product.object_uuid}}">
+            Remove</button>
+    </div>
+</div>

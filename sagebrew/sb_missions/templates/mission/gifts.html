@@ -1,0 +1,65 @@
+{% extends "gifts/base.html" %}
+{% load staticfiles %}
+{% block title %}Mission Gifts{% endblock title %}
+
+{% block live %}
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Gift Options</h1>
+        </div>
+    </div>
+
+    <div id="js-gift-container" class="row list-container"></div>
+
+    <div class="block block-type-title">
+        <div class="block-content">
+            <p id="js-disclaimer" class="padding-20 font-size-14">CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON
+            SERVICES LLC. THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT
+            TO CHANGE OR REMOVAL AT ANY TIME.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block">
+        <div class="block-title">
+            Selected Items
+        </div>
+        <p id="js-no-selected-gifts"
+           class="no-margin-top-bottom font-size-14 gift-image">
+            Add Gifts from the right!
+        </p>
+        <div id="js-selected-gift-container" class="block-content no-bottom-padding">
+        </div>
+        <div class="block-content no-margin-bottom">
+            <div class="block order-cost-wrapper">
+                <div>
+                    Items:
+
+                    <span id="js-items-price" class="order-cost-part pull-right">0.00</span>
+                    <span class="pull-right">$</span>
+                </div>
+                <div>
+                    Shipping &amp; handling:
+                    <span class="pull-right">Free</span>
+                </div>
+                <div>
+                     Sagebrew charge:
+                    <span id="js-sb-charge-price" class="order-cost-part pull-right">0.00</span>
+                    <span class="pull-right">$</span>
+                </div>
+            </div>
+            <div>
+                Order total:
+                <span id="js-order-total-price" class="order-cost-part pull-right">0.00</span>
+                <span class="pull-right">$</span>
+            </div>
+            <button class="btn btn-primary sb_btn js-position"
+                    id="js-place-order">Proceed with Order</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-mission-gifts');
+{% endblock %}

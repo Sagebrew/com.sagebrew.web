@@ -2065,7 +2065,7 @@ textarea.sb_comment_input{
 }
 .radio-li-nav-selector{
   display:inline-block;
-  width: 33%;
+  width: 24%;
   @media only screen and (max-width: 768px){
     width: 100%;
   }
@@ -2190,6 +2190,10 @@ textarea.sb_comment_input{
 
 .no-top-padding {
   padding-top: 0 !important;
+}
+
+.no-bottom-padding {
+  padding-bottom: 0 !important;
 }
 
 .no-top-bottom-padding {
@@ -2350,6 +2354,11 @@ textarea.sb_comment_input{
   padding: 0 15px 0 15px;
 }
 
+.neg-margin-left-right-15 {
+  margin-left: -15px !important;
+  margin-right: -15px !important;
+}
+
 .dropbox-area{
   height: 100px;
   width: 100%;
@@ -2418,6 +2427,14 @@ textarea.sb_comment_input{
   padding: 15px !important;
 }
 
+.font-size-14 {
+  font-size: 14px !important;
+}
+
+.font-size-12 {
+  font-size: 12px !important;
+}
+
 .medium-editor-toolbar {
   &:extend(.medium-editor-toolbar);
   background-color: @sb_green !important;
@@ -2461,4 +2478,67 @@ textarea.sb_comment_input{
   //blocking the controls but below sb-greyout-page and the navbar so it
   //does not overlap on those.
   z-index: 1;
+}
+
+.gift-title {
+  font-size: 17px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gift-title-selected {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.selected-product-container {
+  height: 120px !important;
+}
+
+.gift-image {
+  padding: 20px 20px 0 20px !important;
+}
+
+.gift-footer {
+  height: 80px !important;
+}
+
+.gift-image-selected {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.order-cost-wrapper{
+  font-size: 14px;
+  border-top: 1px solid #A2A2A2;
+  padding-top: 10px !important;
+}
+
+.order-cost-part {
+  display: inline-block;
+}
+
+.padding-20 {
+  padding: 20px !important;
+}
+
+.product-search-input {
+  @media only screen and (max-width: 768px){
+      width: auto !important;
+  }
+  width: 500px !important;
+  display: inline-block !important;
+}
+
+.unselected-product-price-container {
+  height: 70px;
+  overflow: hidden;
+}
+
+.unselected-product-image-container {
+  height: 150px;
+  overflow: hidden;
 }

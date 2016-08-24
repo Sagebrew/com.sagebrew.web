@@ -1,0 +1,48 @@
+{% extends "layout/hero-two-col-left.html" %}
+
+{% block hero %}
+    {% include "council/nav.html" %}
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content ">
+            <ul class="nav nav-list nav-list-vivid">
+                <li class="{% if "completed" not in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter=""
+                       href="/council/orders/">
+                        To Be Completed
+                    </a>
+                </li>
+                <li class="{% if "completed" in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter="verified"
+                       href="/council/orders/completed/">
+                        Completed
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block live %}
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Items</h1>
+        </div>
+    </div>
+    <div id="js-gift-container" class="row list-container"></div>
+    <div class="block">
+        <div class="block-content sb_markdown" id="js-mission-verification-wrapper">
+            <label for="js-tracking-url">Tracking URL: </label>
+            <input id="js-tracking-url"
+                   class="form-control product-search-input"
+                   placeholder="Tracking URL to be sent to both donor and Mission owner"
+                   type="text">
+            <button id="js-submit-completed" class="btn btn-primary btn-lg sb_btn">Submit</button>
+        </div>
+    </div>
+
+{% endblock %}

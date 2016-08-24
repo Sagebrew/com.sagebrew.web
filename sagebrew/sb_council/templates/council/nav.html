@@ -2,7 +2,7 @@
     <div class="block-content type-nav clearfix">
         <h1>Council Area</h1>
         <ul class="nav nav-pills">
-            <li class="{% if "/positions/" not in request.path and "/missions/" not in request.path %}active{% endif %}">
+            <li class="{% if "/positions/" not in request.path and "/missions/" not in request.path and "/orders" not in request.path %}active{% endif %}">
                 <a href="/council/">Flagged Objects</a>
             </li>
             <li class="{% if "/positions/" in request.path %}active{% endif %}">
@@ -10,6 +10,9 @@
             </li>
             <li class="{% if "/missions/" in request.path %}active{% endif %}">
                 <a href="/council/missions/">Missions</a>
+            </li>
+            <li class="{% if "/orders/" in request.path %}active{% endif %}">
+                <a href="/council/orders/">Orders</a>
             </li>
         </ul>
     </div>

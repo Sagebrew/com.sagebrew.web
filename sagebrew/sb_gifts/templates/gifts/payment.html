@@ -1,0 +1,62 @@
+{% extends "gifts/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Donation Payment Method
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+
+
+{% block live %}
+    <div id="js-list-payment-methods">
+        <div class="loader"></div>
+    </div>
+    <div id="js-add-payment-form"></div>
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block">
+        <div class="block-title">
+            Selected Items
+        </div>
+        <div id="js-selected-items" class="block-content no-bottom-padding">
+        </div>
+        <div class="block-content no-margin-bottom">
+            <div class="block order-cost-wrapper">
+                <div>
+                    Items:
+
+                    <span id="js-items-price" class="order-cost-part pull-right">0.00</span>
+                    <span class="pull-right">$</span>
+                </div>
+                <div>
+                    Shipping &amp; handling:
+                    <span class="pull-right">Free</span>
+                </div>
+                <div>
+                     Sagebrew charge:
+                    <span id="js-sb-charge-price" class="order-cost-part pull-right">0.00</span>
+                    <span class="pull-right">$</span>
+                </div>
+            </div>
+            <div>
+                Order total:
+                <span id="js-order-total" class="order-cost-part pull-right"></span>
+                <span class="pull-right">$</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-gift-donation-payment');
+{% endblock %}

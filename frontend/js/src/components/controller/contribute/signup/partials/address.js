@@ -121,6 +121,9 @@ function submitAddressCallback() {
     } else if (contributionType === "endorse") {
         window.location.href = "/missions/" + donateToID + "/" +
             missionSlug + "/" + contributionType + "/";
+    } else if (contributionType === "gifts") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/gifts/donate/";
     } else {
         window.location.href = "/missions/" + donateToID + "/" +
             missionSlug + "/donate/payment/";

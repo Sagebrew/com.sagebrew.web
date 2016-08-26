@@ -10,12 +10,7 @@ export function stripeResponseHandler(status, response) {
         customer_token: response.id
     })})
         .done(function () {
-            request.get({url: "/v1/me/payment_methods/"})
-                .done(function () {
-                    getPaymentMethods(true, function () {
-                        document.getElementById('js-add-payment-form').innerHTML = "";
-                    });
-                });
+            location.reload(true);
         }).fail(function () {
             greyPage.classList.add('sb_hidden');
             $form.find('button').prop('disabled', false);

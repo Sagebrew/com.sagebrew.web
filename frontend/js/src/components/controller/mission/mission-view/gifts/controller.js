@@ -5,7 +5,10 @@ var request = require('api').request,
     moment = require('moment'),
     goods = require('../../../donations/partials/goods'),
     individualGiftTemplate = require('../../templates/mission_gift.hbs'),
-    individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs');
+    individualSelectedGiftTemplate = require('../../templates/mission_gift_selected.hbs'),
+    completeSelect = require('./payment/partials/select').completeSelect,
+    validators = require('common/validators'),
+    addresses = require('common/addresses');
 
 export const meta = {
     controller: "mission/mission-view/gifts",
@@ -31,17 +34,25 @@ export function load() {
         giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-gift-container"),
         missionId = args(1),
-        slug = args(2),
         noSelectedGifts = $("#js-no-selected-gifts"),
         itemTotalContainer = $("#js-items-price"),
         sbChargeContainer = $("#js-sb-charge-price"),
         orderTotalContainer = $("#js-order-total-price"),
+        campaignFinanceValidationForm,
+        campaignFinanceForm = document.getElementById('campaign-finance'),
+        addressForm = document.getElementById('address'),
+        addressValidationForm = addresses.setupAddress(function callback() {}),
         missionRate = 0.07;
+    $(':checkbox').radiocheck();
     request.get({url: "/v1/missions/" + missionId + "/"})
         .done(function(response) {
             missionRate = response.quest.application_fee +
                 settings.api.stripe_transaction_fee;
         });
+    if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+        campaignFinanceValidationForm = $(campaignFinanceForm);
+        validators.campaignFinanceValidator(campaignFinanceValidationForm);
+    }
     giftContainer.append('<div class="loader"></div>');
     request.get({url: "/v1/missions/" + missionId + "/giftlist/?expand=true"})
         .done(function(response) {
@@ -115,26 +126,14 @@ export function load() {
         })
         .on('click', '#js-place-order', function(e) {
             e.preventDefault();
-            var productIds = [],
-                greyPage = $(".sb-greyout-page"),
-                total = $("#js-order-total-price").text();
-            greyPage.removeClass("sb_hidden");
-            $(".selected-product-container").each(function(i, obj) {
-                productIds.push($(obj).data("object_uuid"));
-            });
-            total = parseInt(parseFloat(total) * 100, 10);
-            request.post({
-                url: "/v1/orders/",
-                data: JSON.stringify({
-                    product_ids: productIds,
-                    total: total,
-                    mission: missionId
-                })
-            }).done(function(response){
-                greyPage.addClass("sb_hidden");
-                localStorage.setItem(missionId + "_OrderId", response.id);
-                window.location.href = "/missions/" + missionId + "/" + slug + "/gifts/payment/";
-            });
+            completeSelect(missionId, campaignFinanceValidationForm, 
+                addressForm, addressValidationForm);
+        })
+        .on('click', '#retired-or-not-employed', function () {
+            if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+                campaignFinanceValidationForm.formValidation('revalidateField', 'campaignFinanceForm');
+                campaignFinanceValidationForm.formValidation('revalidateField', 'onlyOneSelector');
+            }
         });
 }
 

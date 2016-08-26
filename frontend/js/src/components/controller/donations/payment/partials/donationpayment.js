@@ -1,6 +1,5 @@
 var helpers = require('common/helpers'),
-    request = require('api').request,
-    getPaymentMethods = require('common/payment').getPaymentMethods;
+    request = require('api').request;
 
 export function stripeResponseHandler(status, response) {
     var greyPage = document.getElementById('sb-greyout-page'),

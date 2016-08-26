@@ -1,14 +1,18 @@
 /* global $ */
 var requests = require('api').request,
     helpers = require('common/helpers'),
-    validators = require('common/validators'),
-    addresses = require('common/addresses'),
-    moment = require('moment'),
     noAddress = require('./partials/noaddress'),
     reqAddress = require('./partials/address'),
     addressFormPartial = require('../templates/address_form_partial.hbs'),
     campaignFinancePartial = require('../templates/campaign_finance_partial.hbs'),
     signupButtonPartial = require('../templates/signup_button_partial.hbs');
+
+// Requiring validators like this to cut down on JSHint errors.
+// The way we required them previously had us assigning the require to a
+// variable but the variable was never used as the validators logic was
+// immediately ran up on importing thus causing a JSHint unused variable error.
+// Importing like this gives us the exact same functionality.
+require("common/validators");
 
 export const meta = {
     controller: "contribute/signup",

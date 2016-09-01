@@ -52,9 +52,15 @@ export function load() {
                     if (results.hasOwnProperty(product)) {
                         results[product].information.time = time;
                         results[product].information.object_uuid = results[product].id;
+                        if (results[product].information.has_reviews) {
+                            results[product].information.iframe = results[product].information.iframe.replace(/^http:\/\//i, 'https://');
+                        }
                         giftContainer.append(
                             individualGiftTemplate(
-                                {"product": results[product].information}));
+                                {
+                                    "product": results[product].information,
+                                    "list_setup": false
+                                }));
                     }
                 }
             } else {

@@ -80,13 +80,16 @@ class GiftlistSerializer(SBSerializer):
                                   if l['vendor_id'] == product.asin), None)
                     if match is not None:
                         price, currency = product.price_and_currency
+                        has_reviews, iframe = product.reviews
                         match['information'] = {
                             "title": product.title,
                             "image": product.large_image_url,
                             "price": price,
                             "currency": currency,
                             "asin": product.asin,
-                            "url": product.offer_url
+                            "url": product.offer_url,
+                            "has_reviews": has_reviews,
+                            "iframe": iframe
                         }
         return serialized_products
 

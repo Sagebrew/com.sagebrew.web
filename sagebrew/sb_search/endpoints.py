@@ -102,13 +102,16 @@ class AmazonProductSearchViewSet(ListAPIView):
                                        SearchIndex="All")
             for product in products:
                 price, currency = product.price_and_currency
+                has_reviews, iframe = product.reviews
                 queryset.append({
                     "title": product.title,
                     "image": product.large_image_url,
                     "price": price,
                     "currency": currency,
                     "asin": product.asin,
-                    "url": product.offer_url
+                    "url": product.offer_url,
+                    "has_reviews": has_reviews,
+                    "iframe": iframe
                 })
         return queryset
 

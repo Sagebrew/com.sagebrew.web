@@ -18,19 +18,6 @@
             TO CHANGE OR REMOVAL AT ANY TIME.</p>
         </div>
     </div>
-
-    {% if request.user.is_authenticated and request_profile.occupation_name == None and selected.focus_on_type == "position" %}
-        {% include "donations/campaign_finance.html" %}
-    {% endif %}
-    {% if request.user.is_authenticated and request_profile.has_address == False %}
-        <div class="block">
-            <h3 class="block-title">Billing Address</h3>
-            <div class="block-content">
-                {% include "address_form.html" %}
-            </div>
-        </div>
-    {% endif %}
-
 {% endblock %}
 
 {% block sidebar_left %}

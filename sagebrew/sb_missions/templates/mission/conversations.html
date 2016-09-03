@@ -1,0 +1,45 @@
+{% extends "mission/base.html" %}
+{% load staticfiles %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Conversations{% endblock %}
+
+{% block live %}
+    <div>
+        {% if is_editor or is_moderator or request.user.username == quest.owner_username and not conversations%}
+            <div class="block" >
+                <div class="block-content block-holder-lg sb_markdown" id="epic-parent">
+                    <p>
+                        You can start Conversations for your followers to take
+                        part in. You also will have full admin rights to
+                        monitor the conversations here. This means you don't
+                        have to deal with internet trolls or belligerent people
+                        attacking you or your followers.
+
+                        You can restrict people from being able to participate
+                        in the Conversation unless they have donated.
+                    </p>
+                    <p>You can add updates in your <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
+                </div>
+            </div>
+        {% else %}
+            {% if active == False %}
+                <h4 class="block-title center-title no-underline" style="margin-top:0;">{{ quest.title }}  is still setting up this Mission, check back soon!</h4>
+            {% elif updates %}
+                <div id="js-conversation-wrapper">
+                </div>
+            {% else %}
+                <div class="block block-holder-lg sb_markdown">
+                    <h4 class="block-title center-title no-underline" style="margin-top:0;">
+                        {{ quest.title }}  doesn't have any updates for this mission yet.</h4>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'mission-conversation-page', {
+            owner: '{{ quest.owner_username }}',
+            title: '{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}',
+            id: '{{ mission.object_uuid }}'
+        });
+{% endblock %}

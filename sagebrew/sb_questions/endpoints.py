@@ -24,19 +24,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', '')
+        mission = self.request.query_params.get('mission', '')
         tagged_as = get_tagged_as(
             self.request.query_params.get('tagged_as', ''))
         sort_by, ordering = get_ordering(sort_by)
+        mission_query = ''
         query = "(res:Question)%s" % tagged_as
         if ordering == "DESC":
             descending = True
         else:
             descending = False
+        if mission:
+            mission_query = '(m:Mission {object_uuid:"%s"})-' \
+                            '[:ASSOCIATED_WITH]->'
         if sort_by == "" or sort_by == "vote_count":
-            query = "(res:Question)%s " \
+            query = "%s(res:Question)%s " \
                     "WHERE res.to_be_deleted=false " \
                     "OPTIONAL MATCH (res)<-[vs:PLEB_VOTES]-() " \
-                    "WHERE vs.active=True " % tagged_as
+                    "WHERE vs.active=True " % (mission_query, tagged_as)
             queryset = NeoQuerySet(
                 Question, query=query, distinct=True,
                 descending=not descending)\

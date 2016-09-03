@@ -7,7 +7,7 @@ from sb_contributions.views import ContributionMissionView
 from .views import (mission_redirect_page, mission_updates,
                     MissionSettingsView, MissionBaseView,
                     mission_edit_updates, mission_endorsements,
-                    mission_account_signup)
+                    mission_account_signup, mission_conversations)
 
 
 urlpatterns = patterns(
@@ -135,6 +135,8 @@ urlpatterns = patterns(
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',
         mission_updates, name="mission_updates"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/conversations/$',
+        mission_conversations, name="mission_conversations"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'endorsements/$',
         mission_endorsements, name="mission_endorsements"),

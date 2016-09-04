@@ -28,10 +28,12 @@ export function load() {
     request.get({url: "/v1/missions/" + missionId + "/volunteers/expanded_data/"})
         .done(function (data) {
             for (var volunteerType in data) {
-                $volunteerWrapper.append(volunteerTableTemplate({
-                    volunteer: data[volunteerType],
-                    block_name: humanize(volunteerType)
-                }));
+                if (data.hasOwnProperty(volunteerType)) {
+                    $volunteerWrapper.append(volunteerTableTemplate({
+                        volunteer: data[volunteerType],
+                        block_name: humanize(volunteerType)
+                    }));
+                }
             }
         });
 }

@@ -11,7 +11,8 @@ var request = require('api').request,
     levelKey = 'advocateMissionLevel',
     districtKey = 'advocateDistrict',
     affectedAreaKey = "affectedArea",
-    clickMessageKey = "displayClickMessage";
+    clickMessageKey = "displayClickMessage",
+    inPlaceChangedKey = "inPlaceChangedKey";
 
 
 export function load() {
@@ -269,9 +270,10 @@ function initAutocomplete() {
 
     helpers.allowTabLocationSelection(input);
     
-    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey);
+    helpers.allowClickErrorMessage(pacInput, clickMessageKey, locationKey, inPlaceChangedKey);
     
     autocomplete.addListener('place_changed', function() {
+        localStorage.setItem(inPlaceChangedKey, true);
         var place = autocomplete.getPlace(),
             greyPage = document.getElementById('sb-greyout-page'),
             affectedArea = place.formatted_address;
@@ -280,6 +282,7 @@ function initAutocomplete() {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            localStorage.removeItem(inPlaceChangedKey);
             return;
         }
 
@@ -287,6 +290,7 @@ function initAutocomplete() {
             $.notify({message: "Sorry we currently do not support that location. Please try another."},
                 {type: "danger"});
             greyPage.classList.add('sb_hidden');
+            localStorage.removeItem(inPlaceChangedKey);
             return;
         }
 
@@ -303,6 +307,7 @@ function initAutocomplete() {
          * removed from local storage
          * This selection always changes the positions and districts which is why this is necessary
          */
+        localStorage.removeItem(inPlaceChangedKey);
         request.post({
             url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)

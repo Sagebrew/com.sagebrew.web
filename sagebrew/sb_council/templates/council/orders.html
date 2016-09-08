@@ -1,0 +1,36 @@
+{% extends "layout/hero-two-col-left.html" %}
+
+{% block hero %}
+    {% include "council/nav.html" %}
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content ">
+            <ul class="nav nav-list nav-list-vivid">
+                <li class="{% if "completed" not in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter=""
+                       href="/council/orders/">
+                        To Be Completed
+                    </a>
+                </li>
+                <li class="{% if "completed" in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter="verified"
+                       href="/council/orders/completed/">
+                        Completed
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">Orders</h3>
+        <div class="block-content" id="js-order-completion-wrapper">
+        </div>
+    </div>
+{% endblock %}

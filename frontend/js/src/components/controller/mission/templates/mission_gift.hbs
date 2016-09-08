@@ -1,0 +1,29 @@
+<div class="product-container col-sm-3 margin-bottom-20">
+    <div class="block block-state-inactive block-state-incomplete">
+        <div class="block-hero-image gift-image unselected-product-image-container">
+            <a target="_blank" href="{{product.url}}">
+                <img class="" src="{{product.image}}">
+            </a>
+        </div>
+        <a class="gift-title block-title" target="_blank" href="{{product.url}}">{{product.title}}</a>
+        <div class="block-content unselected-product-price-container">
+            <p class="font-size-14 no-margin-bottom">
+                Price: ${{product.price}}
+            </p>
+            <p class="font-size-14">
+                Fulfilled by <a target="_blank" href="http://amzn.to/2acfwCm">Amazon</a>
+            </p>
+        </div>
+        <div class="gift-footer">
+            <div class="col-xs-12 js-add-to-selected">
+                <button class="btn btn-primary sb_btn sb_btn_fill js-add"
+                        data-product_id="{{product.asin}}"
+                        data-product_description="{{product.title}}"
+                        data-product_price="{{product.price}}"
+                        data-product_image="{{product.image}}"
+                        data-object_uuid="{{product.object_uuid}}">
+                    Select</button>
+            </div>
+        </div>
+    </div>
+</div>

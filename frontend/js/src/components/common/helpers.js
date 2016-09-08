@@ -141,7 +141,9 @@ export function generateUuid() {
  * @returns {*}
  */
 export function findAncestor (el, cls) {
-    while ((el = el.parentElement) && !el.classList.contains(cls));
+    // Forcing JSHint to ignore this line as it throws a warning which we
+    // cannot resolve: "Expected '{' and instaed saw ';'."
+    while ((el = el.parentElement) && !el.classList.contains(cls));  // jshint ignore:line
     return el;
 }
 
@@ -492,7 +494,9 @@ export function testPrivateBrowsing() {
         localStorage.setItem(storageTestKey, true);
         localStorage.removeItem(storageTestKey);
     } catch (e) {
-        if (e.code === DOMException.QUOTA_EXCEEDED_ERR && localStorage.length === 0) {
+        // Forcing JSHint to ignore this line as it throws a warning we
+        // cannot currently resolve: "'DOMException' is not defined."
+        if (e.code === DOMException.QUOTA_EXCEEDED_ERR && localStorage.length === 0) {  // jshint ignore:line
             $.notify(
                 {message: "We noticed you're browsing in Private Mode, " +
                 "some features of the site may not function properly"},
@@ -506,7 +510,7 @@ export function testPrivateBrowsing() {
  * Mission creation page, display an error telling them to select
  * something from the dropdown.
  */
-export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
+export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey, placeChangedKey) {
     function removeBlurMessage() {
         pacInput.off("blur");
     }
@@ -520,7 +524,7 @@ export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
             pacInput.on("blur", function () {
                 var inputValue = pacInput.val(),
                     displayClickMessage = localStorage.getItem(clickMessageKey);
-                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey) && !localStorage.getItem(placeChangedKey)) {
                     $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                         {type: "danger"});
                     localStorage.setItem(clickMessageKey, false);
@@ -532,7 +536,7 @@ export function allowClickErrorMessage(pacInput, clickMessageKey, locationKey) {
             pacInput.on("blur", function() {
                 var inputValue = pacInput.val(),
                     displayClickMessage = localStorage.getItem(clickMessageKey);
-                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey)) {
+                if (inputValue && displayClickMessage && !localStorage.getItem(locationKey) && !localStorage.getItem(placeChangedKey)) {
                     $.notify({message: "Sorry, we couldn't find that location. Please select one from the dropdown menu that appears while typing."},
                         {type: "danger"});
                     localStorage.setItem(clickMessageKey, false);
@@ -573,4 +577,13 @@ export function allowTabLocationSelection(input) {
         }
 
     })(input);
+}
+
+
+/*
+ * Round up a float value with the format of x.xx
+ * This is done in places handling currency amounts so as to avoid losing money
+ */
+export function currencyRoundUp(cashValue) {
+    return Math.ceil(cashValue * 100) / 100;
 }

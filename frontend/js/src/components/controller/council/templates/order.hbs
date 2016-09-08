@@ -1,0 +1,48 @@
+<div class="block-content">
+    <table class="table table-striped payment-methods">
+        <tbody><tr>
+            <th>
+                Total
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Paid Status
+            </th>
+            {{# if pending_completion }}
+                <th>
+                    Actions
+                </th>
+            {{/if}}
+        </tr>
+        {{#each order}}
+            <tr>
+                <td>
+                    ${{this.total}}
+                </td>
+                <td class="order-created">
+                    {{this.created}}
+                </td>
+                <td>
+                    {{this.paid}}
+                </td>
+                {{#unless this.completed }}
+                    <td>
+                        <a href="/council/orders/{{this.id}}/complete/"
+                           class="sb-action-icon"
+                           data-object_uuid="{{this.id}}">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                {{/unless}}
+            </tr>
+        {{ else }}
+            <tr>
+                <td>
+                    No Current Orders
+                </td>
+            </tr>
+        {{/each}}
+    </tbody></table>
+</div>

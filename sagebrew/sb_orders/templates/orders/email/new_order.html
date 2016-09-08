@@ -1,0 +1,12 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+        <p>
+            Hi {{ first_name }}, <br />
+            Congratulations! Your Mission, "{{ mission_title }}", just received
+            a Gift from {{ donor_first_name }} {{ donor_last_name }}.
+        </p>
+        <p>
+            We will send you another email with a tracking number
+            when the Order has been shipped.
+        </p>
+{% endblock email_content %}

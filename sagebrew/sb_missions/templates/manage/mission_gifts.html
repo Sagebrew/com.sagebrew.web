@@ -1,0 +1,39 @@
+{% extends "layout/two-col-right.html" %}
+{% load staticfiles %}
+{% block title %}Mission Gifts{% endblock title %}
+
+{% block live %}
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Search: </h1>
+            <input id="js-search-input"
+                   class="form-control product-search-input"
+                   placeholder="Search for Products here!"
+                   type="text"/>
+        </div>
+    </div>
+
+    <div id="js-gift-container" class="row list-container"></div>
+
+    <div class="block block-type-title">
+        <div class="block-content">
+            <p class="padding-20 font-size-14">CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON
+            SERVICES LLC. THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT
+            TO CHANGE OR REMOVAL AT ANY TIME.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_right %}
+    <div class="block">
+        <div class="block-title">
+            Selected Items
+        </div>
+        <div id="js-selected-gift-container" class="block-content">
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-mission-gifts');
+{% endblock %}

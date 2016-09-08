@@ -217,6 +217,15 @@ class Mission(Searchable):
         else:
             return None
 
+    def get_giftlist(self):
+        from sb_gifts.neo_models import Giftlist
+        query = 'MATCH (a:Mission {object_uuid:"%s"})' \
+                '<-[:LIST_FOR]-(b:Giftlist) RETURN b' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return Giftlist.inflate(res.one)
+        return None
+
     @classmethod
     def get_editors(cls, owner_username):
         from sb_quests.neo_models import Quest

@@ -120,6 +120,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_council.apis.v1')),
     (r'^v1/', include('sb_search.apis.v1')),
     (r'^v1/', include('sb_accounting.apis.v1')),
+    (r'^v1/', include('sb_orders.apis.v1')),
     url(r'^advocacy/$', advocacy, name="advocacy"),
     url(r'^political/$', political_campaign, name="political"),
     url(r'^$', signup_view, name="signup"),

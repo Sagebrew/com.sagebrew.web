@@ -189,6 +189,7 @@ INSTALLED_APPS = (
     'googleplaces',
     'neomodel',
     "opbeat.contrib.django",
+    "amazon",
     'sb_solutions',
     'sb_accounting',
     'sb_address',
@@ -200,10 +201,12 @@ INSTALLED_APPS = (
     'sb_docstore',
     'sb_donations',
     'sb_flags',
+    'sb_gifts',
     'sb_locations',
     'sb_missions',
     'sb_news',
     'sb_notifications',
+    'sb_orders',
     'sb_posts',
     'sb_privileges',
     'sb_public_official',
@@ -299,6 +302,10 @@ OAUTH_CLIENT_SECRET_CRED_PUBLIC = environ.get(
 GOOGLE_MAPS_API_SERVER = environ.get("GOOGLE_MAPS_API",
                                      "AIzaSyA0oDFTNqlan-vNsGvJv9HckKoMqlV5Nqo")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
+
+AMAZON_PROMOTION_API_KEY = environ.get("AMAZON_PROMOTION_API_KEY", "")
+AMAZON_PROMOTION_API_SECRET_KEY = environ.get("AMAZON_PROMOTION_API_SECRET_KEY", "")
+AMAZON_ASSOCIATE_TAG = environ.get("AMAZON_ASSOCIATE_TAG", "")
 
 EMAIL_BACKEND = 'django_ses.SESBackend'
 

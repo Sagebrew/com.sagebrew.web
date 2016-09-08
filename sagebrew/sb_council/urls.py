@@ -27,5 +27,16 @@ urlpatterns = patterns(
         name='council_missions_reviewed'),
     url(r'^missions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{2,36})/review/$',
         CouncilView.as_view(template_name="council/missions_review.html"),
-        name='council_missions_review')
+        name='council_missions_review'),
+
+    # orders
+    url(r'^orders/$',
+        CouncilView.as_view(template_name="council/orders.html"),
+        name='council_orders'),
+    url(r'^orders/completed/$',
+        CouncilView.as_view(template_name="council/orders.html"),
+        name='council_orders_completed'),
+    url(r'^orders/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/complete/$',
+        CouncilView.as_view(template_name="council/order_complete.html"),
+        name='council_orders_completion')
 )

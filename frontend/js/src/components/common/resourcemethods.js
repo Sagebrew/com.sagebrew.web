@@ -59,12 +59,14 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign, customFiel
                         $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                     } else{
                         for (var key in notification) {
-                            if (customFieldErrors) {
-                                notificationMsg = notification[key][0];
-                            } else {
-                                notificationMsg = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                            if (notification.hasOwnProperty(key)) {
+                                if (customFieldErrors) {
+                                    notificationMsg = notification[key][0];
+                                } else {
+                                    notificationMsg = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                                }
+                                $.notify({message: notificationMsg.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
                             }
-                            $.notify({message: notificationMsg.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
                         }
                     }
                     notification = [];

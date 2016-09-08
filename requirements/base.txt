@@ -53,3 +53,4 @@ imagehash==1.0
 pyicu==1.9.2
 python-google-places==1.1.0
 html5lib==1.0b8
+python-amazon-simple-product-api==2.1.0

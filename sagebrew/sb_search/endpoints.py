@@ -7,6 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
 from elasticsearch import Elasticsearch
+from amazon.api import AmazonAPI
 
 from sagebrew import errors
 from api.utils import (spawn_task)
@@ -76,6 +77,44 @@ class SearchViewSet(ListAPIView):
         return res['hits']['hits']
 
     def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+        except ValidationError:
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
+        page = self.paginate_queryset(queryset)
+        return self.get_paginated_response(page)
+
+
+class AmazonProductSearchViewSet(ListAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):  # pragma: no cover
+        # Not covering this as we have no good way to mock a request to
+        # the amazon api as they use request signatures. - Devon Bleibtrey
+        amazon = AmazonAPI(settings.AMAZON_PROMOTION_API_KEY,
+                           settings.AMAZON_PROMOTION_API_SECRET_KEY,
+                           settings.AMAZON_ASSOCIATE_TAG)
+        queryset = []
+        query_param = self.request.query_params.get("query", "")
+        if query_param:
+            products = amazon.search_n(n=15, Keywords=query_param,
+                                       SearchIndex="All")
+            for product in products:
+                price, currency = product.price_and_currency
+                queryset.append({
+                    "title": product.title,
+                    "image": product.large_image_url,
+                    "price": price,
+                    "currency": currency,
+                    "asin": product.asin,
+                    "url": product.offer_url
+                })
+        return queryset
+
+    def list(self, request, *args, **kwargs):  # pragma: no cover
+        # Not covering this as we have no good way to mock a request to
+        # the amazon api as they use request signatures. - Devon Bleibtrey
         try:
             queryset = self.get_queryset()
         except ValidationError:

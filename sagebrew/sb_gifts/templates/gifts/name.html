@@ -1,0 +1,29 @@
+{% extends "gifts/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Information
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Personal Information
+        </h3>
+        <div id="js-account-info-block" class="block-content">
+            {% include "account_info_form.html" with label=True birthday_header=False %}
+        </div>
+    </div>
+    <div id="js-campaign-finance-block">
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-gift-information');
+{% endblock %}

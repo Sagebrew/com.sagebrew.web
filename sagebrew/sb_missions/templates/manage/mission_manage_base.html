@@ -36,6 +36,11 @@
                         Updates
                     </a>
                 </li>
+                <li {% if "/manage/conversations/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_conversation_settings" mission.id slug %}">
+                        Conversations
+                    </a>
+                </li>
                 <li {% if "/manage/insights/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_insights" mission.id slug %}">
                         Donations

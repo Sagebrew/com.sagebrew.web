@@ -51,6 +51,8 @@ urlpatterns = patterns(
         r'manage/epic/edit/$',
         MissionSettingsView.as_view(template_name='manage/epic_edit.html'),
         name="mission_edit_epic"),
+
+    # Update Manage
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/$',
         MissionSettingsView.as_view(template_name='manage/updates.html'),
@@ -63,16 +65,36 @@ urlpatterns = patterns(
         r'manage/updates/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',
         mission_edit_updates,
         name="mission_edit_update"),
+
+    # Conversations Manage
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/conversations/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',
+        mission_edit_updates,
+        name="mission_edit_conversation"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/conversations/$',
+        MissionSettingsView.as_view(template_name='manage/conversations.html'),
+        name="mission_conversation_settings"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/conversations/create/$',
+        MissionSettingsView.as_view(template_name='questions/create.html'),
+        name="mission_conversation_create"),
+
+    # Insights Manage
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/insights/$',
         MissionSettingsView.as_view(
             template_name='manage/mission_insights.html'),
         name="mission_insights"),
+
+    # Volunteer Manage
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/volunteers/$',
         MissionSettingsView.as_view(
             template_name='manage/mission_volunteers.html'),
         name="mission_volunteers"),
+
+    # Gifts Manage
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/gifts/$',
         MissionSettingsView.as_view(

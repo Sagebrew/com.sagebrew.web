@@ -36,7 +36,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             descending = False
         if mission:
             mission_query = '(m:Mission {object_uuid:"%s"})-' \
-                            '[:ASSOCIATED_WITH]->'
+                            '[:ASSOCIATED_WITH]->' % mission
         if sort_by == "" or sort_by == "vote_count":
             query = "%s(res:Question)%s " \
                     "WHERE res.to_be_deleted=false " \
@@ -80,7 +80,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
-            instance = serializer.save()
+            instance = serializer.save(mission=request.data.get('mission', ''))
             spawn_task(task_func=update_search_object,
                        task_param={"object_uuid": instance.object_uuid,
                                    "label": "question"})

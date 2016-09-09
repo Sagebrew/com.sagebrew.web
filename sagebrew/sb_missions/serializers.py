@@ -68,6 +68,7 @@ class MissionSerializer(SBSerializer):
     is_moderator = serializers.SerializerMethodField()
     has_endorsed_quest = serializers.SerializerMethodField()
     has_endorsed_profile = serializers.SerializerMethodField()
+    conversations = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     formatted_district_name = serializers.SerializerMethodField()
@@ -531,6 +532,9 @@ class MissionSerializer(SBSerializer):
                         res = None
             cache.set("%s_formatted_district_name" % obj.object_uuid, res)
         return res
+
+    def get_conversations(self, obj):
+        return None
 
 
 class MissionReviewSerializer(SBSerializer):

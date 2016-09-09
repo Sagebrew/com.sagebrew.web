@@ -22,6 +22,7 @@ from sb_tags.neo_models import Tag
 from sb_tags.tasks import update_tags
 from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
+from sb_missions.neo_models import Mission
 
 from .neo_models import Question
 from .tasks import (add_auto_tags_to_question_task,
@@ -128,6 +129,11 @@ class QuestionSerializerNeo(TitledContentSerializer):
         # tags prior to serializing
         tags = validated_data.pop('get_tags', [])
         owner = Pleb.get(request.user.username)
+        mission_id = validated_data.get('mission', '')
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.info(mission_id)
+        mission = Mission.get(mission_id)
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         validated_data['content'] = render_content(
@@ -144,6 +150,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                             summary=smart_truncate(soup),
                             **validated_data).save()
         question.owned_by.connect(owner)
+        mission.associated_with.connect(question)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
                     'RETURN t' % slugify(tag)
@@ -262,11 +269,12 @@ class QuestionSerializerNeo(TitledContentSerializer):
 
     def get_mission(self, obj):
         from sb_missions.serializers import MissionSerializer
-        query = 'MATCH (question:Question)<-[:ASSOCIATED_WITH]-' \
-                '(mission:Mission) RETURN mission'
+        query = 'MATCH (question:Question {object_uuid:"%s"})' \
+                '<-[:ASSOCIATED_WITH]-' \
+                '(mission:Mission) RETURN mission' % obj.object_uuid
         res, _ = db.cypher_query(query)
         if res.one:
-            return MissionSerializer(res.one).data
+            return MissionSerializer(Mission.inflate(res.one)).data
         return res.one
 
     def get_views(self, obj):

@@ -1,5 +1,5 @@
 var request = require('api').request,
-    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
+    questionSummaryTemplate = require('../../../conversation/conversation-list/templates/question_summary.hbs'),
     moment = require('moment'),
     helpers = require('common/helpers');
 
@@ -30,9 +30,9 @@ export function load() {
     if ($conversationWrapper !== undefined && $conversationWrapper !== null){
         console.log('there');
         $conversationWrapper.sb_contentLoader({
-            emptyDataMessage: '',
-            loadingMoreItemsMessage: '',
-            url: '/v1/questions/,
+            emptyDataMessage: 'There is nothing here',
+            loadingMoreItemsMessage: 'Loading some more',
+            url: '/v1/questions/',
             params: {
                 mission: missionId
             },
@@ -53,7 +53,7 @@ export function load() {
                 console.log($container);
                 for (var i = 0; i < data.count; i++) {
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
-                    $container.append(updateNewsTemplate(data.results[i]));
+                    $container.append(questionSummaryTemplate(data.results[i]));
                 }
                 helpers.disableFigcapEditing($container);
             }

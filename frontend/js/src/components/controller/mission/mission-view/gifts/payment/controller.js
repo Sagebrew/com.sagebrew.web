@@ -1,6 +1,5 @@
 /* global $ */
-var settings = require('settings').settings,
-    args = require('common/helpers').args,
+var args = require('common/helpers').args,
     goods = require('../../../../donations/partials/goods'),
     payment = require('common/payment'),
     giftPayment = require('./partials/giftpayment'),
@@ -26,8 +25,7 @@ export function init() {
  * Load
  */
 export function load() {
-    var app = $(".app-sb"),
-        giftContainer = $("#js-gift-container"),
+    var giftContainer = $("#js-gift-container"),
         selectedGiftContainer = $("#js-selected-items"),
         missionId = args(1);
     giftContainer.append('<div class="loader"></div>');

@@ -1,7 +1,6 @@
 var request = require('api').request,
     uncompletedOrderTemplate = require('controller/council/templates/order.hbs'),
-    moment = require('moment'),
-    args = require('common/helpers').args;
+    moment = require('moment');
 
 
 export const meta = {

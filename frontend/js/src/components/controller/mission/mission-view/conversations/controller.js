@@ -3,10 +3,10 @@ var request = require('api').request,
     helpers = require('common/helpers');
 
 export const meta = {
-    controller: "mission/mission-manage/conversations",
+    controller: "mission/mission-view/conversations",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/manage\/conversations$"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/conversations$"
     ]
 };
 

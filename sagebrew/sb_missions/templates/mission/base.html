@@ -90,6 +90,8 @@
 
 {% block sidebar_right %}
     {% include "mission/average_donation_block.html" %}
+    {% url 'mission_conversation_create' mission.id mission.slug as conversation_create_url %}
+    {% include "partials/start_conversation_block.html" with url=conversation_create_url %}
     <div class="block" id="about-wrapper">
         <h4 class="block-title">About</h4>
         <div class="block-content block-holder-sm" id="about-parent">
@@ -141,5 +143,7 @@
             {% endif %}
         </div>
     </div>
+    {% url 'mission_conversation_create' mission.id mission.slug as conversation_create_url %}
+    {% include "partials/start_conversation_block.html" with url=conversation_create_url %}
     {% include "partials/map_sidebar.html" with affected_area=mission.formatted_location_name|default_if_none:"World" district_line=mission.formatted_district_name sector=mission.location.sector %}
 {% endblock %}

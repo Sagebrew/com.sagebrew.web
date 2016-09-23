@@ -5,9 +5,25 @@
     <div class="block-content no-padding-top">
         <small>Build Solutions &amp; Support</small>
         {% url "question-create" as default_url %}
-        <a class="btn btn-primary sb_btn sb_btn_fill"
-           href="{{ url|default_if_none:default_url }}">
-            <i class="fa fa-cloud  quest-rocket"></i> Discuss
-        </a>
+        {% if require_donation %}
+            {% if not has_donated %}
+                <button class="btn sb_btn_fill sb_restricted sb_btn_disabled"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        data-title="You are required to Donate to this Mission before you can participate in their Conversations">
+                    Submit Solution
+                </button>
+            {% else %}
+                <a class="btn btn-primary sb_btn sb_btn_fill"
+                   href="{{ url|default_if_none:default_url }}">
+                    <i class="fa fa-cloud  quest-rocket"></i> Discuss
+                </a>
+            {% endif %}
+        {% else %}
+            <a class="btn btn-primary sb_btn sb_btn_fill"
+               href="{{ url|default_if_none:default_url }}">
+                <i class="fa fa-cloud  quest-rocket"></i> Discuss
+            </a>
+        {% endif %}
     </div>
 </div>

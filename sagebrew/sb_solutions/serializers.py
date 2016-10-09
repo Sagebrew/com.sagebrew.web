@@ -11,8 +11,6 @@ from api.utils import (gather_request_data, spawn_task, smart_truncate,
                        render_content)
 from sb_base.serializers import ContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
-
-
 from .tasks import create_solution_summary_task
 from .neo_models import Solution
 
@@ -23,6 +21,7 @@ class SolutionSerializerNeo(ContentSerializer):
                                                 lookup_field="object_uuid")
     parent_id = serializers.CharField(read_only=True)
     question = serializers.SerializerMethodField()
+    mission = serializers.SerializerMethodField()
     summary = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
@@ -74,3 +73,7 @@ class SolutionSerializerNeo(ContentSerializer):
         return reverse('question-detail',
                        kwargs={'object_uuid': question.object_uuid},
                        request=self.context.get('request', None))
+
+    def get_mission(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return obj.get_mission(obj.object_uuid, request)

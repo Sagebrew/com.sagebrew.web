@@ -15,6 +15,10 @@
 
     {% include "partials/map_sidebar.html" with affected_area=question.affected_area %}
 
+    {% if question.mission %}
+        {% include "questions/mission_sidebar.html" with mission=question.mission %}
+    {% endif %}
+
     <div class="hidden-sm hidden-md sb_questions_side_container">
         <h3 align="center">
             Things to Keep in Mind
@@ -61,13 +65,24 @@
         <div class="sb_markdown sb_solution">
             <div class="block-content">
                 <form id="solutionSubmitForm" data-parent_id="{{ question.id }}">
+                    {% if not question.mission.has_donated and not question.mission.owner_username == request.user.username %}
+                        <button class="btn sb_btn_fill sb_restricted sb_btn_disabled"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                data-title="You are required to Donate to this Mission before you can participate in their Conversations">
+                            Submit
+                        </button>
+                    {% else %}
                         <textarea class="sb_markdown editable min-height-600"
                                   id="js-solution-markdown"
                                   name="content"
                                   placeholder="Write your solution...">{{ solution_placeholder }}</textarea>
-                        <button class="btn btn-primary sb_btn sb_btn_fill" id="js-solution-submit" type="submit">
+                        <button class="btn btn-primary sb_btn sb_btn_fill"
+                                id="js-solution-submit" type="submit">
                             Submit
                         </button>
+                    {% endif %}
+
                 </form>
             </div>
         </div>

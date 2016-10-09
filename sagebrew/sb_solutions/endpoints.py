@@ -106,6 +106,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             res, col = db.cypher_query(query)
             question_owner = Pleb.inflate(res[0][0])
             serializer = serializer.data
+            to_plebs = [question_owner.username]
+            mission = question.get_mission(question.object_uuid)
+            to_plebs.append(mission['owner_username'])
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
@@ -114,7 +117,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                     kwargs={"object_uuid": serializer["object_uuid"]}),
                 # TODO discuss notifying all the people who have provided
                 # solutions on a given question.
-                "to_plebs": [question_owner.username, ],
+                "to_plebs": to_plebs,
                 "notification_id": str(uuid1()),
                 'action_name': instance.action_name
             })

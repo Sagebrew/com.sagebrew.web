@@ -12,7 +12,7 @@ export const meta = {
     controller: "conversation/conversation-manage/create",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/manage\/conversations\/create$"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/conversations\/create$"
     ]
 };
 

@@ -76,8 +76,8 @@ urlpatterns = patterns(
         MissionSettingsView.as_view(template_name='manage/conversations.html'),
         name="mission_conversation_settings"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
-        r'manage/conversations/create/$',
-        MissionSettingsView.as_view(template_name='questions/create.html'),
+        r'conversations/create/$',
+        MissionBaseView.as_view(template_name='questions/create.html'),
         name="mission_conversation_create"),
 
     # Insights Manage

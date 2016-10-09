@@ -6,12 +6,12 @@
         <small>Build Solutions &amp; Support</small>
         {% url "question-create" as default_url %}
         {% if require_donation %}
-            {% if not has_donated %}
+            {% if not has_donated and not mission.owner_username == request.user.username %}
                 <button class="btn sb_btn_fill sb_restricted sb_btn_disabled"
                         data-toggle="tooltip"
                         data-placement="top"
                         data-title="You are required to Donate to this Mission before you can participate in their Conversations">
-                    Submit Solution
+                    Submit Conversation
                 </button>
             {% else %}
                 <a class="btn btn-primary sb_btn sb_btn_fill"

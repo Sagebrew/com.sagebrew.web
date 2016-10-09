@@ -86,7 +86,8 @@ def mission_updates(request, object_uuid, slug=None):
     mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission/updates.html', {
         "updates": res.one.update,
-        "mission": MissionSerializer(mission_obj).data,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
     })
@@ -112,7 +113,8 @@ def mission_conversations(request, object_uuid, slug=None):
     mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission/conversations.html', {
         "conversations": res.one.question,
-        "mission": MissionSerializer(mission_obj).data,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
     })
@@ -133,7 +135,8 @@ def mission_endorsements(request, object_uuid, slug=None):
     mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission/endorsements.html', {
         "quest": QuestSerializer(quest).data,
-        "mission": MissionSerializer(mission_obj).data,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "endorsements":
             True if res.one.endorsement else False

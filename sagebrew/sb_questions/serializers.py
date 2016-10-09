@@ -130,9 +130,6 @@ class QuestionSerializerNeo(TitledContentSerializer):
         tags = validated_data.pop('get_tags', [])
         owner = Pleb.get(request.user.username)
         mission_id = validated_data.get('mission', '')
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.info(mission_id)
         mission = Mission.get(mission_id)
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
@@ -268,14 +265,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                          for tag in obj.get_tags()])
 
     def get_mission(self, obj):
-        from sb_missions.serializers import MissionSerializer
-        query = 'MATCH (question:Question {object_uuid:"%s"})' \
-                '<-[:ASSOCIATED_WITH]-' \
-                '(mission:Mission) RETURN mission' % obj.object_uuid
-        res, _ = db.cypher_query(query)
-        if res.one:
-            return MissionSerializer(Mission.inflate(res.one)).data
-        return res.one
+        request, _, _, _, _ = gather_request_data(self.context)
+        return obj.get_mission(obj.object_uuid, request)
 
     def get_views(self, obj):
         return obj.get_view_count()

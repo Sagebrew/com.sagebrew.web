@@ -495,7 +495,7 @@ class MissionSerializer(SBSerializer):
         if request is None:
             return None
         return request.user.username in Mission.get_donors(
-            obj.owner_username)
+            obj.object_uuid)
 
     def get_has_gifted(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

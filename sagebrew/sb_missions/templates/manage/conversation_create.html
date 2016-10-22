@@ -1,6 +1,6 @@
 {% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
-{% block title %}Mission Create Update{% endblock title %}
+{% block title %}Mission Create Conversation{% endblock title %}
 {% block body_class %}
     background-color-white
 {% endblock %}
@@ -23,7 +23,7 @@
                 <div class="sb_markdown">
                     <textarea class="editable"
                           name="content"
-                          rows="10">{{ update_placeholder }}</textarea>
+                          rows="10">{{ question_placeholder }}</textarea>
                 </div>
             </form>
         </div>
@@ -35,5 +35,5 @@
 
 {% block intercom %}
     var metadata = {mission_uuid: "{{ mission.id }}", mission_title: "{{ mission.title }}"};
-    Intercom('trackEvent', 'manage-create-update', metadata);
+    Intercom('trackEvent', 'manage-create-conversation', metadata);
 {% endblock %}

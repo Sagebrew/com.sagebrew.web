@@ -99,7 +99,7 @@ def mission_conversations(request, object_uuid, slug=None):
     query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
             '(mission:Mission {object_uuid: "%s"}) ' \
             'WITH quest, mission ' \
-            'OPTIONAL MATCH (mission)-[:ASSOCIATED_WITH]-(question:Question) ' \
+            'OPTIONAL MATCH (mission)-[:ASSOCIATED_WITH]>(question:Question) ' \
             'RETURN quest, mission, ' \
             'CASE WHEN count(question) > 0 ' \
             'THEN true ELSE false END AS question' % object_uuid

@@ -264,7 +264,7 @@ class Mission(Searchable):
                     'collect(DISTINCT d.owner_username) as d ' \
                     'UNION MATCH (m:Mission {object_uuid:"%s"})' \
                     '<-[:GIFTED_TO]-(o:Order) WHERE o.completed=true ' \
-                    'RETURN collect(DISTINCT o.owner_username) as o , ' \
+                    'RETURN collect(DISTINCT o.owner_username) as o, ' \
                     'NULL as d' % (object_uuid, object_uuid)
             res, _ = db.cypher_query(query)
             for row in res:

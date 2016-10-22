@@ -1,6 +1,6 @@
 {% extends "manage/mission_manage_base.html" %}
 {% load staticfiles %}
-{% block title %}Mission Update Settings{% endblock title %}
+{% block title %}Mission Conversation Settings{% endblock title %}
 {% block live %}
     <div class="hero">
         <div class="block block-type-title">
@@ -17,5 +17,5 @@
 {% endblock %}
 
 {% block intercom %}
-    Intercom('trackEvent', 'manage-mission-updates');
+    Intercom('trackEvent', 'manage-mission-conversations');
 {% endblock %}

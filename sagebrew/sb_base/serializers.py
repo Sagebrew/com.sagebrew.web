@@ -150,7 +150,8 @@ class VotableContentSerializer(SBSerializer):
                 mission = obj.get_mission(obj.object_uuid, request)
                 if mission:
                     if mission['owner_username'] == request.user.username:
-                        can_comment = True
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 20+ reputation to comment on " \
                          "Conversation Cloud content."
                 short_detail = "Requirement: 20+ Reputation"
@@ -189,7 +190,8 @@ class VotableContentSerializer(SBSerializer):
                 mission = obj.get_mission(obj.object_uuid, request)
                 if mission:
                     if mission['owner_username'] == request.user.username:
-                        can_flag = True
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 50+ reputation to flag Conversation " \
                          "Cloud content."
                 short_detail = "Requirement: 50+ Reputation"
@@ -201,7 +203,8 @@ class VotableContentSerializer(SBSerializer):
                 mission = obj.get_mission(obj.object_uuid, request)
                 if mission:
                     if mission['owner_username'] == request.user.username:
-                        can_flag = True
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 50+ reputation to flag Conversation " \
                          "Cloud content."
                 short_detail = "Requirement: 50+ Reputation"
@@ -302,7 +305,8 @@ class VotableContentSerializer(SBSerializer):
                 mission = obj.get_mission(obj.object_uuid, request)
                 if mission:
                     if mission['owner_username'] == request.user.username:
-                        can_downvote = True
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 100+ reputation to downvote" \
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"
@@ -321,7 +325,8 @@ class VotableContentSerializer(SBSerializer):
                 mission = obj.get_mission(obj.object_uuid, request)
                 if mission:
                     if mission['owner_username'] == request.user.username:
-                        can_downvote = True
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 100+ reputation to downvote" \
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"

@@ -147,7 +147,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                             summary=smart_truncate(soup),
                             **validated_data).save()
         question.owned_by.connect(owner)
-        mission.associated_with.connect(question)
+        if mission is not None:
+            mission.associated_with.connect(question)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
                     'RETURN t' % slugify(tag)

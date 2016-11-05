@@ -127,10 +127,12 @@ class QuestionSerializerNeo(TitledContentSerializer):
         request = self.context["request"]
         # Note that DRF requires us to use the source as the key here but
         # tags prior to serializing
+        mission = None
         tags = validated_data.pop('get_tags', [])
         owner = Pleb.get(request.user.username)
         mission_id = validated_data.get('mission', '')
-        mission = Mission.get(mission_id)
+        if mission_id:
+            mission = Mission.get(mission_id)
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         validated_data['content'] = render_content(

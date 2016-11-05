@@ -137,7 +137,7 @@ class Mission(Searchable):
     # currently possible. One is that a parent Quest provides a solution or
     # Question and indicates that it would like the given Mission to
     # be linked to that piece of content.
-    associated_with = RelationshipTo('sb_base.neo_models.SBPublicContent',
+    associated_with = RelationshipTo('sb_base.neo_models.SBContent',
                                      'ASSOCIATED_WITH')
     # The place where this Mission is taking place. If it is of type position
     # then the location can also be queried through the position but since

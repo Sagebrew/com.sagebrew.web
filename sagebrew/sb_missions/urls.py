@@ -157,7 +157,8 @@ urlpatterns = patterns(
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',
         mission_updates, name="mission_updates"),
-    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/conversations/$',
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/'
+        r'(?P<slug>[-\w]+)/conversations/$',
         mission_conversations, name="mission_conversations"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'endorsements/$',

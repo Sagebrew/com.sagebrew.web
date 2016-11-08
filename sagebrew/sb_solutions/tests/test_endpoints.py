@@ -97,7 +97,6 @@ class SolutionEndpointTests(APITestCase):
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_create(self):
-        from sb_missions.neo_models import Mission
         self.client.force_authenticate(user=self.user)
         url = reverse("question-solutions",
                       kwargs={'object_uuid': self.question.object_uuid})
@@ -106,10 +105,27 @@ class SolutionEndpointTests(APITestCase):
             "content": self.solution.content
         }
         response = self.client.post(url, data, format='json')
-        mission = Mission().save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_with_mission(self):
+        from sb_quests.neo_models import Quest
+        from sb_missions.neo_models import Mission
+        self.client.force_authenticate(user=self.user)
+        url = reverse("question-solutions",
+                      kwargs={'object_uuid': self.question.object_uuid})
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
         mission.associated_with.connect(self.question)
+        data = {
+            "question": self.question.object_uuid,
+            "content": self.solution.content
+        }
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         mission.delete()
+        quest.delete()
 
     def test_list(self):
         self.client.force_authenticate(user=self.user)

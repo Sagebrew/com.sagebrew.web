@@ -2,7 +2,6 @@ from django.utils.text import slugify
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.views.generic import View
 
 from neomodel import DoesNotExist, db

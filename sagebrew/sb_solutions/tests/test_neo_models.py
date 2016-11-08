@@ -2,10 +2,7 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
-from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
@@ -38,4 +35,3 @@ class TestSolutionNeoModels(TestCase):
         self.question.solutions.connect(solution)
         res = Solution.get_mission(solution.object_uuid)
         self.assertEqual(res['id'], self.mission.object_uuid)
-

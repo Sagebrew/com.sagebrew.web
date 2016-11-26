@@ -71,8 +71,9 @@
     <div class="block block-type-title">
         <div class="block-content ">
             <ul class="nav nav-pills">
-                <li {% if "updates" not in request.path and "endorsements" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
+                <li {% if "updates" not in request.path and "endorsements" not in request.path and "conversations" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
+                <li {% if "conversations" in request.path %} class="active" {% endif %}><a href="{% url "mission_conversations" mission.id mission.slug %}">Conversations</a></li>
                 <li {% if "endorsements" in request.path %} class="active" {% endif %}><a href="{% url "mission_endorsements" mission.id mission.slug %}">Endorsements</a></li>
             </ul>
             <div class="title-important-actions">
@@ -89,6 +90,8 @@
 
 {% block sidebar_right %}
     {% include "mission/average_donation_block.html" %}
+    {% url 'mission_conversation_create' mission.id mission.slug as conversation_create_url %}
+    {% include "partials/start_conversation_block.html" with url=conversation_create_url require_donation=True has_donated=mission.has_donated %}
     <div class="block" id="about-wrapper">
         <h4 class="block-title">About</h4>
         <div class="block-content block-holder-sm" id="about-parent">

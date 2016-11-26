@@ -27,3 +27,15 @@ class Comment(TaggableContent):
                 'RETURN o' % object_uuid
         res, _ = db.cypher_query(query)
         return SBContent.inflate(res.one)
+
+    @classmethod
+    def get_mission(cls, object_uuid, request):
+        from sb_solutions.neo_models import Solution
+        from sb_questions.neo_models import Question
+        comment = Comment.nodes.get(object_uuid=object_uuid)
+        if comment.parent_type == "solution":
+            return Solution.get_mission(comment.parent_id, request)
+        elif comment.parent_type == "question":
+            return Question.get_mission(comment.parent_id, request)
+        else:
+            return None

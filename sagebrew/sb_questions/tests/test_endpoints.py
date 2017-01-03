@@ -113,6 +113,28 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_with_mission(self):
+        self.client.force_authenticate(user=self.user)
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a question that must be asked. What is blue?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags,
+            "mission": mission.object_uuid
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mission.delete()
+        quest.delete()
+
     def test_create_with_new_tags_no_rep(self):
         self.client.force_authenticate(user=self.user)
         self.pleb.reputation = 0

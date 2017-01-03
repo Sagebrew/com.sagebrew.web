@@ -4,14 +4,20 @@ from uuid import uuid1
 from django.contrib.auth.models import User
 
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from neomodel import db
 
 from sb_registration.utils import create_user_util_test
 
 from sb_base.serializers import (IntercomMessageSerializer,
-                                 IntercomEventSerializer)
+                                 IntercomEventSerializer,
+                                 VotableContentSerializer)
+from sb_questions.neo_models import Question
+from sb_solutions.neo_models import Solution
+from sb_comments.neo_models import Comment
+from sb_quests.neo_models import Quest
+from sb_missions.neo_models import Mission
 
 
 class IntercomMessageSerializerTests(APITestCase):
@@ -329,3 +335,115 @@ class IntercomEventSerializerTests(APITestCase):
         serializer.is_valid()
         self.assertEqual(serializer.errors['username'],
                          ['Does not exist in the database.'])
+
+
+class VotableContentSerializerTests(APITestCase):
+
+    def setUp(self):
+        self.unit_under_test_name = 'comment'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.comment = Comment(content="test comment",
+                               owner_username=self.pleb.username).save()
+        self.comment.owned_by.connect(self.pleb)
+
+    def test_get_can_comment_mission_owner(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        question = Question(content='test content title',
+                            title=str(uuid1())).save()
+        mission.associated_with.connect(question)
+        factory = APIRequestFactory()
+        request = factory.get('')
+        request.user = self.user
+        res = VotableContentSerializer(
+            question, context={'request': request}).data
+        self.assertTrue(res['can_comment']['status'])
+        mission.delete()
+        quest.delete()
+
+    def test_get_can_flag_mission_owner(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        question = Question(content='test content title',
+                            title=str(uuid1())).save()
+        mission.associated_with.connect(question)
+        factory = APIRequestFactory()
+        request = factory.get('')
+        request.user = self.user
+        res = VotableContentSerializer(
+            question, context={'request': request}).data
+        self.assertTrue(res['can_flag']['status'])
+        mission.delete()
+        quest.delete()
+
+    def test_get_can_flag_comment_mission_owner(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        question = Question(content='test content title',
+                            title=str(uuid1())).save()
+        mission.associated_with.connect(question)
+        question.comments.connect(self.comment)
+        self.comment.parent_type = "question"
+        self.comment.parent_id = question.object_uuid
+        self.comment.owner_username = "random_test_username"
+        self.comment.save()
+        factory = APIRequestFactory()
+        request = factory.get('')
+        request.user = self.user
+        res = VotableContentSerializer(
+            self.comment, context={'request': request}).data
+        self.assertTrue(res['can_flag']['status'])
+        mission.delete()
+        quest.delete()
+        self.comment.owner_username = self.pleb.username
+        self.comment.save()
+
+    def test_get_can_downvote_mission_owner(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        question = Question(content='test content title',
+                            title=str(uuid1())).save()
+        mission.associated_with.connect(question)
+        factory = APIRequestFactory()
+        request = factory.get('')
+        request.user = self.user
+        res = VotableContentSerializer(
+            question, context={'request': request}).data
+        self.assertTrue(res['can_downvote']['status'])
+        mission.delete()
+        quest.delete()
+
+    def test_get_can_downvote_comment_mission_owner(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        question = Question(content='test content title',
+                            title=str(uuid1())).save()
+        mission.associated_with.connect(question)
+        question.comments.connect(self.comment)
+        self.comment.parent_type = "question"
+        self.comment.parent_id = question.object_uuid
+        self.comment.owner_username = "random_test_username"
+        self.comment.save()
+        factory = APIRequestFactory()
+        request = factory.get('')
+        request.user = self.user
+        res = VotableContentSerializer(
+            self.comment, context={'request': request}).data
+        self.assertTrue(res['can_flag']['status'])
+        mission.delete()
+        quest.delete()
+        self.comment.owner_username = self.pleb.username
+        self.comment.save()

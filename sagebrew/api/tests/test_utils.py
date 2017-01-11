@@ -56,6 +56,7 @@ class TestEncryptAndDecrypt(TestCase):
         res = generate_long_token()
         self.assertIsNotNone(res)
 
+
 '''
 class TestCreateAutoTags(TestCase):
     def test_create_auto_tags(self):

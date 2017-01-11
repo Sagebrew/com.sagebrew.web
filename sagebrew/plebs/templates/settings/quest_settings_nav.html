@@ -1,0 +1,40 @@
+<div class="block block-type-nav">
+    <h3 class="block-title">Quest Settings</h3>
+    <div class="block-content">
+        <ul class="nav nav-list nav-list-vivid">
+            <li {% if "/general/" in request.path %}class="active"{% endif %}>
+                <a href="{% url 'quest_manage_settings' request.user.username %}">
+                    General
+                </a>
+            </li>
+            <li {% if "/manage/billing/" in request.path %}class="active"{% endif %}>
+                <a href="{% url 'quest_manage_billing' request.user.username %}">
+                    Billing
+                </a>
+            </li>
+            <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
+                <a href="{% url 'quest_manage_banking' request.user.username %}">
+                    Accounting
+                </a>
+            </li>
+            <li class="{% if "/manage/insights/" in request.path %}active{% endif %}">
+                <a href="{% url 'quest_stats' request.user.username %}">
+                    Donations
+                </a>
+            </li>
+            {% comment %}TODO: Check permissions
+            <li class="{% if "/manage/moderators/" in request.path %}active{% endif %}">
+                <a href="{% url 'quest_moderators' request.user %}">
+                    Moderators
+                </a>
+            </li>
+            {% endcomment %}
+            {% comment %}TODO: Check permissions{% endcomment %}
+            <li class="{% if "/manage/delete/" in request.path %}active{% endif %}">
+                <a href="{% url 'quest_delete_page' request.user.username %}">
+                    Delete Quest
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

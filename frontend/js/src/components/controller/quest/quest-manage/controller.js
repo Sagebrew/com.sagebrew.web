@@ -25,8 +25,13 @@ export const meta = {
 export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
-        missionID = document.getElementById('href-submit-for-review').dataset.missionId,
-        missionSlug = document.getElementById('href-submit-for-review').dataset.missionSlug;
+        submitForReview = document.getElementById('href-submit-for-review'),
+        missionID,
+        missionSlug;
+    if (submitForReview) {
+        missionID = submitForReview.dataset.missionId;
+        missionSlug = submitForReview.dataset.missionSlug;
+    }
     $('[data-toggle="tooltip"]').tooltip();
     $app
         .on('click', '#href-submit-for-review', function () {

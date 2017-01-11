@@ -2,12 +2,7 @@
     <h3 class="block-title">Quest Settings</h3>
     <div class="block-content">
         <ul class="nav nav-list nav-list-vivid">
-            <li {% if "/general/" in request.path %}class="active"{% endif %}>
-                <a href="{% url 'quest_manage_settings' request.user.username %}">
-                    General
-                </a>
-            </li>
-            <li {% if "/manage/billing/" in request.path %}class="active"{% endif %}>
+            <li {% if "/manage/billing/" in request.path or "/manage/plan/" in request.path %}class="active"{% endif %}>
                 <a href="{% url 'quest_manage_billing' request.user.username %}">
                     Billing
                 </a>

@@ -16,20 +16,7 @@ def quest(request, username):
         quest_obj = Quest.get(owner_username=username)
     except (CypherException, IOError, Quest.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    serializer_data = {
-        "quest": QuestSerializer(quest_obj, context={'request': request}).data,
-        "keywords": "Politics, Fundraising, Campaign, Quest, Activism"
-    }
-    if serializer_data['quest']['about'] is not None:
-        serializer_data['description'] = serializer_data['quest']['about']
-    else:
-        serializer_data['description'] = "%s %s's Policies, Agenda, " \
-                                         "and Platform." % (
-                                             serializer_data['quest'][
-                                                 'first_name'],
-                                             serializer_data['quest'][
-                                                 'last_name'])
-    return render(request, 'quest.html', serializer_data)
+    return redirect('profile_page', pleb_username=quest_obj.owner_username)
 
 
 class LoginRequiredMixin(View):

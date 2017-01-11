@@ -1,6 +1,10 @@
-{% extends "../../plebs/templates/settings//manage/manage_base.html" %}
+{% extends "../../plebs/templates/settings/general_settings.html" %}
 {% load staticfiles %}
 {% block title %}Quest Settings{% endblock title %}
+
+{% block hero %}
+    {% include "manage/onboarding_block.html" %}
+{% endblock %}
 
 {% block live %}
     <a name="wallpaper"></a>

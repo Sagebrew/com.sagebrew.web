@@ -57,10 +57,16 @@
                     </a>
                 </li>
                 <li class="radio-li-nav-selector">
-                    <a href="{% url 'mission_endorse' mission.id mission.slug %}">
-                        <div class="radio-image-selector-white-nav js-contribution">
-                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
-                        </div>
+                    <a href="" id="js-endorse">
+                        {% if not mission.has_endorsed_profile %}
+                            <div class="radio-image-selector-white-nav js-contribution">
+                                <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
+                            </div>
+                        {% else %}
+                            <div class="radio-image-selector-white-nav js-contribution">
+                                <h4 class="sb-profile-not-friend-header"><i class="fa fa-times-circle-o"></i> Unendorse</h4>
+                            </div>
+                        {% endif %}
                     </a>
                 </li>
             </ul>

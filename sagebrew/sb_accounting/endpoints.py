@@ -24,7 +24,7 @@ class AccountingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # TODO after verifying this works in staging we can change this back
-        # to a property being set wtih an empty list.
+        # to a property being set with an empty list.
         return []
 
     def create(self, request, *args, **kwargs):

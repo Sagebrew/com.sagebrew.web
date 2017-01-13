@@ -226,3 +226,19 @@ class MissionViewTests(TestCase):
                               'slug': self.mission.get_mission_title()})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_conversations(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_conversations',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_conversations_does_not_exist(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_conversations',
+                      kwargs={'object_uuid': str(uuid1()),
+                              'slug': str(uuid1())})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

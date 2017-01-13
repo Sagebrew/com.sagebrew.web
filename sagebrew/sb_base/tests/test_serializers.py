@@ -14,7 +14,6 @@ from sb_base.serializers import (IntercomMessageSerializer,
                                  IntercomEventSerializer,
                                  VotableContentSerializer)
 from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
 from sb_comments.neo_models import Comment
 from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission

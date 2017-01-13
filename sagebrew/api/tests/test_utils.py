@@ -393,6 +393,7 @@ class TestRemoveSmartQuotes(TestCase):
         res = remove_smart_quotes(content)
         self.assertEqual(res, u"This is a string without 'smart' quotes")
 
+
 '''
 class TestCreateAutoTags(TestCase):
     def test_create_auto_tags(self):

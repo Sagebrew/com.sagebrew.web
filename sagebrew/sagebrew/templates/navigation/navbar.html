@@ -11,18 +11,11 @@
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-                <a href="{% url 'root_profile_page' %}" class="navbar-brand">
+                <a href="{% url "mission_list" %}" class="navbar-brand">
                     <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/><span class="hidden-sm">Sagebrew</span>
                 </a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                {% if "registration" not in request.path %}
-                    <ul class="nav navbar-nav">
-                        <li>
-                          <a href="{% url "mission_list" %}">Missions</a>
-                        </li>
-                    </ul>
-                {% endif %}
                 <div class="navbar-right margin-right-0">
                     {% if user.is_authenticated and "/registration/" not in request.path %}
                         {% include "navigation/auth-user-menu.html" %}

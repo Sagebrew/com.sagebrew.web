@@ -120,7 +120,7 @@ def general_settings(request):
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data
-    except (DoesNotExist, Quest.DoesNotExist):
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
     except IndexError:
         address = False
@@ -140,7 +140,7 @@ def delete_account(request):
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data
-    except (DoesNotExist, Quest.DoesNotExist):
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
     return render(request, 'settings/delete_account.html', {"quest": quest})
 
@@ -162,7 +162,7 @@ def contribute_settings(request):
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data
-    except (DoesNotExist, Quest.DoesNotExist):
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
     return render(request, 'settings/contribute_settings.html',
                   {"stripe_key": settings.STRIPE_PUBLIC_KEY, "quest": quest})

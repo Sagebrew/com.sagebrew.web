@@ -46,7 +46,7 @@ class QuestViewTests(TestCase):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest', kwargs={'username': self.user.username})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_quest_dne(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -60,14 +60,14 @@ class QuestViewTests(TestCase):
         self.quest.about = None
         self.quest.save()
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_quest_about_is_not_none(self):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest', kwargs={'username': self.user.username})
         self.quest.about = "Some Test Stuff!"
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_quest_settings(self):
         self.client.login(username=self.user.username, password=self.password)

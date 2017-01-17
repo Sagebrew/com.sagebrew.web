@@ -50,7 +50,7 @@ class PersonalProfileView(LoginRequiredMixin):
             res, _ = db.cypher_query(query)
             quest = QuestSerializer(Quest.inflate(res[0][0]),
                                     context={'request': request}).data
-        except (DoesNotExist, Quest.DoesNotExist):
+        except (DoesNotExist, Quest.DoesNotExist, IndexError):
             quest = None
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(
@@ -114,6 +114,8 @@ def general_settings(request):
                                     context={'request': request}).data
     except(CypherException, ClientError):
         return redirect("500_Error")
+    except IndexError:
+        address = False
     try:
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
@@ -122,8 +124,6 @@ def general_settings(request):
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
-    except IndexError:
-        address = False
     return render(request, 'settings/general_settings.html',
                   {"address": address, "address_key": address_key,
                    "quest": quest})

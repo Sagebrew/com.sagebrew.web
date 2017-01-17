@@ -1,6 +1,6 @@
 import stripe
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -727,6 +727,7 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_promotion(self):
+        settings.PRO_QUEST_END_DATE = datetime.now() + timedelta(days=1)
         self.client.force_authenticate(user=self.user)
         self.quest.stripe_subscription_id = None
         self.quest.account_type = "free"
@@ -745,8 +746,10 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
+        settings.PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 
     def test_update_promotion_customer_not_none(self):
+        settings.PRO_QUEST_END_DATE = datetime.now() + timedelta(days=1)
         self.client.force_authenticate(user=self.user)
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -778,6 +781,7 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
+        settings.PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 
     def test_update_bad_promotion_key(self):
         self.client.force_authenticate(user=self.user)

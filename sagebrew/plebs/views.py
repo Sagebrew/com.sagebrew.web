@@ -116,7 +116,7 @@ def general_settings(request):
         return redirect("500_Error")
     try:
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
-                    request.user.username)
+            request.user.username)
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data
@@ -136,7 +136,7 @@ def delete_account(request):
     """
     try:
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
-                    request.user.username)
+            request.user.username)
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data
@@ -158,7 +158,7 @@ def contribute_settings(request):
     """
     try:
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
-                    request.user.username)
+            request.user.username)
         res, _ = db.cypher_query(query)
         quest = QuestSerializer(Quest.inflate(res[0][0]),
                                 context={'request': request}).data

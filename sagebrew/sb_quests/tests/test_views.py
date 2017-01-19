@@ -74,7 +74,7 @@ class QuestViewTests(TestCase):
         url = reverse('quest_manage_settings',
                       kwargs={'username': self.user.username})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_quest_settings_with_address(self):
         address = Address(street="3295 Rio Vista St",
@@ -86,7 +86,7 @@ class QuestViewTests(TestCase):
         url = reverse('quest_manage_settings',
                       kwargs={'username': self.user.username})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_settings_no_quest(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -105,4 +105,4 @@ class QuestViewTests(TestCase):
         url = reverse('quest_manage_settings',
                       kwargs={'username': self.user.username})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

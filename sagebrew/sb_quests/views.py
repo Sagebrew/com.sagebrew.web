@@ -77,6 +77,8 @@ class QuestSettingsView(LoginRequiredMixin):
         if self.template_name == "manage/quest_banking.html" \
                 and address is None:
             return redirect('account_setup')
+        if self.template_name == "manage/quest_settings.html":
+            return redirect('general_settings')
         return render(request, self.template_name, {
             "quest": quest_ser, "mission_link": mission_link,
             "mission_active": mission_active,

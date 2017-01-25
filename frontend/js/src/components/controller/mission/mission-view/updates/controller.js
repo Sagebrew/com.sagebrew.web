@@ -52,8 +52,6 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    console.log(data.results[i].created);
-                    console.log(data.results[i]);
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }

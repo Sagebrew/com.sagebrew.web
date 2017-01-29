@@ -404,7 +404,17 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.dob.day = owner.date_of_birth.day
             account.legal_entity.dob.month = owner.date_of_birth.month
             account.legal_entity.dob.year = owner.date_of_birth.year
-            account = account.save()
+            try:
+                account = account.save()
+            except stripe.InvalidRequestError:
+                raise serializers.ValidationError(
+                    detail={"detail": "Sorry, you can't change your "
+                                      "Social Security Number after you "
+                                      "have been verified. Please contact "
+                                      "support at support@sagebrew.com "
+                                      "or by using the "
+                                      "bubble in the bottom right.",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
             # Default to pending to make sure customer doesn't think nothing
             # is happening on a slow update from Stripe. We can revert back
             # to unverified if Stripe alerts us to it.

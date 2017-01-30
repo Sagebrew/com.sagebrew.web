@@ -175,7 +175,7 @@ function stripeBankHandler(status, response){
             data: JSON.stringify(data)
         }).done(function (){
             window.location.reload();
-        }).fail(function (data) {
+        }).fail(function () {
             greyPage.classList.add('sb_hidden');
         });
     }

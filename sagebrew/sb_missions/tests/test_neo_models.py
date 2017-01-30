@@ -7,6 +7,7 @@ from neomodel import DoesNotExist
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
+from sb_orders.neo_models import Order
 from sb_donations.neo_models import Donation
 from sb_locations.neo_models import Location
 from sb_quests.neo_models import Position, Quest
@@ -91,6 +92,23 @@ class TestMission(TestCase):
         donation.mission.connect(self.mission)
         res = Mission.get_donations(self.mission.object_uuid)
         self.assertEqual(res[0].object_uuid, donation.object_uuid)
+
+    def test_get_donors(self):
+        donation = Donation(amount=500, completed=True,
+                            owner_username=self.owner.username).save()
+        donation.owned_by.connect(self.owner)
+        donation.mission.connect(self.mission)
+        cache.clear()
+        res = Mission.get_donors(self.mission.object_uuid)
+        self.assertEqual(res[0], self.owner.username)
+
+    def test_get_donors_order(self):
+        order = Order(completed=True,
+                      owner_username=self.owner.username).save()
+        order.mission.connect(self.mission)
+        cache.clear()
+        res = Mission.get_donors(self.mission.object_uuid)
+        self.assertEqual(res[0], self.owner.username)
 
     def test_get_mission_title(self):
         res = self.mission.get_mission_title()

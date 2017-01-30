@@ -84,6 +84,7 @@
             </div>
         </div>
     </div>
+
     {% if request.user.is_authenticated and request_profile.occupation_name == None and selected.focus_on_type == "position" %}
         {% include "donations/campaign_finance.html" %}
     {% endif %}
@@ -94,8 +95,8 @@
                 {% include "address_form.html" %}
             </div>
         </div>
-
     {% endif %}
+
     <div class="block">
         <h3 class="block-title">
             Donation Subscription

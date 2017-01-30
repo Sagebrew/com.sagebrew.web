@@ -1,6 +1,6 @@
 import stripe
 from uuid import uuid1
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -556,6 +556,59 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update_ssn_already_verified(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        address = Address(street="125 Glenwood Drive",
+                          city="Walled Lake",
+                          state="Michigan",
+                          postal_code="48390",
+                          country="USA",
+                          county="Oakland",
+                          congressional_district=11,
+                          validated=True).save()
+        self.quest.address.connect(address)
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "account_holder_name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "stripe_token": stripe_res['id'],
+            "ssn": "000000000",
+            "ein": "000000000",
+            "tos": True
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "account_holder_name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "stripe_token": stripe_res['id'],
+            "ssn": "111111111",
+            "ein": "000000000",
+            "tos": True
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertIn("you can't change your Social Security Number after",
+                      response.content)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_update_title_not_none(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -727,6 +780,7 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_promotion(self):
+        settings.PRO_QUEST_END_DATE = datetime.now() + timedelta(days=1)
         self.client.force_authenticate(user=self.user)
         self.quest.stripe_subscription_id = None
         self.quest.account_type = "free"
@@ -745,8 +799,10 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
+        settings.PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 
     def test_update_promotion_customer_not_none(self):
+        settings.PRO_QUEST_END_DATE = datetime.now() + timedelta(days=1)
         self.client.force_authenticate(user=self.user)
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -778,6 +834,7 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
+        settings.PRO_QUEST_END_DATE = datetime(2016, 11, 9)
 
     def test_update_bad_promotion_key(self):
         self.client.force_authenticate(user=self.user)

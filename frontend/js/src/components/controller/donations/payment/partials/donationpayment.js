@@ -1,6 +1,5 @@
 var helpers = require('common/helpers'),
-    request = require('api').request,
-    getPaymentMethods = require('common/payment').getPaymentMethods;
+    request = require('api').request;
 
 export function stripeResponseHandler(status, response) {
     var greyPage = document.getElementById('sb-greyout-page'),
@@ -10,12 +9,7 @@ export function stripeResponseHandler(status, response) {
         customer_token: response.id
     })})
         .done(function () {
-            request.get({url: "/v1/me/payment_methods/"})
-                .done(function () {
-                    getPaymentMethods(true, function () {
-                        document.getElementById('js-add-payment-form').innerHTML = "";
-                    });
-                });
+            location.reload(true);
         }).fail(function () {
             greyPage.classList.add('sb_hidden');
             $form.find('button').prop('disabled', false);

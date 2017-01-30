@@ -20,6 +20,8 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.neo_models import Solution
 from sb_registration.utils import create_user_util_test
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 
 
 class QuestionEndpointTests(APITestCase):
@@ -110,6 +112,28 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_with_mission(self):
+        self.client.force_authenticate(user=self.user)
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a question that must be asked. What is blue?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags,
+            "mission": mission.object_uuid
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mission.delete()
+        quest.delete()
 
     def test_create_with_new_tags_no_rep(self):
         self.client.force_authenticate(user=self.user)
@@ -1080,6 +1104,29 @@ class QuestionEndpointTests(APITestCase):
                          question2.object_uuid)
         self.assertEqual(response.data['results'][4]['id'],
                          question4.object_uuid)
+
+    def test_get_list_mission(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        mission = Mission(owner_username=self.user.username).save()
+        quest = Quest(owner_username=self.user.username).save()
+        quest.missions.connect(mission)
+        quest.owner.connect(self.pleb)
+        question = Question(title=str(uuid1()), content='test_content',
+                            owner_username=self.pleb.username).save()
+        mission.associated_with.connect(question)
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        cache.clear()
+        url = reverse('question-list') + "?mission=%s&ordering=created" \
+                                         % mission.object_uuid
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(4, len(response.data))
+        self.assertEqual(1, len(response.data['results']))
+        quest.delete()
+        mission.delete()
 
 
 class SBBaseSerializerTests(APITestCase):

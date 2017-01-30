@@ -141,7 +141,9 @@ export function generateUuid() {
  * @returns {*}
  */
 export function findAncestor (el, cls) {
-    while ((el = el.parentElement) && !el.classList.contains(cls));
+    // Forcing JSHint to ignore this line as it throws a warning which we
+    // cannot resolve: "Expected '{' and instaed saw ';'."
+    while ((el = el.parentElement) && !el.classList.contains(cls));  // jshint ignore:line
     return el;
 }
 
@@ -492,7 +494,9 @@ export function testPrivateBrowsing() {
         localStorage.setItem(storageTestKey, true);
         localStorage.removeItem(storageTestKey);
     } catch (e) {
-        if (e.code === DOMException.QUOTA_EXCEEDED_ERR && localStorage.length === 0) {
+        // Forcing JSHint to ignore this line as it throws a warning we
+        // cannot currently resolve: "'DOMException' is not defined."
+        if (e.code === DOMException.QUOTA_EXCEEDED_ERR && localStorage.length === 0) {  // jshint ignore:line
             $.notify(
                 {message: "We noticed you're browsing in Private Mode, " +
                 "some features of the site may not function properly"},

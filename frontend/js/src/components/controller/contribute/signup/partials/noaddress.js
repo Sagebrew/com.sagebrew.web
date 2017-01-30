@@ -4,28 +4,8 @@ var requests = require('api').request,
     validators = require('common/validators'),
     moment = require('moment');
 
-export const meta = {
-    controller: "contribute/signup-no-address",
-    match_method: "path",
-    check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/endorse\/name$",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/volunteer\/name$",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/gifts\/name$"
-    ]
-};
 
-
-/**
- * Init
- */
-export function init() {
-
-}
-
-/**
- * Load
- */
-export function load() {
+export function activateNoAddress() {
     var $app = $(".app-sb"),
         accountForm = document.getElementById('account-info'),
         accountValidationForm = $(accountForm),
@@ -65,14 +45,6 @@ export function load() {
     $('#birthday').keyup(function (e) {
         helpers.birthdayInputManager(this, e);
     });
-}
-
-/**
- * Post Load
- */
-export function postload() {
-    //
-    // Intercom Tracking
 }
 
 
@@ -120,6 +92,7 @@ function completeRegistration(accountValidationForm, accountForm,
         }
 }
 
+
 function submitCallback() {
     var contributionType = helpers.args(3),
         missionSlug = helpers.args(2),
@@ -132,6 +105,9 @@ function submitCallback() {
     } else if (contributionType === "endorse") {
         window.location.href = "/missions/" + donateToID + "/" +
             missionSlug + "/" + contributionType + "/";
+    } else if (contributionType === "gifts") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/gifts/donate/";
     } else {
         window.location.href = "/missions/" + donateToID + "/" +
             missionSlug + "/donate/payment/";

@@ -173,7 +173,6 @@ export function populateCheckout(missionId, productContainer) {
                 .done(function(response) {
                     var missionRate = response.quest.application_fee + settings.api.stripe_transaction_fee,
                         calculated = calculateTotals(missionRate);
-                    console.log(calculated);
                     itemPrice.text(calculated.itemTotal);
                     orderTotalContainer.text(calculated.orderTotal);
                     sbPrice.text(calculated.sbCharge);

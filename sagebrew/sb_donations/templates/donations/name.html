@@ -16,34 +16,11 @@
         <h3 class="block-title">
             Personal Information
         </h3>
-        <div class="block-content">
+        <div id="js-account-info-block" class="block-content">
             {% include "account_info_form.html" with label=True birthday_header=False %}
         </div>
     </div>
-    {% if request.user.is_authenticated == False and selected.focus_on_type == "position" %}
-        {% include "donations/campaign_finance.html" %}
-    {% endif %}
-    <div class="block">
-        <h3 class="block-title">
-            Address
-        </h3>
-        <div class="block-content">
-            {% include "address_form.html" %}
-            <div class="row">
-                <div class="col-md-6 col-lg-4">
-                    <button id="js-continue-btn" type="button" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <a href="{% if selected != None %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
-                    >Cancel</a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <small>By continuing, you agree to our <a href="{% url "terms_and_conditions" %}">Terms of Service</a>.</small>
-                </div>
-            </div>
-        </div>
+    <div id="js-campaign-finance-block">
     </div>
 {% endblock %}
 

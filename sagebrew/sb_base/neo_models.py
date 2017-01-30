@@ -4,6 +4,7 @@ from json import dumps
 from datetime import datetime
 
 from django.utils.text import slugify
+from django.core.cache import cache
 
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
@@ -338,6 +339,23 @@ class SBContent(VotableContent):
         if percentage >= .66:
             return True
         return False
+
+    @classmethod
+    def get_mission(cls, object_uuid, request=None):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        mission = cache.get("%s_mission" % object_uuid)
+        if mission is None:
+            query = 'MATCH (content:SBContent {object_uuid:"%s"})' \
+                    '<-[:ASSOCIATED_WITH]-' \
+                    '(mission:Mission) RETURN mission' % object_uuid
+            res, _ = db.cypher_query(query)
+            if res.one:
+                mission = MissionSerializer(
+                    Mission.inflate(res.one),
+                    context={"request": request}).data
+                cache.set("%s_mission" % object_uuid, mission)
+        return mission
 
     def get_url(self, request):
         return None

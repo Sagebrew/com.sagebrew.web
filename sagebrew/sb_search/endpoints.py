@@ -7,6 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 
 from elasticsearch import Elasticsearch
+from amazon.api import SearchException
 from amazon.api import AmazonAPI
 
 from sagebrew import errors
@@ -98,8 +99,12 @@ class AmazonProductSearchViewSet(ListAPIView):
         queryset = []
         query_param = self.request.query_params.get("query", "")
         if query_param:
-            products = amazon.search_n(n=15, Keywords=query_param,
-                                       SearchIndex="All")
+            try:
+                products = amazon.search_n(n=15, Keywords=query_param,
+                                           SearchIndex="All")
+            except SearchException:
+                raise ValidationError("Sorry, we found no products "
+                                      "matching your query.")
             for product in products:
                 price, currency = product.price_and_currency
                 has_reviews, iframe = product.reviews
@@ -120,8 +125,9 @@ class AmazonProductSearchViewSet(ListAPIView):
         # the amazon api as they use request signatures. - Devon Bleibtrey
         try:
             queryset = self.get_queryset()
-        except ValidationError:
-            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+        except ValidationError as e:
+            return Response({"status": status.HTTP_400_BAD_REQUEST,
+                             "detail": e.detail},
                             status=status.HTTP_400_BAD_REQUEST)
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(page)

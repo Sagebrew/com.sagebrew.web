@@ -30,7 +30,9 @@ export function search(container, selectedContainer) {
                         if (res.results.hasOwnProperty(product)){
                             results[product].time = time;
                             if (results[product].has_reviews) {
-                                results[product].iframe = results[product].information.iframe.replace(/^http:\/\//i, 'https://');
+                                if (results[product].iframe.indexOf("http://") >= 0) {
+                                    results[product].iframe = results[product].information.iframe.replace(/^http:\/\//i, "https://");
+                                }
                             }
                             container.append(individualGiftTemplate({"product": results[product], "list_setup": true}));
                         }

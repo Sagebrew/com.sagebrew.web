@@ -42,7 +42,6 @@ export function load() {
             }
         })
         .on('click', '#js-free-account', function () {
-            console.log('here');
             greyPage.classList.remove('sb_hidden');
             request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
                 account_type: "free"

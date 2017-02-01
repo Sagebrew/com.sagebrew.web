@@ -7,7 +7,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
-                      DateTimeProperty, ArrayProperty)
+                      DateTimeProperty, ArrayProperty, IntegerProperty)
 
 from sb_search.neo_models import Searchable, SBObject
 
@@ -99,6 +99,11 @@ class Quest(Searchable):
     first_name = StringProperty()
     last_name = StringProperty()
     owner_username = StringProperty()
+
+    # TEMPORARY
+    ssn_temp = StringProperty()
+    bank_account_temp = StringProperty()
+    routing_number_temp = StringProperty()
 
     # Relationships
     # Donations

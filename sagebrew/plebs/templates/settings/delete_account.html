@@ -4,6 +4,9 @@
 
 {% block sidebar_left %}
     {% include "settings/user_settings_nav.html" %}
+    {% if quest %}
+        {% include "settings/quest_settings_nav.html" %}
+    {% endif %}
 {% endblock %}
 
 {% block live %}

@@ -1,6 +1,10 @@
-{% extends "manage/manage_base.html" %}
+{% extends "../../plebs/templates/settings/general_settings.html" %}
 {% load staticfiles %}
 {% block title %}Quest Payment{% endblock title %}
+
+{% block hero %}
+    {% include "manage/onboarding_block.html" %}
+{% endblock %}
 
 {% block live %}
     <div id="js-add-payment-form"></div>

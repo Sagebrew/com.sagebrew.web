@@ -12,14 +12,14 @@
                 <li class="{% if "manage/" == request.path %}active{% endif %}">
                     <label for="mission-select" class="hidden"></label>
                     <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);" id="mission-select" class="form-control mission-input">
-                    {% for other_mission in missions %}
-                        {% if other_mission.id == mission.id %}
-                            <option selected value="{{ other_mission.id }}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
-                        {% else %}
-                            <option value="{% url "mission_settings" other_mission.id other_mission.slug %}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+                        {% for other_mission in missions %}
+                            {% if other_mission.id == mission.id %}
+                                <option selected value="{{ other_mission.id }}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
+                            {% else %}
+                                <option value="{% url "mission_settings" other_mission.id other_mission.slug %}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
                 </li>
                 <li {% if "/manage/general/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_settings" mission.id slug %}">

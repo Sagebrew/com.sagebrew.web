@@ -169,6 +169,7 @@ class AccountSerializer(SBSerializer):
                 str(account.legal_entity.verification.details)
             if quest.account_first_updated is None:
                 quest.account_first_updated = datetime.now(pytz.utc)
+
             verify = account.verification
 
             # Determine if we need Quest to upload identification documentation

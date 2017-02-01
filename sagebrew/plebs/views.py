@@ -18,6 +18,8 @@ from neomodel import DoesNotExist, CypherException, db
 
 from sb_address.neo_models import Address
 from sb_address.serializers import AddressSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 
 from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
@@ -42,11 +44,20 @@ class PersonalProfileView(LoginRequiredMixin):
     template_name = 'profile_page.html'
 
     def get(self, request):
+        try:
+            query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
+                request.user.username)
+            res, _ = db.cypher_query(query)
+            quest = QuestSerializer(Quest.inflate(res[0][0]),
+                                    context={'request': request}).data
+        except (DoesNotExist, Quest.DoesNotExist, IndexError):
+            quest = None
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(
                 Pleb.get(username=request.user.username),
                 context={'expand': True, 'request': request}).data,
-            'page_user': User.objects.get(username=request.user.username)
+            'page_user': User.objects.get(username=request.user.username),
+            'quest': quest
         })
 
 
@@ -105,8 +116,17 @@ def general_settings(request):
         return redirect("500_Error")
     except IndexError:
         address = False
+    try:
+        query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
+            request.user.username)
+        res, _ = db.cypher_query(query)
+        quest = QuestSerializer(Quest.inflate(res[0][0]),
+                                context={'request': request}).data
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
+        quest = None
     return render(request, 'settings/general_settings.html',
-                  {"address": address, "address_key": address_key})
+                  {"address": address, "address_key": address_key,
+                   "quest": quest})
 
 
 @login_required()
@@ -114,7 +134,15 @@ def delete_account(request):
     """
     Delete account page.
     """
-    return render(request, 'settings/delete_account.html')
+    try:
+        query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
+            request.user.username)
+        res, _ = db.cypher_query(query)
+        quest = QuestSerializer(Quest.inflate(res[0][0]),
+                                context={'request': request}).data
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
+        quest = None
+    return render(request, 'settings/delete_account.html', {"quest": quest})
 
 
 @login_required()
@@ -128,8 +156,16 @@ def contribute_settings(request):
     :param request:
     :return:
     """
+    try:
+        query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
+            request.user.username)
+        res, _ = db.cypher_query(query)
+        quest = QuestSerializer(Quest.inflate(res[0][0]),
+                                context={'request': request}).data
+    except (DoesNotExist, Quest.DoesNotExist, IndexError):
+        quest = None
     return render(request, 'settings/contribute_settings.html',
-                  {"stripe_key": settings.STRIPE_PUBLIC_KEY})
+                  {"stripe_key": settings.STRIPE_PUBLIC_KEY, "quest": quest})
 
 
 @api_view(['POST'])

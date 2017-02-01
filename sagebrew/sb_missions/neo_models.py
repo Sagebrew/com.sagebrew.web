@@ -137,7 +137,7 @@ class Mission(Searchable):
     # currently possible. One is that a parent Quest provides a solution or
     # Question and indicates that it would like the given Mission to
     # be linked to that piece of content.
-    associated_with = RelationshipTo('sb_base.neo_models.SBPublicContent',
+    associated_with = RelationshipTo('sb_base.neo_models.SBContent',
                                      'ASSOCIATED_WITH')
     # The place where this Mission is taking place. If it is of type position
     # then the location can also be queried through the position but since
@@ -253,6 +253,30 @@ class Mission(Searchable):
             moderators = [row[0] for row in res]
             cache.set("%s_moderators" % quest.owner_username, moderators)
         return moderators
+
+    @classmethod
+    def get_donors(cls, object_uuid):
+        donors = cache.get("%s_donors" % object_uuid)
+        if donors is None:
+            donors = []
+            query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:CONTRIBUTED_TO]-' \
+                    '(d:Donation) WHERE d.completed=true RETURN NULL as o, ' \
+                    'collect(DISTINCT d.owner_username) as d ' \
+                    'UNION MATCH (m:Mission {object_uuid:"%s"})' \
+                    '<-[:GIFTED_TO]-(o:Order) WHERE o.completed=true ' \
+                    'RETURN collect(DISTINCT o.owner_username) as o, ' \
+                    'NULL as d' % (object_uuid, object_uuid)
+            res, _ = db.cypher_query(query)
+            for row in res:
+                if row.d is not None:
+                    for name in row.d:
+                        donors.append(name)
+                elif row.o is not None:
+                    for name in row.o:
+                        donors.append(name)
+            donors = list(set(donors))
+            cache.set("%s_donors" % object_uuid, donors)
+        return donors
 
     @classmethod
     def get_donations(cls, object_uuid):

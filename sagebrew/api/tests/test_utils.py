@@ -56,16 +56,6 @@ class TestEncryptAndDecrypt(TestCase):
         res = generate_long_token()
         self.assertIsNotNone(res)
 
-'''
-class TestCreateAutoTags(TestCase):
-    def test_create_auto_tags(self):
-        res = create_auto_tags("This is some test content")
-
-        self.assertEqual(res['status'], 'OK')
-        self.assertEqual(res['keywords'], [{'relevance': '0.965652',
-                                            'text': 'test content'}])
-'''
-
 
 class TestSmartTruncate(TestCase):
 
@@ -402,3 +392,14 @@ class TestRemoveSmartQuotes(TestCase):
         content = u"This is a string without 'smart' quotes"
         res = remove_smart_quotes(content)
         self.assertEqual(res, u"This is a string without 'smart' quotes")
+
+
+'''
+class TestCreateAutoTags(TestCase):
+    def test_create_auto_tags(self):
+        res = create_auto_tags("This is some test content")
+
+        self.assertEqual(res['status'], 'OK')
+        self.assertEqual(res['keywords'], [{'relevance': '0.965652',
+                                            'text': 'test content'}])
+'''

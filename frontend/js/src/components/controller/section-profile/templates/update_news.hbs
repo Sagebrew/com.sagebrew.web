@@ -1,12 +1,12 @@
 <div class="block">
     <div class="block-title">
         <a href="{{ url }}">
-            Update: {{ title }}
+            {{ title }}
         </a>
     </div>
     <div class="block-content no-top-bottom-padding">
         <div class="dropdown">
-            <small>Author: <a href="{{ mission.url }}">{{ mission.title }}</a>  <b>&middot;</b>
+            <small>Author: <a href="{{ about.url }}">{{ about.title }}</a>  <b>&middot;</b>
                 {{ created }} <b>&middot;</b> Public</small>
             <div class="pull-right settings-icon-wrapper">
                 {{# if is_owner }}

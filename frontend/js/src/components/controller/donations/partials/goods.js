@@ -29,7 +29,12 @@ export function search(container, selectedContainer) {
                     for (var product in results) {
                         if (res.results.hasOwnProperty(product)){
                             results[product].time = time;
-                            container.append(individualGiftTemplate({"product": results[product]}));
+                            if (results[product].has_reviews) {
+                                if (results[product].iframe.indexOf("http://") >= 0) {
+                                    results[product].iframe = results[product].information.iframe.replace(/^http:\/\//i, "https://");
+                                }
+                            }
+                            container.append(individualGiftTemplate({"product": results[product], "list_setup": true}));
                         }
                     }
                     greyPage.addClass("sb_hidden");

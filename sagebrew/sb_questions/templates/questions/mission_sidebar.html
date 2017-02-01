@@ -1,0 +1,20 @@
+<div class="block sb_markdown">
+    <h4 class="block-title">Associated Mission</h4>
+    <div class="block-content block-holder-sm padding-top-5 min-height-0">
+        <h4 class="no-padding-top">
+            <a href="{{ mission.url }}">
+                {% if mission.focus_on_type == "position" %}
+                    {% if mission.focused_on.full_name %}
+                        {{ mission.focused_on.full_name|title }}
+                    {% else %}{{ mission.focus_name_formatted }}
+                    {% endif %}
+                    {% else %}
+                        {% if mission.title %}
+                            {{ mission.title|title }}
+                        {% else %}
+                            {{ mission.focus_name_formatted|title }}
+                        {% endif %}
+                {% endif %}</a>
+        </h4>
+    </div>
+</div>

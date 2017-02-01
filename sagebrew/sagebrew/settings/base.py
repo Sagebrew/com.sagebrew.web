@@ -713,7 +713,7 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
                             "Jizz", 'free']
 BLOCKED_SITE = ['wnd.com', 'nationalenquirer.com']
-UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com', 'wnd.com']
 COMPANY_ACRONYMS = [
     ('ABC', 'Abc'), ('CNN', 'Cnn'), ('CBS', 'Cbs'),
     ('MSNBC', 'Msnbc'), ('BBC', 'Bbc'), ('CBC', 'Cbc'), ('CBS', 'Cbs'),

@@ -86,7 +86,36 @@ def mission_updates(request, object_uuid, slug=None):
     mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission/updates.html', {
         "updates": res.one.update,
-        "mission": MissionSerializer(mission_obj).data,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
+        "slug": slugify(mission_obj.get_mission_title()),
+        "quest": QuestSerializer(quest).data
+    })
+
+
+def mission_conversations(request, object_uuid, slug=None):
+    # Only need to check that at least one conversation exists here to mark that
+    # updates are available for this mission.
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid: "%s"}) ' \
+            'WITH quest, mission ' \
+            'OPTIONAL MATCH (mission)-[:ASSOCIATED_WITH]->' \
+            '(question:Question) ' \
+            'RETURN quest, mission, ' \
+            'CASE WHEN count(question) > 0 ' \
+            'THEN true ELSE false END AS question' % object_uuid
+    res, _ = db.cypher_query(query)
+    if res.one is None:
+        return redirect("404_Error")
+    # Instead of doing inflation and serialization of all the conversations here
+    # without pagination lets just indicate if we have any or not and then
+    # hit the endpoint to gather the actual updates.
+    quest = Quest.inflate(res.one.quest)
+    mission_obj = Mission.inflate(res.one.mission)
+    return render(request, 'mission/conversations.html', {
+        "conversations": res.one.question,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
     })
@@ -107,7 +136,8 @@ def mission_endorsements(request, object_uuid, slug=None):
     mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission/endorsements.html', {
         "quest": QuestSerializer(quest).data,
-        "mission": MissionSerializer(mission_obj).data,
+        "mission":
+            MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "endorsements":
             True if res.one.endorsement else False

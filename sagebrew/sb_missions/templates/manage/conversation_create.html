@@ -1,0 +1,39 @@
+{% extends "layout/hero-one-col.html" %}
+{% load staticfiles %}
+{% block title %}Mission Create Conversation{% endblock title %}
+{% block body_class %}
+    background-color-white
+{% endblock %}
+
+{% block navigation %}
+    {{ block.super }}
+    {% url 'mission_update_settings' mission.id slug as back_url %}
+    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Create Update" %}
+{% endblock %}
+
+{% block hero %}
+
+    <div class="block min-height-600 margin-top-20">
+        <div class="block-content">
+            <form id="updateForm">
+                <input class="form-control block-title no-border no-padding-left font-size-26 no-margin-left"
+                          name="title"
+                          placeholder="Type your title here"
+                          id="js-title"/>
+                <div class="sb_markdown">
+                    <textarea class="editable"
+                          name="content"
+                          rows="10">{{ question_placeholder }}</textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block intercom %}
+    var metadata = {mission_uuid: "{{ mission.id }}", mission_title: "{{ mission.title }}"};
+    Intercom('trackEvent', 'manage-create-conversation', metadata);
+{% endblock %}

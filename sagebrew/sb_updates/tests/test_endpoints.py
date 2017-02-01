@@ -228,6 +228,27 @@ class UpdateEndpointsTest(APITestCase):
         self.assertEqual(response.data['title'], data['title'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_put_andrea_input(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-detail',
+                      kwargs={'object_uuid': self.update.object_uuid})
+        data = {
+            'title': 'Thank you',
+            'content': 'Thank you to all that have helped this mission achieve '
+                       'the first goal by raising $800 so far. I will be '
+                       'buying a ticket to Detroit to take the money to '
+                       'Father Parker and work on the next step. As soon as '
+                       'I get a departure date, I will update with the exact '
+                       'date that I will be going. And thank you again '
+                       'to Everyone :) ',
+            'about_type': "mission",
+            "about_id": self.mission.object_uuid
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertEqual(response.data['title'], data['title'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_put_no_content(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-detail',

@@ -169,6 +169,7 @@ class AccountSerializer(SBSerializer):
                 str(account.legal_entity.verification.details)
             if quest.account_first_updated is None:
                 quest.account_first_updated = datetime.now(pytz.utc)
+
             verify = account.verification
 
             # Determine if we need Quest to upload identification documentation
@@ -177,7 +178,7 @@ class AccountSerializer(SBSerializer):
 
             # Save off when the additional information is due by
             if hasattr(verify, 'due_by') and verify.due_by is not None:
-                quest.verification_due_date = datetime.datetime.fromtimestamp(
+                quest.verification_due_date = datetime.fromtimestamp(
                     account.verification.due_by)
             else:
                 quest.verification_due_date = None

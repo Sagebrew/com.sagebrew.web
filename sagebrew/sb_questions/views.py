@@ -2,7 +2,6 @@ from django.utils.text import slugify
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.views.generic import View
 
 from neomodel import DoesNotExist, db
@@ -10,35 +9,6 @@ from neomodel import DoesNotExist, db
 from sb_questions.neo_models import Question
 
 from .serializers import QuestionSerializerNeo
-
-
-def question_page(request, sort_by="most_recent"):
-    """
-    This is the page that displays what is returned from the get_question_view
-    api endpoint
-
-    Only pass 'question_uuid' parameter if you want to get a single question
-    that matched the uuid. This will most likely occur when clicking on a
-    question which is shown on your newsfeed or another page
-
-    :param sort_by:
-    :param request:
-
-                request.data/request.body = {
-                    'question_uuid': str(uuid1()),
-                    'current_pleb': 'example@email.com'
-                    'sort_by': ''
-                }
-
-    :return:
-    """
-    return render(
-        request, 'questions/list.html',
-        {
-            "base_tags": [{'default': tag, 'display': tag.replace('_', ' ')}
-                          for tag in settings.BASE_TAGS]
-        }
-    )
 
 
 def question_redirect_page(request, question_uuid):

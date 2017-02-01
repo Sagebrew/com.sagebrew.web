@@ -21,9 +21,14 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
         raise spawn_comment_notifications.retry(exc=e, countdown=3,
                                                 max_retries=None)
     parent_object_type = parent_object.get_child_label().lower()
+    to_plebs = [parent_object.owner_username]
+    if parent_object_type == "question" or parent_object_type == "solution":
+        mission = parent_object.get_mission(parent_object_uuid)
+        if mission:
+            to_plebs.append(mission['owner_username'])
     task_id = spawn_task(task_func=spawn_notifications, task_param={
         'from_pleb': from_pleb,
-        'to_plebs': [parent_object.owner_username],
+        'to_plebs': to_plebs,
         'sb_object': comment.object_uuid,
         'notification_id': notification_id,
         'url': reverse('single_%s_page' % parent_object_type,

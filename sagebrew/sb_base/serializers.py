@@ -147,6 +147,11 @@ class VotableContentSerializer(SBSerializer):
             can_comment = "comment" in Pleb.get(
                 username=request.user.username).get_privileges()
             if not can_comment:
+                mission = obj.get_mission(obj.object_uuid, request)
+                if mission:
+                    if mission['owner_username'] == request.user.username:
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 20+ reputation to comment on " \
                          "Conversation Cloud content."
                 short_detail = "Requirement: 20+ Reputation"
@@ -182,6 +187,11 @@ class VotableContentSerializer(SBSerializer):
             can_flag = "flag" in Pleb.get(
                 username=request.user.username).get_privileges()
             if not can_flag:
+                mission = obj.get_mission(obj.object_uuid, request)
+                if mission:
+                    if mission['owner_username'] == request.user.username:
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 50+ reputation to flag Conversation " \
                          "Cloud content."
                 short_detail = "Requirement: 50+ Reputation"
@@ -190,6 +200,11 @@ class VotableContentSerializer(SBSerializer):
             can_flag = "flag" in Pleb.get(
                 username=request.user.username).get_privileges()
             if not can_flag:
+                mission = obj.get_mission(obj.object_uuid, request)
+                if mission:
+                    if mission['owner_username'] == request.user.username:
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 50+ reputation to flag Conversation " \
                          "Cloud content."
                 short_detail = "Requirement: 50+ Reputation"
@@ -287,6 +302,11 @@ class VotableContentSerializer(SBSerializer):
                                "Conversation Cloud Content"
             elif not can_downvote:
                 can_downvote = False
+                mission = obj.get_mission(obj.object_uuid, request)
+                if mission:
+                    if mission['owner_username'] == request.user.username:
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 100+ reputation to downvote" \
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"
@@ -302,6 +322,11 @@ class VotableContentSerializer(SBSerializer):
             elif "downvote" not in Pleb.get(
                     username=request.user.username).get_privileges():
                 can_downvote = False
+                mission = obj.get_mission(obj.object_uuid, request)
+                if mission:
+                    if mission['owner_username'] == request.user.username:
+                        return {"status": True, "detail": detail,
+                                "short_detail": short_detail}
                 detail = "You must have 100+ reputation to downvote" \
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"

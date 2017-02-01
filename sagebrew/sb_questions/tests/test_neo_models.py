@@ -9,6 +9,8 @@ from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 
 
 class TestQuestionNeoModel(TestCase):
@@ -153,3 +155,14 @@ class TestQuestionNeoModel(TestCase):
         self.assertIn(solution.object_uuid, solutions)
         self.assertIn(solution2.object_uuid, solutions)
         self.assertIn(solution3.object_uuid, solutions)
+
+    def test_get_mission(self):
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.owner.connect(self.pleb)
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        mission.associated_with.connect(self.question)
+        res = Question.get_mission(self.question.object_uuid)
+        self.assertEqual(res['id'], mission.object_uuid)
+        mission.delete()
+        quest.delete()

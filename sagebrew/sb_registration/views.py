@@ -52,7 +52,7 @@ def signup_view(request):
             return redirect('404_Error')
         if not user_profile.email_verified:
             return redirect('confirm_view')
-        return redirect('newsfeed')
+        return redirect('mission_list')
     return render(request, 'index.html')
 
 
@@ -63,7 +63,7 @@ def quest_signup(request):
 def login_view(request):
     try:
         if request.user.is_authenticated() is True:
-            return redirect('newsfeed')
+            return redirect('mission_list')
     except AttributeError:
         pass
     return render(request, 'login.html')
@@ -95,7 +95,7 @@ def login_view_api(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                rev = reverse('newsfeed')
+                rev = reverse('mission_list')
                 return Response({'detail': 'success',
                                  'user': user.email,
                                  'url': rev}, status=200)
@@ -145,7 +145,7 @@ def email_verification(request, confirmation):
                     serializer.is_valid(raise_exception=True)
                     serializer.save()
                 return redirect(profile.mission_signup)
-            return redirect('newsfeed')
+            return redirect('mission_list')
         else:
             return redirect('401_Error')
     except(CypherException, IOError):    # pragma: no cover

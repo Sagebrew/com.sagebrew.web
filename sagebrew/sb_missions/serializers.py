@@ -66,6 +66,7 @@ class MissionSerializer(SBSerializer):
     focused_on = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
+    has_donated = serializers.SerializerMethodField()
     has_endorsed_quest = serializers.SerializerMethodField()
     has_endorsed_profile = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
@@ -487,6 +488,20 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_has_donated(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_donors(
+            obj.object_uuid)
+
+    def get_has_gifted(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_gifters(
+            obj.owner_username)
 
     def get_has_endorsed_profile(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

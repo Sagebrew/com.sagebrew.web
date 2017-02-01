@@ -11,21 +11,11 @@
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-                <a href="{% url 'root_profile_page' %}" class="navbar-brand">
+                <a href="{% url "mission_list" %}" class="navbar-brand">
                     <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/><span class="hidden-sm">Sagebrew</span>
                 </a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                {% if "registration" not in request.path %}
-                    <ul class="nav navbar-nav">
-                        <li>
-                          <a href="{% url "question_page" %}">Conversation Cloud</a>
-                        </li>
-                        <li>
-                          <a href="{% url "mission_list" %}">Missions</a>
-                        </li>
-                    </ul>
-                {% endif %}
                 <div class="navbar-right margin-right-0">
                     {% if user.is_authenticated and "/registration/" not in request.path %}
                         {% include "navigation/auth-user-menu.html" %}
@@ -57,7 +47,6 @@
                     <ul class="nav navbar-nav">
                         <li {% if "/newsfeed/" in request.path %}class="active"{% endif %}><a href="{% url 'newsfeed' %}">Newsfeed</a></li>
                         <li {% if "/user/" in request.path and "/settings/" not in request.path and "/newsfeed/" not in request.path %}class="active"{% endif %}><a href="{% url 'profile_page' request.user.username %}">Profile</a></li>
-                        <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
                         <li {% if "/missions/" in request.path and "/manage/" not in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                         <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
@@ -75,7 +64,6 @@
                     <ul class="nav navbar-nav">
                         <li {% if "/" == request.path %}class="active"{% endif %}><a href="/">Sign Up</a></li>
                         <li {% if "/login/" in request.path %}class="active"{% endif %}><a href="{% url 'login'%}">Login</a></li>
-                        <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
                         <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/political/" in request.path %}class="active"{% endif %}><a href="{% url 'political' %}">Political Campaigns</a></li>
                         <li {% if "/advocacy/" in request.path %}class="active"{% endif %}><a href="{% url 'advocacy' %}">Advocacy</a></li>

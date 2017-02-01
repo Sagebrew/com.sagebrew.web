@@ -174,7 +174,7 @@ function stripeBankHandler(status, response){
         request.patch({url: "/v1/quests/" + questID + "/",
             data: JSON.stringify(data)
         }).done(function (){
-            //window.location.reload();
+            window.location.reload();
         }).fail(function () {
             greyPage.classList.add('sb_hidden');
         });

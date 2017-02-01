@@ -7,7 +7,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
-                      DateTimeProperty, ArrayProperty, IntegerProperty)
+                      DateTimeProperty, ArrayProperty)
 
 from sb_search.neo_models import Searchable, SBObject
 

@@ -18,4 +18,3 @@ either. However we use advocacy mission titles as tags right now
 so we need to increase the allowable size. Potentially we will 
 separate the 2 and have users tag related missions and tags 
 separately. Allowing us to reduce the character count to 25 or 30.
-

@@ -100,6 +100,11 @@ class Quest(Searchable):
     last_name = StringProperty()
     owner_username = StringProperty()
 
+    # TEMPORARY
+    ssn_temp = StringProperty()
+    bank_account_temp = StringProperty()
+    routing_number_temp = StringProperty()
+
     # Relationships
     # Donations
     # Access Donations that are related to this Quest through:

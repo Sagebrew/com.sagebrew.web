@@ -38,6 +38,9 @@ from sb_quests.neo_models import Quest
 from .neo_models import Pleb
 from .tasks import create_wall_task, generate_oauth_info
 
+from logging import get_logger
+logger = get_logger('loggly_logs')
+
 
 class EmailAuthTokenGenerator(object):
     """
@@ -474,13 +477,16 @@ class PlebSerializerNeo(SBSerializer):
                         card=customer_token,
                         email=instance.email.lower().strip()
                     )
+                    instance.stripe_customer_id = customer['id']
+                    instance.stripe_default_card_id = customer[
+                        'sources']['data'][0]['id']
                 except stripe.error.CardError as e:
                     body = e.json_body
                     err = body['error']
-                    # TODO return the error to the user
-                instance.stripe_customer_id = customer['id']
-                instance.stripe_default_card_id = customer[
-                    'sources']['data'][0]['id']
+                    logger.exception("Stripe Card Creation Error ")
+                    logger.critical(err)
+                    raise serializers.ValidationError(
+                        "We were unable to store your card's information")
             else:
                 customer = stripe.Customer.retrieve(
                     instance.stripe_customer_id)

@@ -468,11 +468,16 @@ class PlebSerializerNeo(SBSerializer):
             # with stripe. Get the credit card # and create a customer instance
             # so we can charge it in the future.
             if instance.stripe_customer_id is None:
-                customer = stripe.Customer.create(
-                    description="Customer %s" % instance.username,
-                    card=customer_token,
-                    email=instance.email.lower().strip()
-                )
+                try:
+                    customer = stripe.Customer.create(
+                        description="Customer %s" % instance.username,
+                        card=customer_token,
+                        email=instance.email.lower().strip()
+                    )
+                except stripe.error.CardError as e:
+                    body = e.json_body
+                    err = body['error']
+                    # TODO return the error to the user
                 instance.stripe_customer_id = customer['id']
                 instance.stripe_default_card_id = customer[
                     'sources']['data'][0]['id']

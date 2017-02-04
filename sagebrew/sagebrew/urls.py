@@ -10,7 +10,7 @@ from django.contrib.sitemaps.views import sitemap
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup, advocacy, political_campaign)
 from plebs.sitemap import ProfileSitemap
-from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
+from sb_questions.sitemap import QuestionSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
 from sb_quests.sitemap import QuestSitemap
 from sb_missions.sitemap import (MissionSitemap,
@@ -80,7 +80,6 @@ urlpatterns = patterns(
         {'sitemaps': {
             'questions': QuestionSitemap,
             'profiles': ProfileSitemap,
-            'conversation_cloud': ConversationSitemap,
             'quests': QuestSitemap,
             'missions': MissionSitemap,
             'mission_list': MissionListSitemap,

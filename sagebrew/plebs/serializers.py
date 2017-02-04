@@ -1,6 +1,7 @@
 import stripe
 from datetime import date
 from unidecode import unidecode
+from logging import getLogger
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -38,8 +39,7 @@ from sb_quests.neo_models import Quest
 from .neo_models import Pleb
 from .tasks import create_wall_task, generate_oauth_info
 
-from logging import get_logger
-logger = get_logger('loggly_logs')
+logger = getLogger('loggly_logs')
 
 
 class EmailAuthTokenGenerator(object):

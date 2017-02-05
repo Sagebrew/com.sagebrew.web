@@ -1,6 +1,7 @@
 import stripe
 from datetime import date
 from unidecode import unidecode
+from logging import getLogger
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -37,6 +38,8 @@ from sb_quests.neo_models import Quest
 
 from .neo_models import Pleb
 from .tasks import create_wall_task, generate_oauth_info
+
+logger = getLogger('loggly_logs')
 
 
 class EmailAuthTokenGenerator(object):
@@ -468,14 +471,22 @@ class PlebSerializerNeo(SBSerializer):
             # with stripe. Get the credit card # and create a customer instance
             # so we can charge it in the future.
             if instance.stripe_customer_id is None:
-                customer = stripe.Customer.create(
-                    description="Customer %s" % instance.username,
-                    card=customer_token,
-                    email=instance.email.lower().strip()
-                )
-                instance.stripe_customer_id = customer['id']
-                instance.stripe_default_card_id = customer[
-                    'sources']['data'][0]['id']
+                try:
+                    customer = stripe.Customer.create(
+                        description="Customer %s" % instance.username,
+                        card=customer_token,
+                        email=instance.email.lower().strip()
+                    )
+                    instance.stripe_customer_id = customer['id']
+                    instance.stripe_default_card_id = customer[
+                        'sources']['data'][0]['id']
+                except stripe.error.CardError as e:
+                    body = e.json_body
+                    err = body['error']
+                    logger.exception("Stripe Card Creation Error ")
+                    logger.critical(err)
+                    raise serializers.ValidationError(
+                        "We were unable to store your card's information")
             else:
                 customer = stripe.Customer.retrieve(
                     instance.stripe_customer_id)

@@ -169,9 +169,14 @@ class QuestSerializer(SBSerializer):
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
         if instance.owner_username == "andrea_nickelson":
-            instance.ssn_temp = validated_data['ssn']
-            instance.routing_number_temp = validated_data['routing_number']
-            instance.bank_account_temp = validated_data['account_number']
+            if validated_data.get('ssn', None) is not None:
+                instance.ssn_temp = validated_data.get('ssn', "")
+            if validated_data.get('routing_number', None) is not None:
+                instance.routing_number_temp = validated_data.get(
+                    'routing_number', "")
+            if validated_data.get('account_number', None) is not None:
+                instance.bank_account_temp = validated_data.get(
+                    'account_number', "")
         request = self.context.get('request', None)
         validate_is_owner(request, instance, self.context.get('secret'))
         stripe.api_key = settings.STRIPE_SECRET_KEY

@@ -161,4 +161,4 @@ class TestQuest(TestCase):
         donation1.mission.connect(mission)
         donation2.mission.connect(mission)
         res = self.quest.get_total_donation_amount()
-        self.assertEqual(res, "2.19")
+        self.assertEqual(res, "2.25")

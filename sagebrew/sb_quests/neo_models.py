@@ -79,10 +79,10 @@ class Quest(Searchable):
     # image.
     wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     profile_pic = StringProperty()
-    # Application fee's total up to 7% + 30 cents for a Free Subscription and
-    # 5% + 30 cents for a paid $100 subscription. .029 and the 30 comes from
-    # stripe. 0.041 and 0.021 respectively come from us.
-    application_fee = FloatProperty(default=0.041)
+    # Application fee's total up to 5% + 30 cents for both Quest accounts
+    # .029 and the 30 comes from
+    # stripe. 0.021 and 0.021 respectively come from us.
+    application_fee = FloatProperty(default=0.021)
     last_four_soc = StringProperty()
 
     # Optimizations

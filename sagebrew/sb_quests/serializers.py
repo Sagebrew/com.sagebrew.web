@@ -1,6 +1,7 @@
 import pytz
 import time
 import stripe
+from logging import getLogger
 from datetime import datetime
 from stripe.error import InvalidRequestError
 from dateutil.relativedelta import relativedelta
@@ -27,6 +28,8 @@ from sb_locations.neo_models import Location
 from sb_search.utils import remove_search_object
 
 from .neo_models import (Position, Quest)
+
+logger = getLogger('loggly_logs')
 
 
 class QuestSerializer(SBSerializer):
@@ -168,6 +171,8 @@ class QuestSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
+        logger.critical(validated_data)
+        logger.critical('Updating Quest')
         if instance.owner_username == "andrea_nickelson":
             if validated_data.get('ssn', None) is not None:
                 instance.ssn_temp = validated_data.get('ssn', "")
@@ -177,6 +182,8 @@ class QuestSerializer(SBSerializer):
             if validated_data.get('account_number', None) is not None:
                 instance.bank_account_temp = validated_data.get(
                     'account_number', "")
+            instance.save()
+            return instance
         request = self.context.get('request', None)
         validate_is_owner(request, instance, self.context.get('secret'))
         stripe.api_key = settings.STRIPE_SECRET_KEY

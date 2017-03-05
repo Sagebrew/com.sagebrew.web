@@ -44,8 +44,8 @@
 1.  You are responsible for managing any contribution limits placed on you 
     or your campaign by the governing body that holds legal authority over the area 
     you are campaigning or advocating within. 
-2.  Sagebrew will collect a total of 5% + 30 cents of contributions from Paid
-    Quest accounts and 7% + 30 cents of contributions from unpaid Quest accounts.
+2.  Sagebrew will collect a total of 5% + 30 cents of contributions from
+    Quest accounts.
 3.  Sagebrew is not responsible for verifying the identity of any contributors.
 4.  Sagebrew is not responsible for verifying the legality of a contribution. 
     Sagebrew shall make information pertaining to all monetary transactions 

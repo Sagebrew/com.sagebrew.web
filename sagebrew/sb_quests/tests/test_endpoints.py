@@ -851,7 +851,7 @@ class QuestEndpointTests(APITestCase):
         quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
         self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(quest.account_type, "free")
-        self.assertEqual(quest.application_fee, 0.041)
+        self.assertEqual(quest.application_fee, 0.021)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
@@ -876,7 +876,7 @@ class QuestEndpointTests(APITestCase):
         customer.delete()
         self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(quest.account_type, "free")
-        self.assertEqual(quest.application_fee, 0.041)
+        self.assertEqual(quest.application_fee, 0.021)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_paid(self):
@@ -938,7 +938,7 @@ class QuestEndpointTests(APITestCase):
         quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
         self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(quest.account_type, "free")
-        self.assertEqual(quest.application_fee, 0.041)
+        self.assertEqual(quest.application_fee, 0.021)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
@@ -966,7 +966,7 @@ class QuestEndpointTests(APITestCase):
         self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(quest.account_type, "free")
-        self.assertEqual(quest.application_fee, 0.041)
+        self.assertEqual(quest.application_fee, 0.021)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 

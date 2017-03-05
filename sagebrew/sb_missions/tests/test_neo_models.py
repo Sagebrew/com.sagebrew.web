@@ -127,7 +127,7 @@ class TestMission(TestCase):
         donation1.mission.connect(self.mission)
         donation2.mission.connect(self.mission)
         res = self.mission.get_total_donation_amount()
-        self.assertEqual(res, "2.19")
+        self.assertEqual(res, "2.25")
 
     def test_endorse_pleb(self):
         res = Mission.endorse(self.mission.object_uuid,

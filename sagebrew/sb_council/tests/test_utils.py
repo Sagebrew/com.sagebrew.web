@@ -7,7 +7,8 @@ from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_flags.neo_models import Flag
 from sagebrew.sb_questions.neo_models import Question
 
-from sagebrew.sb_council.utils import update_closed, check_closed_reputation_changes
+from sagebrew.sb_council.utils import (
+    update_closed, check_closed_reputation_changes)
 
 
 class TestUpdateClosed(TestCase):

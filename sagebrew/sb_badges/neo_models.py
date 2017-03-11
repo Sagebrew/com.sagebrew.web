@@ -9,8 +9,8 @@ class Badge(SBObject):
     image_grey = StringProperty()
 
     # relationships
-    requirements = RelationshipTo('sagebrew.sb_requirements.neo_models.Requirement',
-                                  "REQUIRES")
+    requirements = RelationshipTo(
+        'sagebrew.sb_requirements.neo_models.Requirement', "REQUIRES")
 
 
 class BadgeGroup(SBObject):

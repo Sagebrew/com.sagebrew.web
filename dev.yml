@@ -30,7 +30,7 @@ services:
       dockerfile: ./compose/django/Dockerfile-dev
     env_file:
       - .env
-    command: /start-dev.sh
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", "/start-dev.sh"]
     domainname: sagebrew.local
     hostname: sagebrew.local
     depends_on:
@@ -101,7 +101,8 @@ services:
       - postgres
       - redis
       - neo4j_db
-    command: [celery, -A, sagebrew.tasks, worker, --workdir=/app, --concurrency=4,  -l, INFO]
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", celery, -A,
+              sagebrew.tasks, worker, --workdir=/app, --concurrency=4,  -l, INFO]
     volumes:
       - .:/app
 
@@ -124,6 +125,7 @@ services:
       - postgres
       - redis
       - neo4j_db
-    command: [celery, -A, sagebrew.tasks, beat, --workdir=/app, -l, INFO]
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", celery, -A,
+              sagebrew.tasks, beat, --workdir=/app, -l, INFO]
     volumes:
       - .:/app

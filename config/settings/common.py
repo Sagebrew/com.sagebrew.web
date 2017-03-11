@@ -166,12 +166,14 @@ STATIC_ROOT = str(ROOT_DIR('staticfiles'))
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
 
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+# See: https://docs.djangoproject.com/en/dev/ref/
+# contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
     str(APPS_DIR.path('static')),
     str(ROOT_DIR.path('frontend/build')),
 )
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
+# See: https://docs.djangoproject.com/en/dev/ref/
+# contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -224,22 +226,26 @@ HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % APPS_DIR
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#templates
 TEMPLATES = [
     {
-        # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
+        # See: https://docs.djangoproject.com/en/dev/ref/
+        # settings/#std:setting-TEMPLATES-BACKEND
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
         'DIRS': [
             str(APPS_DIR.path('templates'))
         ],
         'OPTIONS': {
-            # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
+            # See: https://docs.djangoproject.com/en/dev/ref/
+            # settings/#template-debug
             'debug': DEBUG,
-            # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
+            # See: https://docs.djangoproject.com/en/dev/ref/
+            # settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],
-            # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
+            # See: https://docs.djangoproject.com/en/dev/ref/
+            # settings/#template-context-processors
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -259,7 +265,8 @@ TEMPLATES = [
 # CELERY
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += ('sagebrew.tasks.celery.CeleryConfig',)
-BROKER_URL = '{0}/{1}'.format(env('REDIS_URL', default='redis://127.0.0.1:6379'), 1)
+BROKER_URL = '{0}/{1}'.format(env(
+    'REDIS_URL', default='redis://127.0.0.1:6379'), 1)
 CELERY_RESULT_BACKEND = '{0}/{1}'.format(
     env('REDIS_URL', default='redis://127.0.0.1:6379'), 1)
 CELERY_TASK_SERIALIZER = 'json'
@@ -490,8 +497,6 @@ LOGGING = {
         },
     }
 }
-
-
 
 CSV_FILES = '%s/csv_content/' % APPS_DIR
 YAML_FILES = '%s/yaml_content/' % APPS_DIR

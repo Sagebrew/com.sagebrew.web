@@ -10,9 +10,9 @@ from neomodel import db
 
 from sagebrew.sb_registration.utils import create_user_util_test
 
-from sagebrew.sb_base.serializers import (IntercomMessageSerializer,
-                                 IntercomEventSerializer,
-                                 VotableContentSerializer)
+from sagebrew.sb_base.serializers import (
+    IntercomMessageSerializer, IntercomEventSerializer,
+    VotableContentSerializer)
 from sagebrew.sb_questions.neo_models import Question
 from sagebrew.sb_comments.neo_models import Comment
 from sagebrew.sb_quests.neo_models import Quest

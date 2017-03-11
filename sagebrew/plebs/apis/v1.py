@@ -2,12 +2,12 @@ from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from sagebrew.plebs.endpoints import (UserViewSet, ProfileViewSet,
-                             SentFriendRequestViewSet, MeViewSet,
-                             FriendManager, FriendRequestList,
-                             PasswordReset, ResendEmailVerification)
-from sagebrew.sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy,
-                                WallPostsListCreate)
+from sagebrew.plebs.endpoints import (
+    UserViewSet, ProfileViewSet, SentFriendRequestViewSet, MeViewSet,
+    FriendManager, FriendRequestList,
+    PasswordReset, ResendEmailVerification)
+from sagebrew.sb_posts.endpoints import (
+    WallPostsRetrieveUpdateDestroy, WallPostsListCreate)
 
 router = routers.SimpleRouter()
 me_router = routers.SimpleRouter()

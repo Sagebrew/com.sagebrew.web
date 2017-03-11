@@ -16,8 +16,9 @@ from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from sagebrew.api.serializers import SBSerializer
-from sagebrew.api.utils import (gather_request_data, spawn_task, clean_url,
-                       empty_text_to_none, smart_truncate)
+from sagebrew.api.utils import (
+    gather_request_data, spawn_task, clean_url,
+    empty_text_to_none, smart_truncate)
 from sagebrew.sb_address.serializers import AddressSerializer
 from sagebrew.sb_address.neo_models import Address
 from sagebrew.sb_base.serializers import IntercomEventSerializer

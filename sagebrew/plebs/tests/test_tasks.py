@@ -15,9 +15,8 @@ from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_docstore.utils import connect_to_dynamo, get_table_name
 from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_questions.neo_models import Question
-from sagebrew.plebs.tasks import (create_wall_task,
-                         finalize_citizen_creation,
-                         update_reputation)
+from sagebrew.plebs.tasks import (
+    create_wall_task, finalize_citizen_creation, update_reputation)
 from sagebrew.sb_wall.neo_models import Wall
 
 

@@ -13,8 +13,9 @@ class UploadedObject(SBContent):
     image_hash = StringProperty()
 
     # relationships
-    modifications = RelationshipTo('sagebrew.sb_uploads.neo_models.ModifiedObject',
-                                   "MODIFICATION")
+    modifications = RelationshipTo(
+        'sagebrew.sb_uploads.neo_models.ModifiedObject',
+        "MODIFICATION")
 
     @property
     def file_object(self):
@@ -24,8 +25,9 @@ class UploadedObject(SBContent):
 
 class ModifiedObject(UploadedObject):
     # relationships
-    modification_to = RelationshipTo('sagebrew.sb_uploads.neo_models.UploadedObject',
-                                     'MODIFICATION_TO')
+    modification_to = RelationshipTo(
+        'sagebrew.sb_uploads.neo_models.UploadedObject',
+        'MODIFICATION_TO')
 
 
 class URLContent(SBContent):

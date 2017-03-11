@@ -12,9 +12,10 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from sagebrew.api.utils import (spawn_task, gather_request_data, smart_truncate,
-                       render_content)
-from sagebrew.sb_base.serializers import TitledContentSerializer, validate_is_owner
+from sagebrew.api.utils import (
+    spawn_task, gather_request_data, smart_truncate, render_content)
+from sagebrew.sb_base.serializers import (
+    TitledContentSerializer, validate_is_owner)
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_locations.tasks import create_location_tree
 

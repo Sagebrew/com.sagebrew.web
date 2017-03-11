@@ -5,7 +5,8 @@ from sagebrew.govtrack.utils import populate_gt_roles_util
 
 class Command(BaseCommand):
     args = 'None.'
-    help = 'Create all GT nodes associated with an api url from sagebrew.govtrack'
+    help = 'Create all GT nodes associated with an api url from ' \
+           'sagebrew.govtrack'
 
     def populate_gt_reps(self, mi_only=False):
         if mi_only:

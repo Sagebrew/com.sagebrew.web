@@ -18,7 +18,8 @@ class Comment(TaggableContent):
     action_name = StringProperty(default="commented on your ")
     parent_type = StringProperty()
     parent_id = StringProperty()
-    comment_on = RelationshipTo('sagebrew.sb_base.neo_models.SBContent', 'COMMENT_ON')
+    comment_on = RelationshipTo(
+        'sagebrew.sb_base.neo_models.SBContent', 'COMMENT_ON')
 
     @classmethod
     def get_comment_on(cls, object_uuid):

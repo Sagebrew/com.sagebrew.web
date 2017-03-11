@@ -11,8 +11,8 @@ from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_questions.neo_models import Question
 
 from sagebrew.sb_votes.neo_models import Vote
-from sagebrew.sb_votes.tasks import (vote_object_task, object_vote_notifications,
-                            create_vote_node)
+from sagebrew.sb_votes.tasks import (
+    vote_object_task, object_vote_notifications, create_vote_node)
 
 
 class TestVoteObjectTask(TestCase):

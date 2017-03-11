@@ -8,8 +8,8 @@ from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_flags.neo_models import Flag
 from sagebrew.sb_questions.neo_models import Question
 
-from sagebrew.sb_council.tasks import (update_closed_task,
-                              check_closed_reputation_changes_task)
+from sagebrew.sb_council.tasks import (
+    update_closed_task, check_closed_reputation_changes_task)
 
 
 class TestUpdateClosedTask(TestCase):

@@ -6,8 +6,9 @@ from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_posts.neo_models import Post
 from sagebrew.sb_questions.neo_models import Question
 from sagebrew.sb_uploads.neo_models import UploadedObject
-from sagebrew.sb_base.neo_models import (get_parent_votable_content, VotableContent,
-                                get_parent_titled_content, TitledContent)
+from sagebrew.sb_base.neo_models import (
+    get_parent_votable_content, VotableContent,
+    get_parent_titled_content, TitledContent)
 
 
 class TestVotableContentNeoModel(TestCase):

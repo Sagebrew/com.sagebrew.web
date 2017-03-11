@@ -8,8 +8,8 @@ from django.test.client import RequestFactory
 
 from elasticsearch import Elasticsearch
 
-from sagebrew.sb_search.tasks import (update_search_query, create_keyword,
-                             update_search_object)
+from sagebrew.sb_search.tasks import (
+    update_search_query, create_keyword, update_search_object)
 from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.plebs.serializers import PlebSerializerNeo
 from sagebrew.sb_quests.serializers import QuestSerializer

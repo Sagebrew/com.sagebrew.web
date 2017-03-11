@@ -57,7 +57,6 @@ INSTALLED_APPS += (
 )
 
 DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
 S3_URL = 'https://dr2ldscuzcleg.cloudfront.net/'
 AWS_S3_CUSTOM_DOMAIN = "dr2ldscuzcleg.cloudfront.net"
@@ -91,17 +90,17 @@ ELASTIC_SEARCH_HOST = [
 
 #  See:http://stackoverflow.com/questions/10390244/
 #
-#from storages.backends.s3boto import S3BotoStorage
-#StaticRootS3BotoStorage = lambda: S3BotoStorage(location='static')
-#MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
-#DEFAULT_FILE_STORAGE = 'config.settings.production.MediaRootS3BotoStorage'
-#MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+# from storages.backends.s3boto import S3BotoStorage
+# StaticRootS3BotoStorage = lambda: S3BotoStorage(location='static')
+# MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
+# DEFAULT_FILE_STORAGE = 'config.settings.production.MediaRootS3BotoStorage'
+# MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
 
 # Static Assets
 # ------------------------
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-#STATIC_HOST = 'https://d4663kmspf1sqa.cloudfront.net' if not DEBUG else ''
-#STATIC_URL = STATIC_HOST + '/static/'
+# STATIC_HOST = 'https://d4663kmspf1sqa.cloudfront.net' if not DEBUG else ''
+# STATIC_URL = STATIC_HOST + '/static/'
 
 # EMAIL
 # ------------------------------------------------------------------------------

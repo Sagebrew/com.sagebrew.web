@@ -122,9 +122,11 @@ class Mission(Searchable):
     # solve a question. A mission should only ever have one of the following.
     # Since we create our own queries this shouldn't be an issue and is why
     # we use "FOCUSED_ON" for each of the items.
-    position = RelationshipTo('sagebrew.sb_quests.neo_models.Position', 'FOCUSED_ON')
+    position = RelationshipTo(
+        'sagebrew.sb_quests.neo_models.Position', 'FOCUSED_ON')
     tag = RelationshipTo('sagebrew.sb_tags.neo_models.Tag', 'FOCUSED_ON')
-    question = RelationshipTo('sagebrew.sb_questions.neo_models.Question', 'FOCUSED_ON')
+    question = RelationshipTo(
+        'sagebrew.sb_questions.neo_models.Question', 'FOCUSED_ON')
 
     # Helper function that can be associated with on the serializer and gets
     # a focused on object.

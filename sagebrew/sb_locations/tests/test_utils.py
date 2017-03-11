@@ -16,9 +16,9 @@ from sagebrew.sb_registration.utils import create_user_util_test
 
 from sagebrew.sb_questions.neo_models import Question
 
-from sagebrew.sb_locations.utils import (parse_google_places, google_maps_query,
-                                connect_related_element,
-                                break_out_structure)
+from sagebrew.sb_locations.utils import (
+    parse_google_places, google_maps_query, connect_related_element,
+    break_out_structure)
 from sagebrew.sb_locations.neo_models import Location
 
 springfield_data = [

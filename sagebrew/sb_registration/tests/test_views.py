@@ -15,11 +15,9 @@ from rest_framework import status
 
 from neomodel import db
 
-from sagebrew.sb_registration.views import (logout_view,
-                                   login_view, login_view_api,
-                                   email_verification,
-                                   advocacy, political_campaign,
-                                   quest_signup, signup_view)
+from sagebrew.sb_registration.views import (
+    logout_view, login_view, login_view_api, email_verification,
+    advocacy, political_campaign, quest_signup, signup_view)
 from sagebrew.plebs.serializers import EmailAuthTokenGenerator
 from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_missions.neo_models import Mission

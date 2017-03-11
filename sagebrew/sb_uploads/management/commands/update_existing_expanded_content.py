@@ -41,7 +41,7 @@ class Command(BaseCommand):
                             temp_file, True)
                         url_object.selected_image = image
                         url_object.save()
-                except (requests.RequestException):
+                except requests.RequestException:
                     continue
 
     def handle(self, *args, **options):

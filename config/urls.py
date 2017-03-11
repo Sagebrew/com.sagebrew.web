@@ -133,14 +133,14 @@ if settings.DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^robots\.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
-        url(r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
-            template_name='external_tests/loaderio.txt',
-            content_type='text/plain')),
+        url(r'^loaderio-98182a198e035e1a9649f683fb42d23e/$',
+            TemplateView.as_view(template_name='external_tests/loaderio.txt',
+                                 content_type='text/plain')),
         url(r'^14c08cb7770b778cba5856e49dbf24d3d8a2048e.html$',
-         TemplateView.as_view(
-             template_name='external_tests/'
-                           '14c08cb7770b778cba5856e49dbf24d3d8a2048e.html',
-             content_type='text/plain')),
+            TemplateView.as_view(
+                template_name='external_tests/'
+                              '14c08cb7770b778cba5856e49dbf24d3d8a2048e.html',
+                content_type='text/plain')),
         url(r'^secret/', include(admin.site.urls)),
     ]
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:

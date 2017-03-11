@@ -9,8 +9,8 @@ from sagebrew.sb_comments.neo_models import Comment
 from sagebrew.sb_posts.neo_models import Post
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_registration.utils import create_user_util_test
-from sagebrew.sb_notifications.utils import (create_notification_util,
-                                    create_system_notification)
+from sagebrew.sb_notifications.utils import (
+    create_notification_util, create_system_notification)
 from sagebrew.sb_notifications.neo_models import Notification
 
 

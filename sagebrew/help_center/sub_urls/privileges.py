@@ -131,6 +131,7 @@ urlpatterns = [
     },
         name="tribune"),
     url(r'^participate_in_the_conversation/$', RedirectView.as_view(
-        url='/help/privileges/participate-in-the-conversation/', permanent=True),
+        url='/help/privileges/participate-in-the-conversation/',
+        permanent=True),
         name='participate_in_the_conversation_redirect'),
 ]

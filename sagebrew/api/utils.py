@@ -57,7 +57,8 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     :return:
     """
     # TODO need to remove this as we shouldn't be needing to call a pleb object
-    # into sagebrew.api.utils. It has the potential to cause a circular dependency
+    # into sagebrew.api.utils. It has the potential to cause a
+    # circular dependency
     if headers is None:
         headers = {"content-type": "application/json"}
     if internal is True and username is not None and username != '':

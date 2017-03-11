@@ -7,8 +7,8 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from sagebrew.api.utils import (gather_request_data, spawn_task, smart_truncate,
-                       render_content)
+from sagebrew.api.utils import (
+    gather_request_data, spawn_task, smart_truncate, render_content)
 from sagebrew.sb_base.serializers import ContentSerializer, validate_is_owner
 from sagebrew.plebs.neo_models import Pleb
 from .tasks import create_solution_summary_task

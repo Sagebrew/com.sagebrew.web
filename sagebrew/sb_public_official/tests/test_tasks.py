@@ -22,7 +22,9 @@ class TestCreateStateDistricts(TestCase):
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.headers = {"content-type": 'application/json; charset=utf8'}
-        with open("sagebrew.sb_public_official/tests/michigan_reps.json") as json_file:
+        with open(
+            "sagebrew.sb_public_official/tests/"
+                "michigan_reps.json") as json_file:
             self.json_data = json.load(json_file)
         self.mi = Location(name=us.states.lookup("MI").name,
                            sector="federal").save()

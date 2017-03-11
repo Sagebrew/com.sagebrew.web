@@ -10,8 +10,8 @@ from sagebrew.sb_questions.neo_models import Question
 from sagebrew.sb_registration.utils import create_user_util_test
 from sagebrew.sb_docstore.utils import add_object_to_table
 
-from sagebrew.sb_votes.utils import (determine_update_values, determine_vote_type,
-                            handle_vote)
+from sagebrew.sb_votes.utils import (
+    determine_update_values, determine_vote_type, handle_vote)
 
 
 class TestDetermineUpdateValues(TestCase):

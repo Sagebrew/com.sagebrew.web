@@ -30,7 +30,7 @@ class Command(BaseCommand):
                         '(q)-[]-(:Pleb) AND NOT (q)-[]-(:PublicOfficial) ' \
                         'AND NOT (q)-[]-(:Mission) WITH q ' \
                         'OPTIONAL MATCH (q)-[r]-() ' \
-                        'DELETE q, r' % (quest.object_uuid)
+                        'DELETE q, r' % quest.object_uuid
                 res, _ = db.cypher_query(query)
         cache.set(self.cache_key, True)
 

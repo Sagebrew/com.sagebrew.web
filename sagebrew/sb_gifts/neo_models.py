@@ -14,7 +14,8 @@ class Giftlist(SBObject):
     public = BooleanProperty(default=False)
 
     # Which Mission has this list of gifts they want from their supporters
-    mission = RelationshipTo("sagebrew.sb_missions.neo_models.Mission", "LIST_FOR")
+    mission = RelationshipTo(
+        "sagebrew.sb_missions.neo_models.Mission", "LIST_FOR")
 
     def get_product(self, vendor_id, vendor_name):
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
@@ -76,9 +77,11 @@ class Product(SBObject):
 
     # relationships
     # Which list this product is in
-    giftlist = RelationshipTo("sagebrew.sb_gifts.neo_models.Giftlist", "IN_LIST")
+    giftlist = RelationshipTo(
+        "sagebrew.sb_gifts.neo_models.Giftlist", "IN_LIST")
     # Which orders this product is included in
-    orders = RelationshipTo("sagebrew.sb_orders.neo_models.Order", "INCLUDED_IN")
+    orders = RelationshipTo(
+        "sagebrew.sb_orders.neo_models.Order", "INCLUDED_IN")
 
     def get_giftlist(self):
         query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \

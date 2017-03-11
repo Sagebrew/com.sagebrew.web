@@ -168,10 +168,12 @@ class Pleb(Searchable):
     mission_signup = StringProperty(default=None)
 
     # Relationships
-    privileges = RelationshipTo('sagebrew.sb_privileges.neo_models.Privilege', 'HAS',
-                                model=ActionActiveRel)
-    actions = RelationshipTo('sagebrew.sb_privileges.neo_models.SBAction', 'CAN',
-                             model=ActionActiveRel)
+    privileges = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Privilege', 'HAS',
+        model=ActionActiveRel)
+    actions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.SBAction', 'CAN',
+        model=ActionActiveRel)
     restrictions = RelationshipTo(
         'sagebrew.sb_privileges.neo_models.Restriction',
         'RESTRICTED_BY', model=RestrictionRel)

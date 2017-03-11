@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 
 from rest_framework.reverse import reverse
 
-from sagebrew.sb_notifications.tasks import (spawn_notifications,
-                                    spawn_system_notification)
+from sagebrew.sb_notifications.tasks import (
+    spawn_notifications, spawn_system_notification)
 from sagebrew.sb_notifications.neo_models import Notification
 from sagebrew.sb_posts.neo_models import Post
 from sagebrew.sb_comments.neo_models import Comment

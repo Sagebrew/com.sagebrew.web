@@ -13,8 +13,8 @@ from rest_framework import status
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_registration.utils import create_user_util_test
 
-from sagebrew.sb_questions.views import (solution_edit_page, QuestionManagerView,
-                                question_redirect_page)
+from sagebrew.sb_questions.views import (
+    solution_edit_page, QuestionManagerView, question_redirect_page)
 from sagebrew.sb_questions.neo_models import Question
 from sagebrew.sb_solutions.neo_models import Solution
 

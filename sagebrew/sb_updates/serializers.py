@@ -10,7 +10,8 @@ from rest_framework.reverse import reverse
 
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.api.utils import gather_request_data, spawn_task, render_content
-from sagebrew.sb_base.serializers import TitledContentSerializer, validate_is_owner
+from sagebrew.sb_base.serializers import (TitledContentSerializer,
+                                          validate_is_owner)
 from sagebrew.sb_notifications.tasks import spawn_notifications
 
 from .neo_models import Update

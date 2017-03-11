@@ -125,6 +125,7 @@ urlpatterns = [
         url='/help/conversation/one-question-per-week/', permanent=True),
         name='one_question_per_week_redirect'),
     url(r'^starting_a_public_conversation/$', RedirectView.as_view(
-        url='/help/conversation/starting-a-public-conversation/', permanent=True),
+        url='/help/conversation/starting-a-public-conversation/',
+        permanent=True),
         name='starting_a_public_conversation_redirect'),
 ]

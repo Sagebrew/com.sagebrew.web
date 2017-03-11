@@ -111,7 +111,8 @@ class Quest(Searchable):
     # Neomodel: quest Cypher: CONTRIBUTED_TO
     # RelationshipTo('sagebrew.sb_donations.neo_models.Donation')
 
-    updates = RelationshipTo('sagebrew.sb_updates.neo_models.Update', 'CREATED_AN')
+    updates = RelationshipTo(
+        'sagebrew.sb_updates.neo_models.Update', 'CREATED_AN')
 
     # Pleb
     # Access the Pleb that owns this Quest through:
@@ -341,7 +342,8 @@ class Position(SBObject):
                                 'POSITIONS_AVAILABLE')
     currently_held_by = RelationshipTo('sagebrew.sb_public_official.neo_models.'
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
-    restrictions = RelationshipTo('sagebrew.sb_privileges.neo_models.Restriction',
+    restrictions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
     seats = RelationshipTo('sagebrew.sb_quests.neo_models.Seat', 'SEATS')
 
@@ -439,6 +441,8 @@ class Position(SBObject):
 
 class Seat(SBObject):
     # relationships
-    position = RelationshipTo("sagebrew.sb_quests.neo_models.Position", "POSITION")
-    current_holder = RelationshipTo("sagebrew.sb_quests.neo_models.PoliticalCampaign",
-                                    "CURRENTLY_HELD_BY")
+    position = RelationshipTo(
+        "sagebrew.sb_quests.neo_models.Position", "POSITION")
+    current_holder = RelationshipTo(
+        "sagebrew.sb_quests.neo_models.PoliticalCampaign",
+        "CURRENTLY_HELD_BY")

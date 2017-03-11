@@ -9,13 +9,13 @@ from rest_framework.test import APIRequestFactory
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_registration.utils import create_user_util_test
 
-from sagebrew.api.utils import (add_failure_to_queue,
-                       encrypt, decrypt, generate_short_token,
-                       generate_long_token, smart_truncate,
-                       gather_request_data, flatten_lists,
-                       calc_stripe_application_fee, clean_url,
-                       empty_text_to_none, generate_summary, render_content,
-                       cleanup_title, remove_smart_quotes)
+from sagebrew.api.utils import (
+    add_failure_to_queue, encrypt, decrypt, generate_short_token,
+    generate_long_token, smart_truncate,
+    gather_request_data, flatten_lists,
+    calc_stripe_application_fee, clean_url,
+    empty_text_to_none, generate_summary, render_content,
+    cleanup_title, remove_smart_quotes)
 from sagebrew.sb_questions.neo_models import Question
 
 

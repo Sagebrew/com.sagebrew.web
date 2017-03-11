@@ -14,7 +14,8 @@ class Post(SBPrivateContent):
     wall_owner_username = StringProperty()
 
     # relationships
-    posted_on_wall = RelationshipTo('sagebrew.sb_wall.neo_models.Wall', 'POSTED_ON')
+    posted_on_wall = RelationshipTo(
+        'sagebrew.sb_wall.neo_models.Wall', 'POSTED_ON')
 
     def get_url(self, request=None):
         return reverse('profile_page', kwargs={

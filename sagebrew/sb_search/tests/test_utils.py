@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIRequestFactory
 from elasticsearch import Elasticsearch
 
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_search.utils import (remove_search_object)
+from sagebrew.sb_search.utils import (remove_search_object)
 
 
 class TestRemoveSearchObject(TestCase):

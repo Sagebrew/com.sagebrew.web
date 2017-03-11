@@ -8,12 +8,12 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_notifications.neo_models import Notification
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_notifications.neo_models import Notification
 
-from sb_comments.neo_models import Comment
-from sb_comments.tasks import spawn_comment_notifications
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_comments.tasks import spawn_comment_notifications
 
 
 class TestSpawnCommentNotifications(TestCase):

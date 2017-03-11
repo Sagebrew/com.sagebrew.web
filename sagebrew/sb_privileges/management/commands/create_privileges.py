@@ -7,10 +7,11 @@ from django.conf import settings
 
 from rest_framework.reverse import reverse, NoReverseMatch
 
-from neomodel import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from sb_privileges.neo_models import (Privilege, Restriction, SBAction)
-from sb_requirements.neo_models import Requirement
+from sagebrew.sb_privileges.neo_models import (Privilege, Restriction, SBAction)
+from sagebrew.sb_requirements.neo_models import Requirement
 
 
 logger = getLogger('loggly_logs')
@@ -32,10 +33,10 @@ class Command(BaseCommand):
                 except(Privilege.DoesNotExist, DoesNotExist):
                     try:
                         privilege_obj = Privilege(**privilege).save()
-                    except(CypherException, IOError):
+                    except(CypherError, IOError):
                         logger.critical("potential error there may be"
                                         " missing privileges")
-                except(CypherException, IOError):
+                except(CypherError, IOError):
                     logger.critical("potential error there may be "
                                     "missing privileges")
                 for requirement in requirements:
@@ -48,10 +49,10 @@ class Command(BaseCommand):
                                                            requirement["url"])
                             req = Requirement(**requirement).save()
                             privilege_obj.requirements.connect(req)
-                        except(CypherException, IOError):
+                        except(CypherError, IOError):
                             logger.critical("potential error there may"
                                             " be missing requirements")
-                    except(CypherException, IOError):
+                    except(CypherError, IOError):
                         logger.critical("potential error there may"
                                         " be missing requirements")
                 action_obj = None
@@ -92,10 +93,10 @@ class Command(BaseCommand):
                         try:
                             action["url"] = action_url
                             action_obj = SBAction(**action).save()
-                        except(CypherException, IOError):
+                        except(CypherError, IOError):
                             logger.critical("potential error there may"
                                             " be missing actions")
-                    except(CypherException, IOError):
+                    except(CypherError, IOError):
                         logger.critical("potential error there may"
                                         " be missing actions")
                     if action_obj is not None:
@@ -109,7 +110,7 @@ class Command(BaseCommand):
                         restriction["url"] = "%s%s" % (settings.WEB_ADDRESS,
                                                        restriction["url"])
                         Restriction(**restriction).save()
-                    except(CypherException, IOError):
+                    except(CypherError, IOError):
                         logger.critical("potential error there may"
                                         " be missing restrictions")
 

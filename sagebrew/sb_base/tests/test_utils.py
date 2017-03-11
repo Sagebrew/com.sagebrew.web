@@ -4,9 +4,9 @@ from django.contrib.auth.models import User
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
-from sb_base.utils import defensive_exception, NeoQuerySet
-from sb_base.neo_models import SBContent
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_base.utils import defensive_exception, NeoQuerySet
+from sagebrew.sb_base.neo_models import SBContent
 
 
 class TestNeoQuerySet(TestCase):

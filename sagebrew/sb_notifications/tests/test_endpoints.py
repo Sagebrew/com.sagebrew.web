@@ -9,9 +9,9 @@ from neomodel import db
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_notifications.neo_models import Notification
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_notifications.neo_models import Notification
 
 
 class UserNotificationRetrieveTest(APITestCase):

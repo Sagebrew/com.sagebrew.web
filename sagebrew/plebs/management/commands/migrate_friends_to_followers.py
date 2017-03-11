@@ -1,10 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from py2neo.cypher.error.schema import ConstraintViolation
-
 from neomodel import db
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Command(BaseCommand):
@@ -28,7 +26,7 @@ class Command(BaseCommand):
                     try:
                         profile.follow(friend.username)
                         friend.follow(profile.username)
-                    except(ConstraintViolation, Exception):
+                    except Exception:
                         pass
         self.stdout.write("completed friend migration\n", ending='')
 

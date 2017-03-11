@@ -13,10 +13,10 @@ from neomodel import UniqueProperty, db
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
-from sb_posts.neo_models import Post
-from sb_uploads.neo_models import UploadedObject, URLContent
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_uploads.neo_models import UploadedObject, URLContent
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class PostsEndpointTests(APITestCase):
@@ -575,7 +575,7 @@ class TestSinglePostPage(APITestCase):
 class WallPostListCreateTest(APITestCase):
 
     def setUp(self):
-        from sb_wall.neo_models import Wall
+        from sagebrew.sb_wall.neo_models import Wall
         query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
         db.cypher_query(query)
         cache.clear()
@@ -713,7 +713,7 @@ class WallPostListCreateTest(APITestCase):
         self.assertEqual(response.data['results'], [])
 
     def test_list_with_items_friends(self):
-        from sb_wall.neo_models import Wall
+        from sagebrew.sb_wall.neo_models import Wall
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
         friend = create_user_util_test(email2)

@@ -9,11 +9,11 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.permissions import IsOwnerOrAdmin
-from api.utils import spawn_task
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_notifications.tasks import spawn_notifications
-from plebs.neo_models import Pleb
+from sagebrew.api.permissions import IsOwnerOrAdmin
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_base.views import ObjectRetrieveUpdateDestroy
+from sagebrew.sb_notifications.tasks import spawn_notifications
+from sagebrew.plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo, PostEndpointSerializerNeo
 from .neo_models import Post

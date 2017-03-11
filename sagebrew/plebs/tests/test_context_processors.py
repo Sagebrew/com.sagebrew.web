@@ -10,11 +10,11 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
-from plebs.context_processors import request_profile
+from sagebrew.plebs.context_processors import request_profile
 
 
 class RequestProfileTests(TestCase):

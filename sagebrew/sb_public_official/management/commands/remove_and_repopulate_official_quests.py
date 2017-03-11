@@ -6,8 +6,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from sb_quests.neo_models import Quest
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 logger = getLogger('loggly_logs')
 

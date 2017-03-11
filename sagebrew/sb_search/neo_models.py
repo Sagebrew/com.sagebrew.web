@@ -2,7 +2,7 @@ from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredNode, IntegerProperty, Relationship,
                       StructuredRel, FloatProperty, RelationshipTo)
 
-from api.neo_models import SBObject, get_current_time
+from sagebrew.api.neo_models import SBObject, get_current_time
 
 
 class Impression(StructuredRel):
@@ -23,8 +23,9 @@ class SearchResult(SBObject):
     object_type = StringProperty()
 
     # relationships
-    queries = RelationshipTo('sb_search.neo_models.SearchQuery', 'QUERY')
-    clicked_by = RelationshipTo('plebs.neo_models.Pleb', 'CLICKED_BY',
+    queries = RelationshipTo(
+        'sagebrew.sb_search.neo_models.SearchQuery', 'QUERY')
+    clicked_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'CLICKED_BY',
                                 model=ResultClickedRel)
 
 
@@ -33,8 +34,9 @@ class KeyWord(StructuredNode):
     weight = IntegerProperty(default=0)
 
     # relationships
-    search_queries = RelationshipTo('sb_search.neo_models.SearchQuery',
-                                    'SEARCH_QUERY')
+    search_queries = RelationshipTo(
+        'sagebrew.sb_search.neo_models.SearchQuery',
+        'SEARCH_QUERY')
 
 
 class SearchQuery(StructuredNode):
@@ -45,7 +47,8 @@ class SearchQuery(StructuredNode):
     trending = BooleanProperty(default=False)
 
     # relationships
-    searched_by = Relationship('plebs.neo_models.Pleb', 'SEARCHED_BY')
+    searched_by = Relationship(
+        'sagebrew.plebs.neo_models.Pleb', 'SEARCHED_BY')
     keywords = RelationshipTo(KeyWord, 'KEYWORDS', model=KeyWordRel)
     results = RelationshipTo(SearchResult, 'RESULT')
 
@@ -57,7 +60,7 @@ class Searchable(SBObject):
     summary = StringProperty()
 
     # relationships
-    viewed_by = RelationshipTo('plebs.neo_models.Pleb', "VIEWED_BY",
+    viewed_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', "VIEWED_BY",
                                model=Impression)
 
     def get_view_count(self):

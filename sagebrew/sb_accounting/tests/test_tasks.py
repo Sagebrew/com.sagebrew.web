@@ -11,10 +11,10 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from sb_quests.neo_models import Quest
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_accounting.tasks import check_unverified_quest
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_accounting.tasks import check_unverified_quest
 
 
 class TestCheckUnverifiedQuest(TestCase):

@@ -11,14 +11,14 @@ from rest_framework.exceptions import NotAuthenticated
 
 from neomodel import db
 
-from api.utils import spawn_task
-from sb_base.neo_models import SBContent
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from plebs.neo_models import Pleb
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.sb_base.views import ObjectRetrieveUpdateDestroy
+from sagebrew.plebs.neo_models import Pleb
 
-from .tasks import spawn_comment_notifications
-from .neo_models import Comment
-from .serializers import CommentSerializer
+from sagebrew.sb_comments.tasks import spawn_comment_notifications
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_comments.serializers import CommentSerializer
 
 
 class ObjectCommentsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

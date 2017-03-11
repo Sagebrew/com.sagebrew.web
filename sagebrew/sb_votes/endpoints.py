@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
 
-from api.utils import spawn_task
-from sb_docstore.tasks import spawn_user_updates
-from plebs.neo_models import Pleb
-from sb_search.tasks import update_search_object
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_docstore.tasks import spawn_user_updates
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_search.tasks import update_search_object
 
 from .serializers import VoteSerializer
 from .utils import handle_vote

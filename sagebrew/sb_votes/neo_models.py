@@ -1,6 +1,6 @@
 from neomodel import (BooleanProperty, IntegerProperty, RelationshipTo)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 # Note to selves: We seem to keep discussing this but our plan is to add this
 # in eventually, when we have time to setup useful analytics on it. We will
@@ -27,6 +27,8 @@ class Vote(SBObject):
     # reputation_change allows us to easily calculate the amount of rep you
     # have gained or lost from an object over time
 
-    owned_by = RelationshipTo('plebs.neo_models.Pleb', 'MADE_VOTE')
-    vote_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTE_ON')
-    next_vote = RelationshipTo('sb_votes.neo_models.Vote', 'NEXT_VOTE')
+    owned_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'MADE_VOTE')
+    vote_on = RelationshipTo(
+        'sagebrew.sb_base.neo_models.VotableContent', 'VOTE_ON')
+    next_vote = RelationshipTo(
+        'sagebrew.sb_votes.neo_models.Vote', 'NEXT_VOTE')

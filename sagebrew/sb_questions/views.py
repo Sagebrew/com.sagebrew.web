@@ -6,7 +6,7 @@ from django.views.generic import View
 
 from neomodel import DoesNotExist, db
 
-from sb_questions.neo_models import Question
+from sagebrew.sb_questions.neo_models import Question
 
 from .serializers import QuestionSerializerNeo
 

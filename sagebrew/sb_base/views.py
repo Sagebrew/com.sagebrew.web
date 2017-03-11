@@ -1,7 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView)
 
-from api.permissions import IsOwnerOrAdmin
+from sagebrew.api.permissions import IsOwnerOrAdmin
 
 
 class ObjectRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):

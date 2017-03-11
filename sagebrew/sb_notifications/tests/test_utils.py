@@ -5,13 +5,13 @@ from django.test import TestCase
 
 from rest_framework.reverse import reverse
 
-from sb_comments.neo_models import Comment
-from sb_posts.neo_models import Post
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_notifications.utils import (create_notification_util,
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_notifications.utils import (create_notification_util,
                                     create_system_notification)
-from sb_notifications.neo_models import Notification
+from sagebrew.sb_notifications.neo_models import Notification
 
 
 class TestNotificationUtils(TestCase):

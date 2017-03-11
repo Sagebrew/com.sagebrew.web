@@ -15,17 +15,17 @@ from rest_framework.reverse import reverse
 from neomodel import db
 from neomodel.exception import DoesNotExist
 
-from api.serializers import SBSerializer
-from api.utils import (gather_request_data, spawn_task, clean_url,
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.api.utils import (gather_request_data, spawn_task, clean_url,
                        empty_text_to_none, smart_truncate)
-from sb_address.serializers import AddressSerializer
-from sb_address.neo_models import Address
-from sb_base.serializers import IntercomEventSerializer
-from plebs.neo_models import Pleb
+from sagebrew.sb_address.serializers import AddressSerializer
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_base.serializers import IntercomEventSerializer
+from sagebrew.plebs.neo_models import Pleb
 
-from sb_privileges.tasks import check_privileges
-from sb_locations.neo_models import Location
-from sb_search.utils import remove_search_object
+from sagebrew.sb_privileges.tasks import check_privileges
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_search.utils import remove_search_object
 
 from .neo_models import (Position, Quest)
 
@@ -170,7 +170,7 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
-        from sb_base.serializers import validate_is_owner
+        from sagebrew.sb_base.serializers import validate_is_owner
         logger.critical(validated_data)
         logger.critical('Updating Quest')
         if instance.owner_username == "andrea_nickelson":
@@ -499,8 +499,8 @@ class QuestSerializer(SBSerializer):
         return True
 
     def get_endorsed(self, obj):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
         expand = self.context.get('expand', 'false').lower()
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:ENDORSES]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
@@ -517,8 +517,8 @@ class QuestSerializer(SBSerializer):
                 for row in res]
 
     def get_missions(self, obj):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
         expand = self.context.get('expand', 'false').lower()
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username

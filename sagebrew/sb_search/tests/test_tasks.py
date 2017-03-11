@@ -8,18 +8,18 @@ from django.test.client import RequestFactory
 
 from elasticsearch import Elasticsearch
 
-from sb_search.tasks import (update_search_query, create_keyword,
+from sagebrew.sb_search.tasks import (update_search_query, create_keyword,
                              update_search_object)
-from sb_registration.utils import create_user_util_test
-from plebs.serializers import PlebSerializerNeo
-from sb_quests.serializers import QuestSerializer
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
-from sb_solutions.neo_models import Solution
-from sb_solutions.serializers import SolutionSerializerNeo
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.sb_quests.serializers import QuestSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_solutions.serializers import SolutionSerializerNeo
 
 
 class TestUpdateSearchQuery(TestCase):
@@ -34,7 +34,7 @@ class TestUpdateSearchQuery(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_search_query_success_pleb_does_not_exist(self):
-        from sb_search.neo_models import SearchQuery
+        from sagebrew.sb_search.neo_models import SearchQuery
 
         test_query = SearchQuery(search_query=str(uuid1()))
         test_query.save()
@@ -53,7 +53,7 @@ class TestUpdateSearchQuery(TestCase):
         self.assertIsInstance(res, Exception)
 
     def test_update_search_query_success_pleb_does_not_exist_pickle(self):
-        from sb_search.neo_models import SearchQuery
+        from sagebrew.sb_search.neo_models import SearchQuery
 
         test_query = SearchQuery(search_query=str(uuid1()))
         test_query.save()
@@ -73,7 +73,7 @@ class TestUpdateSearchQuery(TestCase):
         self.assertIsInstance(pickle.loads(pickle_instance), Exception)
 
     def test_update_search_query_success(self):
-        from sb_search.neo_models import SearchQuery
+        from sagebrew.sb_search.neo_models import SearchQuery
 
         test_query = SearchQuery(search_query=str(uuid1()))
         test_query.save()
@@ -91,7 +91,7 @@ class TestUpdateSearchQuery(TestCase):
         self.assertTrue(res.result)
 
     def test_update_search_query_success_already_connected(self):
-        from sb_search.neo_models import SearchQuery
+        from sagebrew.sb_search.neo_models import SearchQuery
 
         test_query = SearchQuery(search_query=str(uuid1()))
         test_query.save()
@@ -135,7 +135,7 @@ class TestCreateKeywordTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_keyword_task_success_keyword_does_not_exist(self):
-        from sb_search.neo_models import SearchQuery
+        from sagebrew.sb_search.neo_models import SearchQuery
 
         query = SearchQuery(search_query=str(uuid1()))
         query.save()
@@ -155,7 +155,7 @@ class TestCreateKeywordTask(TestCase):
         query.delete()
 
     def test_create_keyword_task_success_keyword_exists(self):
-        from sb_search.neo_models import SearchQuery, KeyWord
+        from sagebrew.sb_search.neo_models import SearchQuery, KeyWord
 
         query = SearchQuery(search_query=str(uuid1()))
         query.save()
@@ -177,7 +177,7 @@ class TestCreateKeywordTask(TestCase):
         query.delete()
 
     def test_create_keyword_task_failure_search_query_does_not_exist(self):
-        from sb_search.neo_models import KeyWord
+        from sagebrew.sb_search.neo_models import KeyWord
 
         keyword = KeyWord(keyword="test")
         keyword.save()

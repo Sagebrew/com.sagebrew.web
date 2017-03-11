@@ -4,13 +4,13 @@ from django.core.urlresolvers import reverse
 
 from django.shortcuts import redirect, render
 
-from py2neo.cypher import ClientError
-from neomodel import DoesNotExist, CypherException, db
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 class ContributionMissionView(View):
@@ -25,7 +25,7 @@ class ContributionMissionView(View):
             mission = Mission.get(object_uuid)
         except (Mission.DoesNotExist, DoesNotExist):
             return redirect("404_Error")
-        except (CypherException, ClientError, IOError):
+        except (CypherError, IOError):
             return redirect("500_Error")
         quest = Quest.get(mission.owner_username)
         reverse_params = {"object_uuid": object_uuid, "slug": slug}
@@ -81,7 +81,7 @@ class ContributionQuestView(View):
             quest = Quest.get(username)
         except (Quest.DoesNotExist, DoesNotExist):
             return redirect("404_Error")
-        except (CypherException, ClientError, IOError):
+        except (CypherError, IOError):
             return redirect("500_Error")
         query = 'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]->' \
                 '(missions:Mission) RETURN missions, quest ' \

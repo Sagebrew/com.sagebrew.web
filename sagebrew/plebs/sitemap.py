@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from neomodel import db
 
-from .neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
 
 class ProfileSitemap(Sitemap):

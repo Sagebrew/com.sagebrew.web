@@ -7,10 +7,10 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import (gather_request_data, spawn_task, smart_truncate,
+from sagebrew.api.utils import (gather_request_data, spawn_task, smart_truncate,
                        render_content)
-from sb_base.serializers import ContentSerializer, validate_is_owner
-from plebs.neo_models import Pleb
+from sagebrew.sb_base.serializers import ContentSerializer, validate_is_owner
+from sagebrew.plebs.neo_models import Pleb
 from .tasks import create_solution_summary_task
 from .neo_models import Solution
 
@@ -61,8 +61,8 @@ class SolutionSerializerNeo(ContentSerializer):
         return obj.get_url(self.context.get('request', None))
 
     def get_question(self, obj):
-        from sb_questions.neo_models import Question
-        from sb_questions.serializers import QuestionSerializerNeo
+        from sagebrew.sb_questions.neo_models import Question
+        from sagebrew.sb_questions.serializers import QuestionSerializerNeo
         request, expand, _, relations, expedite = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),

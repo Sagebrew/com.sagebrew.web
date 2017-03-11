@@ -4,18 +4,21 @@ from datetime import datetime
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, BooleanProperty)
 
-from api.utils import request_to_api
-from api.neo_models import SBObject
+from sagebrew.api.utils import request_to_api
+from sagebrew.api.neo_models import SBObject
 
 
 class Privilege(SBObject):
     name = StringProperty(unique_index=True)
 
     # relationships
-    actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'GRANTS')
-    requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
-                                  'REQUIRES')
-    badges = RelationshipTo('sb_badges.neo_models.Badge', "REQUIRES_BADGE")
+    actions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.SBAction', 'GRANTS')
+    requirements = RelationshipTo(
+        'sagebrew.sb_requirements.neo_models.Requirement',
+        'REQUIRES')
+    badges = RelationshipTo('sagebrew.sb_badges.neo_models.Badge',
+                            "REQUIRES_BADGE")
 
     def check_requirements(self, username):
         """
@@ -44,10 +47,11 @@ class SBAction(SBObject):
     url = StringProperty(index=True)
 
     # relationships
-    privilege = RelationshipTo('sb_privileges.neo_models.Privilege',
+    privilege = RelationshipTo('sagebrew.sb_privileges.neo_models.Privilege',
                                'PART_OF')
-    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
-                                  'RESTRICTED_BY')
+    restrictions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Restriction',
+        'RESTRICTED_BY')
 
 
 class Restriction(SBObject):

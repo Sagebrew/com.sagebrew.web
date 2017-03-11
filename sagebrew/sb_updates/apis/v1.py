@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from sb_updates.endpoints import (UpdateRetrieveUpdateDestroy)
+from sagebrew.sb_updates.endpoints import (UpdateRetrieveUpdateDestroy)
 
 
-urlpatterns = patterns(
-    'sb_updates.endpoints',
+urlpatterns = [
     url(r'^updates/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         UpdateRetrieveUpdateDestroy.as_view(), name="update-detail")
-)
+]

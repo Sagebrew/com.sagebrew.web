@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
-urlpatterns = patterns(
-    'help_center.views',
+urlpatterns = [
     url(r'^change-password/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -79,10 +78,10 @@ urlpatterns = patterns(
     url(r'^restriction_on_asking/$', RedirectView.as_view(
         url='/help/accounts/restriction-on-asking/', permanent=True),
         name='restriction_on_asking_redirect')
-)
+]
 
 if settings.DEBUG is True:
-    urlpatterns += patterns(
+    urlpatterns += [
         url(r'^change-password/$', TemplateView.as_view(
             template_name="help_page.html"),
             kwargs={
@@ -95,4 +94,4 @@ if settings.DEBUG is True:
                 "category": "account"
         },
             name="change_password"),
-    )
+    ]

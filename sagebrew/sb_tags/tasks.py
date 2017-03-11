@@ -1,9 +1,9 @@
 from logging import getLogger
 from celery import shared_task
 
-from api.utils import spawn_task
+from sagebrew.api.utils import spawn_task
 
-from sb_base.neo_models import TaggableContent
+from sagebrew.sb_base.neo_models import TaggableContent
 from .neo_models import AutoTag
 from .utils import create_tag_relations_util, update_tags_util
 

@@ -1,10 +1,10 @@
 import us
 from celery import shared_task
 
-from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
-from neomodel import (db, CypherException, DoesNotExist)
+from neo4j.v1 import CypherError
+from neomodel import (db, DoesNotExist)
 
-from sb_quests.neo_models import Quest
+from sagebrew.sb_quests.neo_models import Quest
 
 from .neo_models import PublicOfficial
 
@@ -43,6 +43,6 @@ def create_and_attach_state_level_reps(rep_data):
                        rep.state_district, 'state_%s' % rep.state_chamber)
             res, _ = db.cypher_query(query)
         return True
-    except (CypherException, ClientError, IOError, CouldNotCommit) as e:
+    except (CypherError, IOError) as e:
         raise create_and_attach_state_level_reps.retry(exc=e, countdown=5,
                                                        max_retries=None)

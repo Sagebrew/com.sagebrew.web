@@ -1,7 +1,7 @@
 from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty,
                       StringProperty)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class Donation(SBObject):
@@ -42,14 +42,15 @@ class Donation(SBObject):
 
     # relationships
     mission = RelationshipTo(
-        'sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
-    quest = RelationshipTo('sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
+        'sagebrew.sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
+    quest = RelationshipTo(
+        'sagebrew.sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
 
     # DEPRECATIONS
     # DEPRECATED: Rounds are deprecated and goals are no longer associated with
     # them. They are instead associated with Missions but are not aggregated
     # into rounds.
-    owned_by = RelationshipTo('plebs.neo_models.Pleb', 'DONATED_FROM')
+    owned_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'DONATED_FROM')
 
     @property
     def payment_method(self):

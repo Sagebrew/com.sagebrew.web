@@ -6,10 +6,11 @@ from requests import get
 
 from django.conf import settings
 
-from neomodel import DoesNotExist, CypherException, db
-from govtrack.neo_models import (GTPerson, GTRole, GTCongressNumbers,
-                                 Senator, HouseRepresentative)
-from sb_public_official.neo_models import PublicOfficial
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
+from sagebrew.govtrack.neo_models import (
+    GTPerson, GTRole, GTCongressNumbers, Senator, HouseRepresentative)
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 logger = logging.getLogger("loggly_logs")
 
@@ -35,9 +36,9 @@ def create_gt_role(rep):
             rep['congress_numbers'] = temp_cong_num
             my_person.role.connect(my_role)
             my_role.person.connect(my_person)
-        except(CypherException, IOError) as e:
+        except(CypherError, IOError) as e:
             return e
-    except(CypherException, IOError) as e:
+    except(CypherError, IOError) as e:
         return e
     return my_role
 
@@ -53,9 +54,9 @@ def create_gt_person(gt_person):
         my_person = GTPerson(**gt_person)
         try:
             my_person.save()
-        except(CypherException, IOError) as e:
+        except(CypherError, IOError) as e:
             return e
-    except(CypherException, IOError) as e:
+    except(CypherError, IOError) as e:
         return e
 
     return my_person
@@ -77,9 +78,9 @@ def populate_gt_roles_util(requesturl):
                 my_congress_number.congress_number = number
                 try:
                     my_congress_number.save()
-                except (CypherException, IOError) as e:
+                except (CypherError, IOError) as e:
                     return e
-            except (CypherException, IOError) as e:
+            except (CypherError, IOError) as e:
                 return e
             congress_number_object.append(my_congress_number)
         for item in congress_number_object:

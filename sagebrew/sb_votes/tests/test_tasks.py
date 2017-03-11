@@ -4,14 +4,14 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.conf import settings
 
-from sb_posts.neo_models import Post
-from sb_comments.neo_models import Comment
-from sb_base.neo_models import VotableContent
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_base.neo_models import VotableContent
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_votes.neo_models import Vote
-from sb_votes.tasks import (vote_object_task, object_vote_notifications,
+from sagebrew.sb_votes.neo_models import Vote
+from sagebrew.sb_votes.tasks import (vote_object_task, object_vote_notifications,
                             create_vote_node)
 
 

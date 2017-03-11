@@ -9,8 +9,8 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_missions.neo_models import Mission
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_missions.neo_models import Mission
 
 from .serializers import VolunteerSerializer
 from .neo_models import Volunteer

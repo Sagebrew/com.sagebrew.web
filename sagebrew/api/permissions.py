@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):

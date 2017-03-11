@@ -7,10 +7,10 @@ from django.contrib.auth.models import User
 
 from neomodel import db
 
-from sb_address.neo_models import Address
-from sb_locations.neo_models import Location
-from sb_registration.utils import create_user_util_test
-from sb_address.tasks import connect_to_state_districts
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_address.tasks import connect_to_state_districts
 
 
 class TestCreateStateDistricts(TestCase):

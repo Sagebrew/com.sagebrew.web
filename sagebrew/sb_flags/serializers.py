@@ -2,11 +2,11 @@ from rest_framework.reverse import reverse
 from rest_framework import serializers
 from neomodel import db
 
-from api.utils import request_to_api
-from sb_base.neo_models import SBContent
-from sb_base.serializers import VotableContentSerializer
+from sagebrew.api.utils import request_to_api
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.sb_base.serializers import VotableContentSerializer
 
-from .neo_models import Flag
+from sagebrew.sb_flags.neo_models import Flag
 
 
 class FlagSerializer(VotableContentSerializer):

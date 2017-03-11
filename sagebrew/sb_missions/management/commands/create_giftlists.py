@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from sb_gifts.neo_models import Giftlist
-from sb_missions.neo_models import Mission
+from sagebrew.sb_gifts.neo_models import Giftlist
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class Command(BaseCommand):

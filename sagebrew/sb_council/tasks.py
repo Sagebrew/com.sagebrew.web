@@ -1,6 +1,7 @@
 from celery import shared_task
 
-from .utils import update_closed, check_closed_reputation_changes
+from sagebrew.sb_council.utils import (
+    update_closed, check_closed_reputation_changes)
 
 from logging import getLogger
 logger = getLogger('loggly_logs')

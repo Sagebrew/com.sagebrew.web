@@ -1,8 +1,8 @@
 from uuid import uuid1
 from django.test import TestCase
 
-from sb_missions.neo_models import Mission
-from sb_gifts.neo_models import Giftlist, Product
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_gifts.neo_models import Giftlist, Product
 
 
 class TestGiftlistNeoModels(TestCase):

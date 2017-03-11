@@ -163,7 +163,7 @@ def create_tree(structure, external_id):
 def connect_related_element(location, element_id):
     # This could be generalized to manage other nodes we want to link to a
     # location but since we only do questions right now, simplifying it.
-    from sb_questions.neo_models import Question
+    from sagebrew.sb_questions.neo_models import Question
     query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)

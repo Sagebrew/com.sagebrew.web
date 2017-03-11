@@ -8,10 +8,10 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from plebs.neo_models import Pleb
-from api.utils import gather_request_data, spawn_task, render_content
-from sb_base.serializers import TitledContentSerializer, validate_is_owner
-from sb_notifications.tasks import spawn_notifications
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.api.utils import gather_request_data, spawn_task, render_content
+from sagebrew.sb_base.serializers import TitledContentSerializer, validate_is_owner
+from sagebrew.sb_notifications.tasks import spawn_notifications
 
 from .neo_models import Update
 
@@ -80,7 +80,7 @@ class UpdateSerializer(TitledContentSerializer):
                            kwargs={'object_uuid': about.owner_username},
                            request=request)
         """
-        from sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.neo_models import Mission
         request, _, _, _, _ = gather_request_data(self.context)
         if obj.about_type == "mission":
             about = Mission.get(obj.about_id)
@@ -101,10 +101,10 @@ class UpdateSerializer(TitledContentSerializer):
             request=request)
 
     def get_about(self, obj):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.serializers import QuestSerializer
         if obj.about_type == "mission":
             return MissionSerializer(Mission.get(obj.about_id)).data
         elif obj.about_type == "quest":

@@ -2,9 +2,9 @@ from django.test.testcases import TestCase
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
-from sb_locations.neo_models import Location
+from sagebrew.sb_locations.neo_models import Location
 
-from sb_address.neo_models import Address
+from sagebrew.sb_address.neo_models import Address
 
 
 class TestAddress(TestCase):

@@ -15,16 +15,16 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_registration.views import (logout_view,
+from sagebrew.sb_registration.views import (logout_view,
                                    login_view, login_view_api,
                                    email_verification,
                                    advocacy, political_campaign,
                                    quest_signup, signup_view)
-from plebs.serializers import EmailAuthTokenGenerator
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
-from plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import EmailAuthTokenGenerator
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
 
 
 class TestSignupView(TestCase):

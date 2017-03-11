@@ -7,11 +7,11 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.neo_models import Question
-from sb_tags.tasks import update_tags, add_auto_tags
-from sb_tags.neo_models import Tag
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_tags.tasks import update_tags, add_auto_tags
+from sagebrew.sb_tags.neo_models import Tag
 
 
 class TestAddAutoTagTasks(APITestCase):

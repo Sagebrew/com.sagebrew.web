@@ -7,9 +7,9 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_tags.neo_models import Tag
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TagEndpointTest(APITestCase):

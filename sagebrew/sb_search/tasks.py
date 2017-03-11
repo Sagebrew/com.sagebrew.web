@@ -7,14 +7,15 @@ from django.core.cache import cache
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
-from py2neo.cypher.error import ClientError
-from neomodel import DoesNotExist, CypherException, db
+
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConflictError, RequestError)
 
-from api.utils import spawn_task
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
+from sagebrew.api.utils import spawn_task
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
 
 from .neo_models import SearchQuery, KeyWord
 
@@ -43,7 +44,7 @@ def update_search_query(username, query_param, keywords):
                 exc=DoesNotExist("Profile with username: "
                                  "%s does not exist" % username), countdown=3,
                 max_retries=None)
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
     try:
         search_query = SearchQuery.nodes.get(search_query=query_param)
@@ -70,7 +71,7 @@ def update_search_query(username, query_param, keywords):
             if isinstance(spawned, Exception) is True:
                 return spawned
         return True
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
@@ -109,7 +110,7 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherError, IOError) as e:
         logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
 
@@ -117,13 +118,13 @@ def create_keyword(text, relevance, query_param):
 @shared_task()
 def update_search_object(object_uuid, label=None, object_data=None,
                          index="full-search-base"):
-    from plebs.serializers import PlebSerializerNeo
-    from sb_quests.serializers import QuestSerializer
-    from sb_quests.neo_models import Quest
-    from sb_missions.serializers import MissionSerializer
-    from sb_missions.neo_models import Mission
-    from sb_questions.serializers import QuestionSerializerNeo
-    from sb_base.neo_models import get_parent_votable_content
+    from sagebrew.plebs.serializers import PlebSerializerNeo
+    from sagebrew.sb_quests.serializers import QuestSerializer
+    from sagebrew.sb_quests.neo_models import Quest
+    from sagebrew.sb_missions.serializers import MissionSerializer
+    from sagebrew.sb_missions.neo_models import Mission
+    from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+    from sagebrew.sb_base.neo_models import get_parent_votable_content
     if label is None:
         label = get_parent_votable_content(
             object_uuid).get_child_label().lower()

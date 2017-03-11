@@ -8,10 +8,10 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_quests.neo_models import Quest
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_missions.utils import setup_onboarding, order_tasks
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.utils import setup_onboarding, order_tasks
 
 
 class TestSetupOnboarding(TestCase):

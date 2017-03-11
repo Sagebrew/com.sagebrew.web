@@ -2,7 +2,7 @@
 from requests import get
 from django.test.testcases import TestCase
 
-from govtrack.utils import create_gt_role, create_gt_person, populate_term_data
+from sagebrew.govtrack.utils import create_gt_role, create_gt_person, populate_term_data
 
 
 class TestCreateGTRoleUtil(TestCase):

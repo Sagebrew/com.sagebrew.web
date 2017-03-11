@@ -20,8 +20,8 @@ from django.conf import settings
 
 from rest_framework import status
 
-from api.utils import smart_truncate
-from sb_registration.utils import upload_image
+from sagebrew.api.utils import smart_truncate
+from sagebrew.sb_registration.utils import upload_image
 
 
 """
@@ -234,7 +234,7 @@ def upload_modified_image(file_name, file_stream, request, parent_uuid):
     This function will handle upload and serialization of a modified object.
     These objects are created when an image has to be cropped or thumbnailed.
     """
-    from sb_uploads.serializers import ModifiedSerializer
+    from sagebrew.sb_uploads.serializers import ModifiedSerializer
     url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                              file_name, file_stream)
     serializer = ModifiedSerializer(

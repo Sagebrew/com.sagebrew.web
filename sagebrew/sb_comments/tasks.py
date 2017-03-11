@@ -1,13 +1,14 @@
 from celery import shared_task
 from rest_framework.reverse import reverse
 
-from neomodel import DoesNotExist, CypherException
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from api.utils import spawn_task
-from sb_notifications.tasks import spawn_notifications
-from sb_base.neo_models import SBContent
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_notifications.tasks import spawn_notifications
+from sagebrew.sb_base.neo_models import SBContent
 
-from .neo_models import Comment
+from sagebrew.sb_comments.neo_models import Comment
 
 
 @shared_task()
@@ -17,7 +18,7 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
     try:
         comment = Comment.nodes.get(object_uuid=object_uuid)
         parent_object = SBContent.nodes.get(object_uuid=parent_object_uuid)
-    except (Comment.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+    except (Comment.DoesNotExist, DoesNotExist, CypherError, IOError) as e:
         raise spawn_comment_notifications.retry(exc=e, countdown=3,
                                                 max_retries=None)
     parent_object_type = parent_object.get_child_label().lower()

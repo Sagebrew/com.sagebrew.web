@@ -1,7 +1,7 @@
 from neomodel import db
-from py2neo.cypher.error.schema import ConstraintViolation
 
-from sb_docstore.utils import get_vote, add_object_to_table, update_vote
+from sagebrew.sb_docstore.utils import (get_vote, add_object_to_table,
+                                        update_vote)
 
 
 def determine_update_values(prev_status, update_status, upvote_value,
@@ -59,7 +59,7 @@ def create_vote_relationship(content_id, voter_username,
                 'vote.vote_type=%s RETURN v' % (
                     content_id, voter_username, vote_active, vote_type)
         res, _ = db.cypher_query(query)
-    except(ConstraintViolation, Exception):
+    except Exception:
         query = 'MATCH (v:VotableContent {object_uuid:"%s"})' \
                 '<-[vote:PLEB_VOTES]-(p:Pleb {username:"%s"}) ' \
                 'SET vote.active=%s, vote.vote_type=%s RETURN v' % (

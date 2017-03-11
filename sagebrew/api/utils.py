@@ -26,7 +26,7 @@ from sumy.utils import get_stop_words
 from django.core import signing
 from django.conf import settings
 from django.http import HttpResponse
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.core.files.temp import NamedTemporaryFile
 
 from rest_framework.authtoken.models import Token
@@ -34,7 +34,7 @@ from rest_framework.validators import UniqueValidator
 
 from boto.sqs.message import Message
 
-from .alchemyapi import AlchemyAPI
+from sagebrew.api.alchemyapi import AlchemyAPI
 
 logger = getLogger('loggly_logs')
 
@@ -57,7 +57,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     :return:
     """
     # TODO need to remove this as we shouldn't be needing to call a pleb object
-    # into api.utils. It has the potential to cause a circular dependency
+    # into sagebrew.api.utils. It has the potential to cause a circular dependency
     if headers is None:
         headers = {"content-type": "application/json"}
     if internal is True and username is not None and username != '':

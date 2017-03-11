@@ -6,8 +6,8 @@ from django.template import Context
 
 from intercom import ResourceNotFound
 
-from sb_base.tasks import create_event, create_email
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_base.tasks import create_event, create_email
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestCreateEventTask(TestCase):
@@ -51,7 +51,7 @@ class TestCreateMessageTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_email_with_metadata(self):
-        from plebs.serializers import EmailAuthTokenGenerator
+        from sagebrew.plebs.serializers import EmailAuthTokenGenerator
         message_data = {
             'message_type': 'email',
             'subject': 'Sagebrew Email Verification',

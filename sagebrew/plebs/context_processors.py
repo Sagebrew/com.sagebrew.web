@@ -1,8 +1,9 @@
 from django.conf import settings
-from neomodel.exception import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel.exception import DoesNotExist
 
-from .neo_models import Pleb
-from .serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
 
 
 def request_profile(request):
@@ -40,7 +41,7 @@ def request_profile(request):
                         PlebSerializerNeo(Pleb.get(request.user.username),
                                           context={"request": request,
                                                    "expand": expand}).data}
-            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
+            except(CypherError, IOError, Pleb.DoesNotExist, DoesNotExist):
                 return default_response
         else:
             return default_response

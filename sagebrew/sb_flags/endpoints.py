@@ -7,12 +7,12 @@ from rest_framework.generics import (ListCreateAPIView)
 
 from neomodel import db
 
-from sb_base.neo_models import SBContent
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from plebs.neo_models import Pleb
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.sb_base.views import ObjectRetrieveUpdateDestroy
+from sagebrew.plebs.neo_models import Pleb
 
-from .neo_models import Flag
-from .serializers import FlagSerializer
+from sagebrew.sb_flags.neo_models import Flag
+from sagebrew.sb_flags.serializers import FlagSerializer
 
 
 class ObjectFlagsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

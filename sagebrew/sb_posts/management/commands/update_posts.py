@@ -2,7 +2,7 @@ from logging import getLogger
 
 from django.core.management.base import BaseCommand
 
-from sb_posts.neo_models import Post
+from sagebrew.sb_posts.neo_models import Post
 
 logger = getLogger('loggly_logs')
 

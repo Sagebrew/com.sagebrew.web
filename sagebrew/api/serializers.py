@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from api.utils import spawn_task
-from sb_search.tasks import update_search_object
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_search.tasks import update_search_object
 
 
 class SBSerializer(serializers.Serializer):

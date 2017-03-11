@@ -10,11 +10,11 @@ from neomodel import db
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_locations.neo_models import Location
-from sb_quests.neo_models import Position
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_quests.neo_models import Position
 
 
 wixom_data = {

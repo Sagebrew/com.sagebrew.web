@@ -2,7 +2,7 @@ import csv
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from govtrack.neo_models import GTPersonHistorical
+from sagebrew.govtrack.neo_models import GTPersonHistorical
 
 
 class Command(BaseCommand):

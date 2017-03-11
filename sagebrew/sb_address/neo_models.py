@@ -4,9 +4,9 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, BooleanProperty, FloatProperty,
                       DoesNotExist, MultipleNodesReturned, db)
 
-from api.utils import flatten_lists, spawn_task
-from api.neo_models import SBObject
-from sb_locations.neo_models import Location
+from sagebrew.api.utils import flatten_lists, spawn_task
+from sagebrew.api.neo_models import SBObject
+from sagebrew.sb_locations.neo_models import Location
 
 
 class Address(SBObject):
@@ -23,7 +23,7 @@ class Address(SBObject):
     validated = BooleanProperty(default=False)
 
     # Relationships
-    encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
+    encompassed_by = RelationshipTo('sagebrew.sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
 
     def get_all_encompassed_by(self):

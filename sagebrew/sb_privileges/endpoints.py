@@ -5,10 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.permissions import IsAdminOrReadOnly
+from sagebrew.api.permissions import IsAdminOrReadOnly
 
-from .serializers import PrivilegeSerializer
-from .neo_models import Privilege
+from sagebrew.sb_privileges.serializers import PrivilegeSerializer
+from sagebrew.sb_privileges.neo_models import Privilege
 
 
 class PrivilegeViewSet(viewsets.ModelViewSet):

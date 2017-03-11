@@ -14,12 +14,12 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.serializers import SBSerializer
-from sb_base.serializers import IntercomMessageSerializer
-from sb_notifications.utils import create_system_notification
-from plebs.neo_models import Pleb
-from sb_quests.serializers import QuestSerializer
-from sb_quests.neo_models import Quest
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.sb_base.serializers import IntercomMessageSerializer
+from sagebrew.sb_notifications.utils import create_system_notification
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_quests.serializers import QuestSerializer
+from sagebrew.sb_quests.neo_models import Quest
 
 logger = getLogger("loggly_logs")
 

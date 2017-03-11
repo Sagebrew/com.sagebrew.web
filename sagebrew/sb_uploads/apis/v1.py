@@ -1,15 +1,14 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from sb_uploads.endpoints import UploadViewSet, URLContentViewSet
+from sagebrew.sb_uploads.endpoints import UploadViewSet, URLContentViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r'upload', UploadViewSet, base_name="upload")
 router.register(r'urlcontent', URLContentViewSet, base_name="urlcontent")
 
-urlpatterns = patterns(
-    'sb_uploads.endpoints',
+urlpatterns = [
     url(r'^', include(router.urls))
-)
+]

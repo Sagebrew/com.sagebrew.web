@@ -5,8 +5,8 @@ from django.utils.text import slugify
 
 from neomodel import db
 
-from sb_registration.neo_models import OnboardingTask
-from sb_registration.serializers import OnboardingTaskSerializer
+from sagebrew.sb_registration.neo_models import OnboardingTask
+from sagebrew.sb_registration.serializers import OnboardingTaskSerializer
 
 
 def setup_onboarding(quest, mission):

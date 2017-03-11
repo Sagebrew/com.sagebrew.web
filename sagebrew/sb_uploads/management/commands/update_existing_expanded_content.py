@@ -8,8 +8,8 @@ from django.core.management.base import BaseCommand
 
 from rest_framework import status
 
-from sb_uploads.neo_models import URLContent
-from sb_registration.utils import upload_image
+from sagebrew.sb_uploads.neo_models import URLContent
+from sagebrew.sb_registration.utils import upload_image
 
 
 class Command(BaseCommand):

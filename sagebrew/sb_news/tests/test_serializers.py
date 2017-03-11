@@ -3,10 +3,10 @@ from django.test import TestCase
 
 from neomodel import db
 
-from sb_tags.neo_models import Tag
+from sagebrew.sb_tags.neo_models import Tag
 
-from sb_news.neo_models import NewsArticle
-from sb_news.utils import query_webhose, gather_news_results
+from sagebrew.sb_news.neo_models import NewsArticle
+from sagebrew.sb_news.utils import query_webhose, gather_news_results
 
 
 class TestNewsSerializers(TestCase):

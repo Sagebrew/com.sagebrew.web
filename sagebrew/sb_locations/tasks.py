@@ -2,7 +2,7 @@ from celery import shared_task
 
 from django.core.cache import cache
 
-from api.utils import spawn_task
+from sagebrew.api.utils import spawn_task
 
 from .utils import parse_google_places, connect_related_element
 

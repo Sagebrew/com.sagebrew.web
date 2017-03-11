@@ -1,7 +1,7 @@
 from neomodel import (StringProperty, RelationshipTo, ArrayProperty,
                       RelationshipFrom)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class Volunteer(SBObject):
@@ -14,5 +14,6 @@ class Volunteer(SBObject):
     mission_id = StringProperty()
 
     # relationships
-    volunteer = RelationshipFrom('plebs.neo_models.Pleb', 'WANTS_TO')
-    mission = RelationshipTo('sb_missions.neo_models.Mission', 'ON_BEHALF_OF')
+    volunteer = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'WANTS_TO')
+    mission = RelationshipTo(
+        'sagebrew.sb_missions.neo_models.Mission', 'ON_BEHALF_OF')

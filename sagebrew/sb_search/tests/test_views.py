@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestSearchResultView(TestCase):

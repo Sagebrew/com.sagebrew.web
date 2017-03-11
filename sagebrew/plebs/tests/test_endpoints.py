@@ -20,22 +20,22 @@ from neomodel import db
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sagebrew import errors
-from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import (Pleb, FriendRequest, Address,
-                              PoliticalParty, ActivityInterest)
-from sb_privileges.neo_models import Privilege, SBAction
-from sb_quests.neo_models import Position, Quest
-from sb_updates.neo_models import Update
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_news.neo_models import NewsArticle
-from sb_questions.neo_models import Question
-from sb_registration.utils import create_user_util_test
-from sb_tags.neo_models import Tag
-from sb_posts.neo_models import Post
-from sb_solutions.neo_models import Solution
-from sb_donations.neo_models import Donation
+from config import errors
+from sagebrew.sb_public_official.neo_models import PublicOfficial
+from sagebrew.plebs.neo_models import (
+    Pleb, FriendRequest, Address, PoliticalParty, ActivityInterest)
+from sagebrew.sb_privileges.neo_models import Privilege, SBAction
+from sagebrew.sb_quests.neo_models import Position, Quest
+from sagebrew.sb_updates.neo_models import Update
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_news.neo_models import NewsArticle
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_donations.neo_models import Donation
 
 
 class TestPasswordReset(APITestCase):

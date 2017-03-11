@@ -5,10 +5,10 @@ from datetime import datetime
 from neomodel import db
 from rest_framework import serializers
 
-from api.utils import spawn_task
-from sb_base.serializers import ContentSerializer
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_base.serializers import ContentSerializer
 
-from .tasks import update_closed_task
+from sagebrew.sb_council.tasks import update_closed_task
 
 
 class CouncilVoteSerializer(ContentSerializer):

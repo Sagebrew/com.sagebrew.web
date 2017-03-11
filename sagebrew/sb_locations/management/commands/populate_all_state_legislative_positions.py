@@ -4,8 +4,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from sb_quests.neo_models import Position
-from sb_locations.neo_models import Location
+from sagebrew.sb_quests.neo_models import Position
+from sagebrew.sb_locations.neo_models import Location
 
 
 class Command(BaseCommand):

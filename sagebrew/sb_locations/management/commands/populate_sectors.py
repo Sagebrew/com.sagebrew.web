@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 from neomodel import DoesNotExist, db
 
-from sb_locations.neo_models import Location
+from sagebrew.sb_locations.neo_models import Location
 
 
 class Command(BaseCommand):

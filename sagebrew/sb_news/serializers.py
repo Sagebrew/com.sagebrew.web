@@ -9,9 +9,9 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import db
 
-from api.utils import generate_summary, cleanup_title, only_roman_chars
-from sb_uploads.serializers import UploadSerializer
-from sb_base.serializers import VotableContentSerializer
+from sagebrew.api.utils import generate_summary, cleanup_title, only_roman_chars
+from sagebrew.sb_uploads.serializers import UploadSerializer
+from sagebrew.sb_base.serializers import VotableContentSerializer
 
 from .neo_models import NewsArticle
 

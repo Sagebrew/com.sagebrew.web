@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from neomodel import db
 
-from api.serializers import SBSerializer
-from plebs.serializers import PlebSerializerNeo
-from plebs.neo_models import Pleb
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
 
 
 class NotificationSerializer(SBSerializer):

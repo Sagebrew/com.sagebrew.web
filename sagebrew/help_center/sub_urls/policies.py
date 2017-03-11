@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
-urlpatterns = patterns(
-    'help_center.views',
+urlpatterns = [
     url(r'^advertising/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -122,4 +121,4 @@ urlpatterns = patterns(
     url(r'^user_behavior/$', RedirectView.as_view(
         url='/help/policies/user-behavior/', permanent=True),
         name='user_behavior_redirect')
-)
+]

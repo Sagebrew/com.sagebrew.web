@@ -5,12 +5,13 @@ from rest_framework.decorators import api_view, permission_classes
 
 from neomodel import db
 
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
-from plebs.neo_models import Pleb
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
 
-from .neo_models import Donation
-from .serializers import DonationSerializer, SBDonationSerializer
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_donations.serializers import (
+    DonationSerializer, SBDonationSerializer)
 
 
 class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):

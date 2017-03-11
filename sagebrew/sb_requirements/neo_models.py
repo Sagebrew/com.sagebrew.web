@@ -8,8 +8,8 @@ from rest_framework import status
 
 from neomodel import StringProperty
 
-from api.utils import request_to_api
-from api.neo_models import SBObject
+from sagebrew.api.utils import request_to_api
+from sagebrew.api.neo_models import SBObject
 
 logger = getLogger("loggly_logs")
 

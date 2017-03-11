@@ -2,7 +2,7 @@ from celery import shared_task
 
 from neomodel import db
 
-from sb_base.serializers import IntercomEventSerializer
+from sagebrew.sb_base.serializers import IntercomEventSerializer
 
 from .neo_models import Mission
 

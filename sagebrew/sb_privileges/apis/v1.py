@@ -1,14 +1,13 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from sb_privileges.endpoints import PrivilegeViewSet
+from sagebrew.sb_privileges.endpoints import PrivilegeViewSet
 
 router = routers.SimpleRouter()
 
 router.register(r'privileges', PrivilegeViewSet, base_name="privilege")
 
-urlpatterns = patterns(
-    'sb_privileges.endpoints',
+urlpatterns = [
     url(r'^', include(router.urls)),
-)
+]

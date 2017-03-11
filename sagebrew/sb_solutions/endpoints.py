@@ -8,12 +8,12 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import spawn_task
-from sb_notifications.tasks import spawn_notifications
-from sb_base.utils import get_ordering, NeoQuerySet
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_questions.neo_models import Question
-from plebs.neo_models import Pleb
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_notifications.tasks import spawn_notifications
+from sagebrew.sb_base.utils import get_ordering, NeoQuerySet
+from sagebrew.sb_base.views import ObjectRetrieveUpdateDestroy
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import Solution

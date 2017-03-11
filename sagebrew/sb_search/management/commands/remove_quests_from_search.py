@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch
 
-from sb_quests.neo_models import Quest
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class Command(BaseCommand):

@@ -5,13 +5,14 @@ import stripe
 from django.conf import settings
 from django.templatetags.static import static
 
-from neomodel import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from plebs.serializers import PlebSerializerNeo
-from plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
 
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 def js_settings(request):
@@ -92,7 +93,7 @@ def js_settings(request):
                                         'current_period_start'],
                                     "amount": subscription['plan']['amount']
                                 }
-            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
+            except(CypherError, IOError, Pleb.DoesNotExist, DoesNotExist):
                 data['profile'] = None
         else:
             data['user']['type'] = "anon"

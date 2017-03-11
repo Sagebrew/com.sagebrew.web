@@ -1,12 +1,12 @@
 from django.core.cache import cache
 
-from py2neo.cypher import ClientError
-from neomodel import (DoesNotExist, CypherException)
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from api.utils import spawn_task
-from sb_privileges.tasks import check_privileges
-from sb_base.neo_models import SBContent
-from plebs.neo_models import Pleb
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_privileges.tasks import check_privileges
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.plebs.neo_models import Pleb
 
 
 def update_closed(object_uuid):
@@ -16,8 +16,8 @@ def update_closed(object_uuid):
         node.save()
         cache.delete(node.object_uuid)
         return True
-    except (SBContent.DoesNotExist, DoesNotExist, CypherException,
-            ClientError, IOError) as e:
+    except (SBContent.DoesNotExist, DoesNotExist, CypherError,
+            IOError) as e:
         return e
 
 
@@ -35,5 +35,5 @@ def check_closed_reputation_changes():
                 spawn_task(task_func=check_privileges,
                            task_param={'username': pleb.username})
         return True
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherError, IOError, ClientError) as e:
         return e

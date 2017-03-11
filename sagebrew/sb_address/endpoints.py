@@ -3,8 +3,8 @@ from rest_framework import viewsets
 
 from neomodel import db
 
-from .serializers import AddressSerializer
-from .neo_models import Address
+from sagebrew.sb_address.serializers import AddressSerializer
+from sagebrew.sb_address.neo_models import Address
 
 
 class AddressViewSet(viewsets.ModelViewSet):

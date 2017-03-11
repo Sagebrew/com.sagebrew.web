@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from neomodel import db
 
-from .neo_models import Giftlist
-from .serializers import GiftlistSerializer
+from sagebrew.sb_gifts.neo_models import Giftlist
+from sagebrew.sb_gifts.serializers import GiftlistSerializer
 
 
 class GiftListViewSet(generics.RetrieveUpdateDestroyAPIView):

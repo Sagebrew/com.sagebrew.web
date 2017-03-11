@@ -15,8 +15,8 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist, db
 
-from api.serializers import SBSerializer
-from api.utils import clean_url
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.api.utils import clean_url
 
 from .utils import (parse_page_html, get_image_data,
                     check_sagebrew_url, hamming_distance)

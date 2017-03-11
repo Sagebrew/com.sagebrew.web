@@ -8,10 +8,10 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.neo_models import Question
-from sb_solutions.tasks import create_solution_summary_task
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.tasks import create_solution_summary_task
 
 
 class TestSolutionSummaryTasks(APITestCase):

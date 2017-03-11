@@ -7,11 +7,11 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_locations.tasks import create_location_tree, connect_location_to_element
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_locations.tasks import create_location_tree, connect_location_to_element
 
-from sb_locations.neo_models import Location
+from sagebrew.sb_locations.neo_models import Location
 
 
 class TestCreateLocationTreeTask(TestCase):

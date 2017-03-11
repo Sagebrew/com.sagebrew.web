@@ -3,10 +3,11 @@ from logging import getLogger
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
-from neomodel import db, CypherException
+from neo4j.v1 import CypherError
+from neomodel import db
 
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 logger = getLogger('loggly_logs')
 
 
@@ -40,7 +41,7 @@ class Command(BaseCommand):
                         quest.youtube = "%s%s" % (youtube_string, quest.youtube)
                     quest.save()
                     cache.delete("%s_quest" % quest.object_uuid)
-            except (CypherException, Exception):
+            except (CypherError, Exception):
                 logger.exception("Convert Social Links: ")
                 pass
         try:
@@ -58,7 +59,7 @@ class Command(BaseCommand):
                     mission.youtube = "%s%s" % (youtube_string, mission.youtube)
                 mission.save()
                 cache.delete("%s_mission" % mission.object_uuid)
-        except (CypherException, Exception):
+        except (CypherError, Exception):
             logger.exception("Convert Social Links: ")
             pass
 

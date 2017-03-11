@@ -1,6 +1,6 @@
 from neomodel import (StringProperty, RelationshipTo)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class Badge(SBObject):
@@ -9,7 +9,7 @@ class Badge(SBObject):
     image_grey = StringProperty()
 
     # relationships
-    requirements = RelationshipTo('sb_requirements.neo_models.Requirement',
+    requirements = RelationshipTo('sagebrew.sb_requirements.neo_models.Requirement',
                                   "REQUIRES")
 
 
@@ -18,4 +18,4 @@ class BadgeGroup(SBObject):
     description = StringProperty()
 
     # relationships
-    badges = RelationshipTo('sb_badges.neo_models.Badge', "HAS")
+    badges = RelationshipTo('sagebrew.sb_badges.neo_models.Badge', "HAS")

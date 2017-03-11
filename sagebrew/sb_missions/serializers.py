@@ -12,15 +12,15 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import (gather_request_data, clean_url, empty_text_to_none,
+from sagebrew.api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content, remove_smart_quotes,
                        spawn_task)
-from api.serializers import SBSerializer
+from sagebrew.api.serializers import SBSerializer
 
-from sb_base.serializers import (IntercomEventSerializer,
+from sagebrew.sb_base.serializers import (IntercomEventSerializer,
                                  IntercomMessageSerializer)
-from sb_locations.serializers import LocationSerializer
-from sb_tags.neo_models import Tag
+from sagebrew.sb_locations.serializers import LocationSerializer
+from sagebrew.sb_tags.neo_models import Tag
 
 from .neo_models import Mission
 from .utils import setup_onboarding
@@ -106,8 +106,8 @@ class MissionSerializer(SBSerializer):
             u'Please specify which district you are running in'
 
     def create(self, validated_data):
-        from sb_gifts.neo_models import Giftlist
-        from sb_quests.neo_models import Quest, Position
+        from sagebrew.sb_gifts.neo_models import Giftlist
+        from sagebrew.sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest {owner_username: "%s"}) WITH quest ' \
                 'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->' \
@@ -293,7 +293,7 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
-        from sb_base.serializers import validate_is_owner
+        from sagebrew.sb_base.serializers import validate_is_owner
         validate_is_owner(self.context.get('request', None), instance)
         instance.completed = validated_data.pop(
             'completed', instance.completed)
@@ -454,8 +454,8 @@ class MissionSerializer(SBSerializer):
         return obj.get_focused_on(request=request)
 
     def get_quest(self, obj):
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.serializers import QuestSerializer
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
                 '(:Mission {object_uuid: "%s"}) RETURN quest' % obj.object_uuid
@@ -572,7 +572,7 @@ class MissionReviewSerializer(SBSerializer):
         return validated_data
 
     def update(self, instance, validated_data):
-        from plebs.neo_models import Pleb
+        from sagebrew.plebs.neo_models import Pleb
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback
         instance.review_feedback = validated_data.pop('review_feedback',

@@ -9,7 +9,7 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
                       DateTimeProperty, ArrayProperty)
 
-from sb_search.neo_models import Searchable, SBObject
+from sagebrew.sb_search.neo_models import Searchable, SBObject
 
 
 def get_default_wallpaper_pic():
@@ -109,35 +109,39 @@ class Quest(Searchable):
     # Donations
     # Access Donations that are related to this Quest through:
     # Neomodel: quest Cypher: CONTRIBUTED_TO
-    # RelationshipTo('sb_donations.neo_models.Donation')
+    # RelationshipTo('sagebrew.sb_donations.neo_models.Donation')
 
-    updates = RelationshipTo('sb_updates.neo_models.Update', 'CREATED_AN')
+    updates = RelationshipTo('sagebrew.sb_updates.neo_models.Update', 'CREATED_AN')
 
     # Pleb
     # Access the Pleb that owns this Quest through:
     # Neomodel: quest Cypher: IS_WAGING
-    # RelationshipTo('sb_plebs.neo_models.Pleb')
+    # RelationshipTo('sagebrew.sb_plebs.neo_models.Pleb')
 
     # Will be an endpoint with the usernames of all the users that can edit
     # the page. That way we can easily check who has the right to modify
     # the page. These names should not be public
-    editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
-    moderators = RelationshipFrom('plebs.neo_models.Pleb', 'MODERATOR_OF')
+    editors = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'EDITOR_OF')
+    moderators = RelationshipFrom(
+        'sagebrew.plebs.neo_models.Pleb', 'MODERATOR_OF')
 
-    address = RelationshipTo("sb_address.neo_models.Address", 'LOCATED_AT')
+    address = RelationshipTo(
+        "sagebrew.sb_address.neo_models.Address", 'LOCATED_AT')
 
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
-    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
-    holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
-    news_articles = RelationshipTo('sb_news.neo_models.NewsArticle',
-                                   "NEWS")
+    missions = RelationshipTo(
+        'sagebrew.sb_missions.neo_models.Mission', "EMBARKS_ON")
+    holds = RelationshipTo(
+        'sagebrew.sb_quests.neo_models.Seat', "HOLDS")
+    news_articles = RelationshipTo(
+        'sagebrew.sb_news.neo_models.NewsArticle', "NEWS")
     # Followers are users which have decided to follow a Quest, this means that
     # they will get a notification whenever the quest makes an update.
-    followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")
+    followers = RelationshipTo('sagebrew.plebs.neo_models.Pleb', "FOLLOWERS")
 
     # Owner of the Quest
-    owner = RelationshipFrom('plebs.neo_models.Pleb', 'IS_WAGING')
+    owner = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'IS_WAGING')
 
     @property
     def ein(self):
@@ -244,7 +248,7 @@ class Quest(Searchable):
 
     @classmethod
     def get_donations(cls, owner_username):
-        from sb_donations.neo_models import Donation
+        from sagebrew.sb_donations.neo_models import Donation
         query = 'MATCH (c:Quest {owner_username:"%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission)<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % owner_username
@@ -333,13 +337,13 @@ class Position(SBObject):
     #     local - Everything else :)
     level = StringProperty(default="federal")
 
-    location = RelationshipFrom('sb_locations.neo_models.Location',
+    location = RelationshipFrom('sagebrew.sb_locations.neo_models.Location',
                                 'POSITIONS_AVAILABLE')
-    currently_held_by = RelationshipTo('sb_public_official.neo_models.'
+    currently_held_by = RelationshipTo('sagebrew.sb_public_official.neo_models.'
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
-    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
+    restrictions = RelationshipTo('sagebrew.sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
-    seats = RelationshipTo('sb_quests.neo_models.Seat', 'SEATS')
+    seats = RelationshipTo('sagebrew.sb_quests.neo_models.Seat', 'SEATS')
 
     @classmethod
     def get(cls, object_uuid):
@@ -435,6 +439,6 @@ class Position(SBObject):
 
 class Seat(SBObject):
     # relationships
-    position = RelationshipTo("sb_quests.neo_models.Position", "POSITION")
-    current_holder = RelationshipTo("sb_quests.neo_models.PoliticalCampaign",
+    position = RelationshipTo("sagebrew.sb_quests.neo_models.Position", "POSITION")
+    current_holder = RelationshipTo("sagebrew.sb_quests.neo_models.PoliticalCampaign",
                                     "CURRENTLY_HELD_BY")

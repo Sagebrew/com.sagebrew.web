@@ -10,13 +10,13 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.views import (solution_edit_page, QuestionManagerView,
+from sagebrew.sb_questions.views import (solution_edit_page, QuestionManagerView,
                                 question_redirect_page)
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
 
 
 class TestGetQuestionSearchView(APITestCase):

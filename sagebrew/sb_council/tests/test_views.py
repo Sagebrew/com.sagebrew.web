@@ -6,8 +6,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
-from sb_registration.utils import create_user_util_test
-from sb_council.views import CouncilView
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_council.views import CouncilView
 
 
 class ProfilePageTest(TestCase):

@@ -1,10 +1,10 @@
 from django.utils.text import slugify
 
 from neomodel import db
-from neomodel.exception import CypherException
+from neo4j.v1 import CypherError
 
-from sb_base.decorators import apply_defense
-from sb_tags.neo_models import Tag
+from sagebrew.sb_base.decorators import apply_defense
+from sagebrew.sb_tags.neo_models import Tag
 
 
 @apply_defense
@@ -33,7 +33,7 @@ def create_tag_relations_util(tags):
                     rel.save()
         return True
 
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         return e
 
 
@@ -69,7 +69,7 @@ def update_tags_util(tags):
             tag = Tag.nodes.get(name=slugify(name))
             tag.tag_used += 1
             tag.save()
-        except(CypherException, IOError) as e:
+        except(CypherError, IOError) as e:
             return e
         tag_list.append(tag)
 

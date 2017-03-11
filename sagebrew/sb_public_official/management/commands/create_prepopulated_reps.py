@@ -5,15 +5,16 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 
-from neomodel import CypherException, DoesNotExist, db
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 
-from api.utils import spawn_task
-from govtrack.neo_models import GTRole, GTPerson
-from govtrack.utils import populate_term_data
-from sb_search.tasks import update_search_object
+from sagebrew.api.utils import spawn_task
+from sagebrew.govtrack.neo_models import GTRole, GTPerson
+from sagebrew.govtrack.utils import populate_term_data
+from sagebrew.sb_search.tasks import update_search_object
 
-from sb_public_official.neo_models import PublicOfficial
-from sb_quests.neo_models import Quest
+from sagebrew.sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_quests.neo_models import Quest
 
 logger = getLogger('loggly_logs')
 
@@ -61,7 +62,7 @@ class Command(BaseCommand):
                             gt_id=person.gt_id, gov_phone=role.phone,
                             bioguideid=person.bioguideid)
                         rep.save()
-                    except (CypherException, IOError) as e:
+                    except (CypherError, IOError) as e:
                         logger.exception(e)
                         continue
                     quest = rep.get_quest()

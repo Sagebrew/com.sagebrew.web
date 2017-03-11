@@ -6,8 +6,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from api.permissions import IsAdminOrReadOnly
-from sb_base.utils import NeoQuerySet
+from sagebrew.api.permissions import IsAdminOrReadOnly
+from sagebrew.sb_base.utils import NeoQuerySet
 
 from .serializers import TagSerializer
 from .neo_models import Tag

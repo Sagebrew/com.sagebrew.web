@@ -12,17 +12,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from py2neo.cypher import ClientError
+from neomodel import DoesNotExist, db
+from neo4j.v1 import CypherError
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_address.serializers import AddressSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
-from neomodel import DoesNotExist, CypherException, db
-
-from sb_address.neo_models import Address
-from sb_address.serializers import AddressSerializer
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
-
-from .neo_models import Pleb
-from .serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
 
 
 def root_profile_page(request):
@@ -71,7 +69,7 @@ class ProfileView(View):
             page_user_pleb = Pleb.get(username=pleb_username)
         except (Pleb.DoesNotExist, DoesNotExist):
             return redirect('404_Error')
-        except (CypherException, ClientError):
+        except CypherError:
             return redirect("500_Error")
         page_user = User.objects.get(username=page_user_pleb.username)
         if page_user.username == request.user.username:
@@ -112,7 +110,7 @@ def general_settings(request):
         res, col = db.cypher_query(query)
         address = AddressSerializer(Address.inflate(res[0][0]),
                                     context={'request': request}).data
-    except(CypherException, ClientError):
+    except CypherError:
         return redirect("500_Error")
     except IndexError:
         address = False

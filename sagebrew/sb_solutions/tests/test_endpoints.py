@@ -10,11 +10,11 @@ from rest_framework.test import APITestCase
 from neomodel import db
 from neomodel.exception import DoesNotExist
 
-from sb_tags.neo_models import Tag
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
-from sb_registration.utils import create_user_util_test
-from sb_votes.utils import create_vote_relationship
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_votes.utils import create_vote_relationship
 
 
 class SolutionEndpointTests(APITestCase):
@@ -108,8 +108,8 @@ class SolutionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_with_mission(self):
-        from sb_quests.neo_models import Quest
-        from sb_missions.neo_models import Mission
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_missions.neo_models import Mission
         self.client.force_authenticate(user=self.user)
         url = reverse("question-solutions",
                       kwargs={'object_uuid': self.question.object_uuid})

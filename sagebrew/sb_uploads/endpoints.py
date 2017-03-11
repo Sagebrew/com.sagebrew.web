@@ -16,8 +16,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser
 
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import delete_image
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import delete_image
 
 from .serializers import (UploadSerializer, CropSerializer,
                           URLContentSerializer, ThumbnailSerializer)

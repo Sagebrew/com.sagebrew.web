@@ -2,9 +2,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestUpdateInterestsTask(TestCase):

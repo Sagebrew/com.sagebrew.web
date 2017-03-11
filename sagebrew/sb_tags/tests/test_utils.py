@@ -2,10 +2,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.text import slugify
 
-from sb_tags.utils import (create_tag_relations_util, update_tags_util)
-from sb_tags.neo_models import AutoTag
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_tags.utils import (create_tag_relations_util, update_tags_util)
+from sagebrew.sb_tags.neo_models import AutoTag
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestCreateTagRelations(TestCase):

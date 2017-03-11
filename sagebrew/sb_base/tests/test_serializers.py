@@ -8,15 +8,15 @@ from rest_framework.test import APITestCase, APIRequestFactory
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_base.serializers import (IntercomMessageSerializer,
+from sagebrew.sb_base.serializers import (IntercomMessageSerializer,
                                  IntercomEventSerializer,
                                  VotableContentSerializer)
-from sb_questions.neo_models import Question
-from sb_comments.neo_models import Comment
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class IntercomMessageSerializerTests(APITestCase):

@@ -5,12 +5,12 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
-from sb_registration.utils import create_user_util_test
-from sb_docstore.utils import add_object_to_table
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_docstore.utils import add_object_to_table
 
-from sb_votes.utils import (determine_update_values, determine_vote_type,
+from sagebrew.sb_votes.utils import (determine_update_values, determine_vote_type,
                             handle_vote)
 
 

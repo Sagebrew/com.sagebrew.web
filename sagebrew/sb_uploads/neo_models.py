@@ -1,4 +1,4 @@
-from sb_base.neo_models import SBContent
+from sagebrew.sb_base.neo_models import SBContent
 
 from neomodel import (StringProperty, RelationshipTo, FloatProperty,
                       IntegerProperty, db)
@@ -13,7 +13,7 @@ class UploadedObject(SBContent):
     image_hash = StringProperty()
 
     # relationships
-    modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
+    modifications = RelationshipTo('sagebrew.sb_uploads.neo_models.ModifiedObject',
                                    "MODIFICATION")
 
     @property
@@ -24,7 +24,7 @@ class UploadedObject(SBContent):
 
 class ModifiedObject(UploadedObject):
     # relationships
-    modification_to = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+    modification_to = RelationshipTo('sagebrew.sb_uploads.neo_models.UploadedObject',
                                      'MODIFICATION_TO')
 
 
@@ -37,7 +37,7 @@ class URLContent(SBContent):
     image_height = IntegerProperty()
     image_width = IntegerProperty()
 
-    images = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+    images = RelationshipTo('sagebrew.sb_uploads.neo_models.UploadedObject',
                             'IMAGE_ON_PAGE')
 
     def get_images(self):

@@ -4,9 +4,9 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
 
-from api.utils import spawn_task
-from sb_base.utils import get_ordering, get_tagged_as, NeoQuerySet
-from sb_search.tasks import update_search_object
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_base.utils import get_ordering, get_tagged_as, NeoQuerySet
+from sagebrew.sb_search.tasks import update_search_object
 
 from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question

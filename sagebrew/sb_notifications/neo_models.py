@@ -5,8 +5,8 @@ from datetime import datetime
 from neomodel import (StringProperty, DateTimeProperty, RelationshipTo,
                       BooleanProperty, db)
 
-from api.neo_models import SBObject
-from sb_search.neo_models import Searchable
+from sagebrew.api.neo_models import SBObject
+from sagebrew.sb_search.neo_models import Searchable
 
 
 def get_current_time():
@@ -26,9 +26,9 @@ class Notification(SBObject):
     public_notification = BooleanProperty(default=False)
 
     # relationships
-    notification_from = RelationshipTo('plebs.neo_models.Pleb',
+    notification_from = RelationshipTo('sagebrew.plebs.neo_models.Pleb',
                                        'NOTIFICATION_FROM')
-    notification_to = RelationshipTo('plebs.neo_models.Pleb',
+    notification_to = RelationshipTo('sagebrew.plebs.neo_models.Pleb',
                                      'NOTIFICATION_TO')
 
     @classmethod
@@ -40,7 +40,7 @@ class Notification(SBObject):
         """
         query = 'MATCH (a:Pleb {username: "%s"})<-[:NOTIFICATION_TO]-' \
             '(n:Notification) WHERE n.seen=False ' \
-            'RETURN count(n)' % (username)
+            'RETURN count(n)' % username
         res, col = db.cypher_query(query)
         return res[0][0]
 

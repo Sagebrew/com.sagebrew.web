@@ -2,12 +2,12 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_flags.neo_models import Flag
-from sb_questions.neo_models import Question
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_flags.neo_models import Flag
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_council.utils import update_closed, check_closed_reputation_changes
+from sagebrew.sb_council.utils import update_closed, check_closed_reputation_changes
 
 
 class TestUpdateClosed(TestCase):

@@ -1,0 +1,17 @@
+[run]
+include = sagebrew.*
+plugins =
+    django_coverage_plugin
+branch = True
+omit =
+    *migrations*
+    *tests*
+    *__init__.py*
+    */settings/*
+    *wsgi.py*
+    *admin.py*
+    *sitemap.py*
+    *s3utils.py*
+    # Management commands should be included usually but these are tested
+    # in a different way than running unit tests. The build will fail if
+    # these fail when docker attempts to run.

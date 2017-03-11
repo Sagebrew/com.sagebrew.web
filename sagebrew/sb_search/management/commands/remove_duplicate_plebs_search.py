@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Command(BaseCommand):

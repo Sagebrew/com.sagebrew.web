@@ -11,9 +11,9 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_news.neo_models import NewsArticle
+from sagebrew.sb_news.neo_models import NewsArticle
 
 
 class QuestEndpointTests(APITestCase):

@@ -12,14 +12,14 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.neo_models import Question
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_locations.utils import (parse_google_places, google_maps_query,
+from sagebrew.sb_locations.utils import (parse_google_places, google_maps_query,
                                 connect_related_element,
                                 break_out_structure)
-from sb_locations.neo_models import Location
+from sagebrew.sb_locations.neo_models import Location
 
 springfield_data = [
     {

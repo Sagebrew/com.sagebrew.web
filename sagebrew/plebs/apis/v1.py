@@ -1,12 +1,12 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from plebs.endpoints import (UserViewSet, ProfileViewSet,
+from sagebrew.plebs.endpoints import (UserViewSet, ProfileViewSet,
                              SentFriendRequestViewSet, MeViewSet,
                              FriendManager, FriendRequestList,
                              PasswordReset, ResendEmailVerification)
-from sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy,
+from sagebrew.sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy,
                                 WallPostsListCreate)
 
 router = routers.SimpleRouter()
@@ -25,9 +25,8 @@ me_router.register(r'friend_requests', FriendRequestList,
                    base_name="friend_request")
 
 
-urlpatterns = patterns(
-    'plebs.endpoints',
-    url(r'^me/', include('sb_notifications.apis.relations.v1')),
+urlpatterns = [
+    url(r'^me/', include('sagebrew.sb_notifications.apis.relations.v1')),
     url(r'^me/resend_verification/$', ResendEmailVerification.as_view(),
         name='me-resend-verification'),
     url(r'^me/', include(me_router.urls)),
@@ -42,4 +41,4 @@ urlpatterns = patterns(
         r'(?P<post_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         WallPostsRetrieveUpdateDestroy.as_view(),
         name="profile-post")
-)
+]

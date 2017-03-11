@@ -11,13 +11,13 @@ from rest_framework.test import APITestCase
 
 from neomodel import DoesNotExist
 
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
-from sb_privileges.neo_models import Privilege
-from sb_posts.neo_models import Post
-from sb_comments.neo_models import Comment
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+from sagebrew.sb_privileges.neo_models import Privilege
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestCommentsRetrieveUpdateDestroy(APITestCase):

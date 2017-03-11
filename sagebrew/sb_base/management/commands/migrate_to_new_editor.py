@@ -5,11 +5,11 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from api.utils import render_content
-from sb_questions.neo_models import Question
-from sb_missions.neo_models import Mission
-from sb_solutions.neo_models import Solution
-from sb_updates.neo_models import Update
+from sagebrew.api.utils import render_content
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_updates.neo_models import Update
 
 
 class Command(BaseCommand):

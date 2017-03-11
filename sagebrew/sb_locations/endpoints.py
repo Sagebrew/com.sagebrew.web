@@ -9,8 +9,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_quests.neo_models import Position
-from sb_quests.serializers import PositionSerializer
+from sagebrew.sb_quests.neo_models import Position
+from sagebrew.sb_quests.serializers import PositionSerializer
 
 from .utils import get_positions, get_districts
 from .serializers import (LocationSerializer, LocationManagerSerializer,

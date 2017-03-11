@@ -9,10 +9,10 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_donations.neo_models import Donation
+from sagebrew.sb_donations.neo_models import Donation
 
 
 class DonationEndpointTests(APITestCase):

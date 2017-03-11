@@ -4,16 +4,16 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 
-from py2neo.cypher.error import ClientError
-from neomodel import db, CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel import db, DoesNotExist
 
-from sb_updates.neo_models import Update
-from sb_updates.serializers import UpdateSerializer
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_missions.utils import order_tasks
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_updates.neo_models import Update
+from sagebrew.sb_updates.serializers import UpdateSerializer
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_missions.utils import order_tasks
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 def mission_redirect_page(request, object_uuid=None):
@@ -21,7 +21,7 @@ def mission_redirect_page(request, object_uuid=None):
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    except (CypherException, ClientError, IOError):  # pragma: no cover
+    except (CypherError, IOError):  # pragma: no cover
         return redirect("500_Error")
 
     return redirect("mission", object_uuid=object_uuid,
@@ -35,7 +35,7 @@ def mission_account_signup(request):
         quest = Quest.get(owner_username=request.user.username)
     except (Mission.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    except (CypherException, ClientError, IOError):  # pragma: no cover
+    except (CypherError, IOError):  # pragma: no cover
         return redirect("500_Error")
 
     return render(request, 'mission/account_setup.html', {"quest": quest})
@@ -218,7 +218,7 @@ class MissionBaseView(View):
             mission_obj = Mission.get(object_uuid)
         except (Mission.DoesNotExist, DoesNotExist):
             return redirect("404_Error")
-        except (CypherException, ClientError, IOError):
+        except (CypherError, IOError):
             return redirect("500_Error")
         mission_dict = MissionSerializer(
             mission_obj, context={'request': request}).data

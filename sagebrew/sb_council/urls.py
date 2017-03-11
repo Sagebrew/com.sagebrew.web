@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from .views import CouncilView
+from sagebrew.sb_council.views import CouncilView
 
-urlpatterns = patterns(
-    'sb_council.views',
+urlpatterns = [
     url(r'^$', CouncilView.as_view(template_name="council_page.html"),
         name='council_page'),
 
@@ -39,4 +38,4 @@ urlpatterns = patterns(
     url(r'^orders/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/complete/$',
         CouncilView.as_view(template_name="council/order_complete.html"),
         name='council_orders_completion')
-)
+]

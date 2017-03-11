@@ -13,16 +13,16 @@ from rest_framework.test import APITestCase
 from neomodel import db
 from elasticsearch import Elasticsearch, TransportError
 
-from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb, Address
-from sb_registration.utils import create_user_util_test
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_donations.neo_models import Donation
-from sb_updates.neo_models import Update
+from sagebrew.sb_privileges.neo_models import SBAction, Privilege
+from sagebrew.plebs.neo_models import Pleb, Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_updates.neo_models import Update
 
-from sb_quests.neo_models import Quest, Position
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_quests.neo_models import Quest, Position
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):

@@ -4,9 +4,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from neomodel import CypherException
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from neo4j.v1 import CypherError
+
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 @api_view(['GET'])
@@ -14,7 +15,7 @@ from sb_quests.serializers import QuestSerializer
 def get_search_html(request, object_uuid):
     try:
         quest = Quest.get(object_uuid)
-    except (CypherException, IOError):
+    except (CypherError, IOError):
         return Response('Server Error', status=500)
     rendered_html = render_to_string("saga_search_block.html",
                                      QuestSerializer(

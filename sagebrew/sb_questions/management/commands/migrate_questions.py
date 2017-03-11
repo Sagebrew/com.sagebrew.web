@@ -2,9 +2,9 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from api.utils import spawn_task
-from sb_questions.neo_models import Question
-from sb_questions.tasks import create_question_summary_task
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.tasks import create_question_summary_task
 
 
 class Command(BaseCommand):

@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_tags.neo_models import Tag
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class TestQuestionNeoModel(TestCase):

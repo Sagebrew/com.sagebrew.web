@@ -8,12 +8,12 @@ from django.template.loader import get_template
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import chunk_list, gather_request_data
-from api.serializers import SBSerializer
-from sb_base.serializers import IntercomMessageSerializer
-from plebs.neo_models import Pleb
-from sb_gifts.neo_models import Product
-from sb_gifts.serializers import ProductSerializer
+from sagebrew.api.utils import chunk_list, gather_request_data
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.sb_base.serializers import IntercomMessageSerializer
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_gifts.neo_models import Product
+from sagebrew.sb_gifts.serializers import ProductSerializer
 
 from .neo_models import Order
 
@@ -180,7 +180,7 @@ class OrderSerializer(SBSerializer):
         return serialized_products
 
     def get_mission(self, obj):
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.serializers import MissionSerializer
         mission = obj.get_mission()
         if mission:
             return MissionSerializer(obj.get_mission()).data

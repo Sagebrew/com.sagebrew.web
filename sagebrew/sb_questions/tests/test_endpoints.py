@@ -13,15 +13,15 @@ from rest_framework.test import APITestCase
 from neomodel.exception import DoesNotExist
 from neomodel import db
 
-from sb_privileges.neo_models import Privilege
-from sb_tags.neo_models import Tag
-from sb_votes.utils import create_vote_relationship
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
-from sb_solutions.neo_models import Solution
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.sb_privileges.neo_models import Privilege
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_votes.utils import create_vote_relationship
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class QuestionEndpointTests(APITestCase):

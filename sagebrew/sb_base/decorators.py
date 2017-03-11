@@ -1,4 +1,4 @@
-from .utils import defensive_exception
+from sagebrew.sb_base.utils import defensive_exception
 
 
 def apply_defense(func):

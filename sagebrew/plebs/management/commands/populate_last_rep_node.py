@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Command(BaseCommand):

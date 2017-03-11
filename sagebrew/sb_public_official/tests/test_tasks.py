@@ -7,11 +7,11 @@ from django.contrib.auth.models import User
 
 from neomodel import DoesNotExist
 
-from sb_registration.utils import create_user_util_test
-from sb_locations.neo_models import Location
-from sb_quests.neo_models import Position, Quest
-from sb_public_official.tasks import create_and_attach_state_level_reps
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_quests.neo_models import Position, Quest
+from sagebrew.sb_public_official.tasks import create_and_attach_state_level_reps
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 
 class TestCreateStateDistricts(TestCase):
@@ -22,7 +22,7 @@ class TestCreateStateDistricts(TestCase):
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.headers = {"content-type": 'application/json; charset=utf8'}
-        with open("sb_public_official/tests/michigan_reps.json") as json_file:
+        with open("sagebrew.sb_public_official/tests/michigan_reps.json") as json_file:
             self.json_data = json.load(json_file)
         self.mi = Location(name=us.states.lookup("MI").name,
                            sector="federal").save()

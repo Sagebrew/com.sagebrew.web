@@ -93,6 +93,17 @@ Pycharm's docker integration must use: `tcp://localhost:6999` as the API url.
 
 From there the instructions for setting up the python remote interrupters are the same for both docker for mac and docker-machine.
 
+### Start From Scratch
+The following process should be used if you're having difficulty getting the 
+application up and running due to docker errors. These commands will remove 
+all of the containers, images, and volumes that docker has created.
+```bash
+docker stop $(docker ps -a -q)
+docker rm --force $(docker ps -a -q)
+docker rmi --force $(docker images -a -q)
+docker volume rm --force $(docker volume ls -f dangling=true -q)
+```
+
 ### Known Issues
 - [ ] https://github.com/docker/compose/issues/1013 (use pycharm not django for running management commands.)
 - [X] Pycharm + Docker isn't always able to create project skeletons. However it seems to work okay if you've already got pycharm setup, have it closed, start docker, then start pycharm.

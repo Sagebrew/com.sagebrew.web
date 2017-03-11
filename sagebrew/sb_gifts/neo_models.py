@@ -86,6 +86,6 @@ class Product(SBObject):
         res, _ = db.cypher_query(query)
         res = res[0] if res else None
         if res is not None:
-            return Giftlist.inflate(res)
+            return Giftlist.inflate(res[0])
         else:
             return None

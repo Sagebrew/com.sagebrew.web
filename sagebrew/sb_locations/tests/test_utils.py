@@ -375,10 +375,10 @@ class TestGooglePlaces(TestCase):
         self.assertEqual(location.name, "Wixom")
         res, _ = db.cypher_query('MATCH (a:Location '
                                  '{name: "Michigan"}) RETURN a')
-        state = Location.inflate(res.one)
+        state = Location.inflate(res[0][0])
         res, _ = db.cypher_query('MATCH (a:Location '
                                  '{name: "United States of America"}) RETURN a')
-        country = Location.inflate(res.one)
+        country = Location.inflate(res[0][0])
         self.assertTrue(state in location.encompassed_by)
         self.assertTrue(location in state.encompasses)
 
@@ -402,10 +402,10 @@ class TestGooglePlaces(TestCase):
         self.assertEqual(location.name, "Wixom")
         res, _ = db.cypher_query('MATCH (a:Location '
                                  '{name: "Michigan"}) RETURN a')
-        state = Location.inflate(res.one)
+        state = Location.inflate(res[0][0])
         res, _ = db.cypher_query('MATCH (a:Location '
                                  '{name: "United States of America"}) RETURN a')
-        country = Location.inflate(res.one)
+        country = Location.inflate(res[0][0])
         self.assertTrue(state in location.encompassed_by)
         self.assertTrue(location in state.encompasses)
 
@@ -421,7 +421,7 @@ class TestGooglePlaces(TestCase):
         self.assertEqual(location.name, "Quebec")
         res, _ = db.cypher_query('MATCH (a:Location '
                                  '{name: "Canada"}) RETURN a')
-        country = Location.inflate(res.one)
+        country = Location.inflate(res[0][0])
 
         self.assertTrue(country in location.encompassed_by)
         self.assertTrue(location in country.encompasses)

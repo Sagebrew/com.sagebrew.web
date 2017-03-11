@@ -299,9 +299,9 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            if res.one:
-                res.one.pull()
-                profile = cls.inflate(res.one)
+            res = res[0] if res else None
+            if res:
+                profile = cls.inflate(res[0])
             else:
                 raise DoesNotExist('Profile with username: %s '
                                    'does not exist' % username)
@@ -359,7 +359,8 @@ class Pleb(Searchable):
                     'RETURN sum(d.amount)' \
                     % (username, mission_id, beg_year, end_year)
             res, col = db.cypher_query(query)
-            donation_amount = res.one if res.one is not None else 0
+            res = res[0] if res else None
+            donation_amount = res if res is not None else 0
             cache.set('%s_%s_donation_amount' %
                       (username, mission_id), donation_amount)
         return donation_amount
@@ -368,13 +369,13 @@ class Pleb(Searchable):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
                 'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_official_phone(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
                 '(o:PublicOfficial) RETURN o.gov_phone' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def deactivate(self):
         pass
@@ -384,7 +385,7 @@ class Pleb(Searchable):
                 'RETURN a' % self.username
         res, _ = db.cypher_query(query)
         try:
-            return Address.inflate(res.one)
+            return Address.inflate(res[0] if res else None)
         except AttributeError:
             return None
 
@@ -481,25 +482,25 @@ class Pleb(Searchable):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(question:Question) RETURN COUNT(question)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_solution_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(solution:Solution) RETURN COUNT(solution)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_post_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(post:Post) RETURN COUNT(post)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_comment_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(comment:Comment) RETURN COUNT(comment)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_friends(self):
         return self.friends.all()
@@ -582,7 +583,7 @@ class Pleb(Searchable):
                 '(p2:Pleb {username:"%s"}) RETURN r.active' % \
                 (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def follow(self, username):
         """
@@ -596,7 +597,7 @@ class Pleb(Searchable):
                 'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
                 'r.active=true RETURN r.active' % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def unfollow(self, username):
         """
@@ -608,7 +609,7 @@ class Pleb(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     @property
     def reputation_change(self):

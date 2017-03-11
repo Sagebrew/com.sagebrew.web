@@ -78,12 +78,12 @@ class LocationExternalIDSerializer(serializers.Serializer):
         query = 'MATCH (a:Location {external_id: "%s"}) RETURN a' % (
                 validated_data.get('place_id'))
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             end_node = parse_google_places(request.data['address_components'],
                                            validated_data.get('place_id'))
             connect_related_element(end_node, validated_data.get('place_id'))
             return end_node
-        return Location.inflate(res.one)
+        return Location.inflate(res[0])
 
 
 class LocationManagerSerializer(SBSerializer):
@@ -111,7 +111,7 @@ class LocationManagerSerializer(SBSerializer):
             temp_value = unidecode(temp_value)
         query = 'MATCH (l:Location {name: "%s"}) RETURN l' % temp_value
         res, _ = db.cypher_query(query)
-        if res.one is not None:
+        if res[0] if res else None is not None:
             raise serializers.ValidationError("Sorry looks like a Location"
                                               " with that Name already Exists")
         return value

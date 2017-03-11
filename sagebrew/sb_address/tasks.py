@@ -31,8 +31,9 @@ def update_address_location(object_uuid):
                 '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            district = Location.inflate(res.one)
+        res = res[0] if res else None
+        if res is not None:
+            district = Location.inflate(res)
             address.encompassed_by.connect(district)
         address.set_encompassing()
     except (CypherError, IOError) as e:

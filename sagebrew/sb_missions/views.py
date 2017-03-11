@@ -49,19 +49,19 @@ def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
             'RETURN mission, quest, update, missions ' \
             'ORDER BY missions.created DESC' % edit_id
     res, _ = db.cypher_query(query)
-    if res.one is None:
+    if res[0] if res else None is None:
         return redirect("select_mission")
 
     missions = [MissionSerializer(Mission.inflate(row.missions)).data
                 for row in res]
-    mission_obj = Mission.inflate(res.one.mission)
+    mission_obj = Mission.inflate(res[0][0].mission)
     return render(
         request, 'updates/edit.html', {
             "update": UpdateSerializer(
-                Update.inflate(res.one.update)).data,
+                Update.inflate(res[0][0].update)).data,
             "mission": MissionSerializer(mission_obj).data,
             "slug": slugify(mission_obj.get_mission_title()),
-            "quest": QuestSerializer(Quest.inflate(res.one.quest)).data,
+            "quest": QuestSerializer(Quest.inflate(res[0][0].quest)).data,
             "missions": missions
         })
 
@@ -77,15 +77,15 @@ def mission_updates(request, object_uuid, slug=None):
             'CASE WHEN count(updates) > 0 ' \
             'THEN true ELSE false END AS update' % object_uuid
     res, _ = db.cypher_query(query)
-    if res.one is None:
+    if res[0] if res else None is None:
         return redirect("404_Error")
     # Instead of doing inflation and serialization of all the updates here
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
-    quest = Quest.inflate(res.one.quest)
-    mission_obj = Mission.inflate(res.one.mission)
+    quest = Quest.inflate(res[0][0].quest)
+    mission_obj = Mission.inflate(res[0][0].mission)
     return render(request, 'mission/updates.html', {
-        "updates": res.one.update,
+        "updates": res[0][0].update,
         "mission":
             MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -105,15 +105,15 @@ def mission_conversations(request, object_uuid, slug=None):
             'CASE WHEN count(question) > 0 ' \
             'THEN true ELSE false END AS question' % object_uuid
     res, _ = db.cypher_query(query)
-    if res.one is None:
+    if res[0] if res else None is None:
         return redirect("404_Error")
     # Instead of doing inflation and serialization of all the conversations here
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
-    quest = Quest.inflate(res.one.quest)
-    mission_obj = Mission.inflate(res.one.mission)
+    quest = Quest.inflate(res[0][0].quest)
+    mission_obj = Mission.inflate(res[0][0].mission)
     return render(request, 'mission/conversations.html', {
-        "conversations": res.one.question,
+        "conversations": res[0][0].question,
         "mission":
             MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -132,15 +132,15 @@ def mission_endorsements(request, object_uuid, slug=None):
     # Instead of doing inflation and serialization of all the updates here
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
-    quest = Quest.inflate(res.one.quest)
-    mission_obj = Mission.inflate(res.one.mission)
+    quest = Quest.inflate(res[0][0].quest)
+    mission_obj = Mission.inflate(res[0][0].mission)
     return render(request, 'mission/endorsements.html', {
         "quest": QuestSerializer(quest).data,
         "mission":
             MissionSerializer(mission_obj, context={"request": request}).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "endorsements":
-            True if res.one.endorsement else False
+            True if res[0][0].endorsement else False
     })
 
 
@@ -165,9 +165,9 @@ class MissionSettingsView(LoginRequiredMixin):
             'RETURN missions, quest ' \
             'ORDER BY missions.created DESC' % request.user.username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             return redirect("404_Error")
-        if res.one.missions is None:
+        if res[0][0].missions is None:
             return redirect("select_mission")
         if object_uuid is None:
             mission_obj = Mission.inflate(res[0].missions)
@@ -187,7 +187,7 @@ class MissionSettingsView(LoginRequiredMixin):
                             slug=slug)
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
-        quest = Quest.inflate(res.one.quest)
+        quest = Quest.inflate(res[0][0].quest)
         if mission_obj.owner_username != quest.owner_username:
             return redirect("404_Error")
         onboarding_sort, completed_count = order_tasks(object_uuid)

@@ -58,7 +58,7 @@ class Location(SBObject):
                 '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.name' % (
                     object_uuid)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     @classmethod
     def get_positions(cls, object_uuid):

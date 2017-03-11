@@ -4094,12 +4094,12 @@ class InterestsEndpointTest(APITestCase):
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0] if res else None)
 
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
+        self.assertIsNone(res[0] if res else None)
 
     def test_all_topics_selected(self):
         self.client.force_authenticate(user=self.user)
@@ -4116,7 +4116,7 @@ class InterestsEndpointTest(APITestCase):
                 '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
 
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0] if res else None)
 
     def test_some_topics_selected(self):
         self.client.force_authenticate(user=self.user)
@@ -4131,7 +4131,7 @@ class InterestsEndpointTest(APITestCase):
                 '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
 
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0] if res else None)
 
     def test_topics_dont_exist(self):
         self.client.force_authenticate(user=self.user)

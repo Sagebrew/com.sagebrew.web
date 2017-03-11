@@ -174,9 +174,10 @@ class DonationSerializer(SBSerializer):
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0] if res else None
+        if res is None:
             return None
-        quest = Quest.inflate(res.one)
+        quest = Quest.inflate(res)
         if expand == 'true':
             return QuestSerializer(quest).data
         if relation == "hyperlink":
@@ -192,9 +193,10 @@ class DonationSerializer(SBSerializer):
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0] if res else None
+        if res is None:
             return None
-        quest = Quest.inflate(res.one)
+        quest = Quest.inflate(res)
         application_fee = obj.amount * (
             quest.application_fee +
             settings.STRIPE_TRANSACTION_PERCENT) + 30

@@ -26,7 +26,11 @@ class Comment(TaggableContent):
         query = 'MATCH (c:Comment {object_uuid:"%s"})<-[:HAS_A]-(o) ' \
                 'RETURN o' % object_uuid
         res, _ = db.cypher_query(query)
-        return SBContent.inflate(res.one)
+        res = res[0] if res else None
+        if res is not None:
+            return SBContent.inflate(res[0])
+        else:
+            return None
 
     @classmethod
     def get_mission(cls, object_uuid, request):

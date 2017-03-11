@@ -14,7 +14,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 if profile.last_counted_vote_node is not None:
@@ -26,8 +26,9 @@ class Command(BaseCommand):
                             'WITH v ORDER BY v.created DESC ' \
                             'RETURN v LIMIT 1' % profile.username
                     res, _ = db.cypher_query(query)
-                    if res.one is not None:
-                        profile.last_counted_vote_node = res.one['object_uuid']
+                    res = res[0] if res else None
+                    if res is not None:
+                        profile.last_counted_vote_node = res['object_uuid']
                         profile.save()
 
         self.stdout.write("completed vote population\n", ending='')

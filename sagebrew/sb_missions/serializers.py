@@ -114,10 +114,11 @@ class MissionSerializer(SBSerializer):
                 '(mission:Mission) RETURN quest, ' \
                 'count(mission) as mission_count' % request.user.username
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            quest = Quest.inflate(res.one['quest'])
+        res = res[0] if res else None
+        if res is not None:
+            quest = Quest.inflate(res[0]['quest'])
             if quest.account_type == "free":
-                if res.one['mission_count'] >= settings.FREE_MISSIONS:
+                if res[0]['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
                         {"detail": "Sorry free Quests can only "
                                    "have 5 Missions.",
@@ -200,7 +201,8 @@ class MissionSerializer(SBSerializer):
                     '{name:"%s", level:"%s"}) RETURN position' % \
                     (loc_query, focused_on, level)
             res, _ = db.cypher_query(query)
-            if not res.one:
+            res = res[0] if res else None
+            if not res:
                 focused_on = slugify(focused_on).title().replace('-', ' ')\
                     .replace('_', ' ')
                 new_position = Position(verified=False, name=focused_on,
@@ -226,7 +228,13 @@ class MissionSerializer(SBSerializer):
                         loc_query, focused_on, level, mission.object_uuid,
                         owner_username)
             res, _ = db.cypher_query(query)
-            mission = Mission.inflate(res.one)
+            res = res[0] if res else None
+            if res is not None:
+                mission = Mission.inflate(res[0])
+            else:
+                # Failed to create Mission. TODO should probably roll back the
+                # nodes that were created.
+                return False
         elif focus_type == "advocacy":
             focused_on = slugify(focused_on)
             try:
@@ -283,8 +291,9 @@ class MissionSerializer(SBSerializer):
                                         owner_username, mission.object_uuid,
                                         loc_query)
             res, _ = db.cypher_query(query)
-            if res.one is not None:
-                mission = Mission.inflate(res.one)
+            res = res[0] if res else None
+            if res is not None:
+                mission = Mission.inflate(res[0])
         setup_onboarding(quest, mission)
         spawn_task(task_func=send_reengage_message,
                    task_param={"mission_uuid": mission.object_uuid,
@@ -460,9 +469,10 @@ class MissionSerializer(SBSerializer):
         query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
                 '(:Mission {object_uuid: "%s"}) RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0] if res else None
+        if res is None:
             return None
-        return QuestSerializer(Quest.inflate(res.one),
+        return QuestSerializer(Quest.inflate(res[0]),
                                context={'request': request}).data
 
     def get_focus_name_formatted(self, obj):

@@ -17,4 +17,8 @@ class GiftListViewSet(generics.RetrieveUpdateDestroyAPIView):
                 '(g:Giftlist) RETURN g' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
-        return Giftlist.inflate(res.one)
+        res = res[0] if res else None
+        if res is not None:
+            return Giftlist.inflate(res[0])
+        else:
+            return None

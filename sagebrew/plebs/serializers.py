@@ -560,7 +560,7 @@ class PlebSerializerNeo(SBSerializer):
                 'RETURN r IS NOT NULL as has_address' % obj.username
         res, _ = db.cypher_query(query)
 
-        return res.one
+        return res[0] if res else None
 
     def get_name_summary(self, obj):
         full_name = "%s %s" % (obj.first_name, obj.last_name)
@@ -643,7 +643,8 @@ class TopicInterestsSerializer(SBSerializer):
                         'CREATE UNIQUE (profile)-[:INTERESTED_IN]->(tag) ' \
                         'RETURN tag' % (request.user.username, slugify(tag))
                 res, _ = db.cypher_query(query)
-                generated_tags.append(TagSerializer(Tag.inflate(res.one)).data)
+                generated_tags.append(
+                    TagSerializer(Tag.inflate(res[0] if res else None)).data)
             except Exception:
                 pass
         cache.delete(request.user.username)

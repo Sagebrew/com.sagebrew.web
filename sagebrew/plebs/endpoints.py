@@ -719,7 +719,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:AFFILIATES_WITH]-(b) ' \
                         'RETURN r' % (party, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res.one:
+                if res[0] if res else None:
                     added.append(party)
             response = serializer.data
             response['names'] = added
@@ -745,7 +745,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:WILL_PARTICIPATE]-(b) ' \
                         'RETURN r' % (interest, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res.one:
+                if res[0] if res else None:
                     added.append(interest)
             response = serializer.data
             response['interests'] = added
@@ -892,7 +892,8 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "-[:REQUEST_TO]->(to_pleb:Pleb) " \
                 "RETURN from_pleb, to_pleb, friend_request" % object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0] if res else None
+        if res is None:
             return Response({
                 'detail': 'Sorry this object does not exist.',
                 "status": status.HTTP_404_NOT_FOUND,
@@ -903,13 +904,13 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
                     " out to us through our email at"
                     " developers@sagebrew.com"
             }, status=status.HTTP_404_NOT_FOUND)
-        to_pleb = Pleb.inflate(res.one.from_pleb)
-        from_pleb = Pleb.inflate(res.one.to_pleb)
+        to_pleb = Pleb.inflate(res.from_pleb)
+        from_pleb = Pleb.inflate(res.to_pleb)
         if from_pleb not in to_pleb.friends:
             to_pleb.friends.connect(from_pleb)
         if to_pleb not in from_pleb.friends:
             from_pleb.friends.connect(to_pleb)
-        FriendRequest.inflate(res.one.friend_request).delete()
+        FriendRequest.inflate(res.friend_request).delete()
         return Response({
             'detail': 'Successfully accepted friend request.',
             "status": status.HTTP_200_OK,

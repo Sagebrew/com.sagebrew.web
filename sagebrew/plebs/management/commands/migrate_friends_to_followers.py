@@ -14,7 +14,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \

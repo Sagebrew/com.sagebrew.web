@@ -63,7 +63,7 @@ class Donation(SBObject):
                 '[:CONTRIBUTED_TO]->(mission:Mission) ' \
                 'RETURN mission.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     @classmethod
     def get_quest(cls, object_uuid):
@@ -72,7 +72,7 @@ class Donation(SBObject):
                 '(quest:Quest) ' \
                 'RETURN quest.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     @classmethod
     def get_owner(cls, object_uuid):

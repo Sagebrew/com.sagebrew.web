@@ -87,7 +87,7 @@ class ContributionQuestView(View):
                 '(missions:Mission) RETURN missions, quest ' \
                 'ORDER BY missions.created DESC' % quest.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             missions = None
         else:
             missions = [MissionSerializer(Mission.inflate(row.missions)).data

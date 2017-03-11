@@ -60,7 +60,7 @@ class MissionViewSet(viewsets.ModelViewSet):
         query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest) ' \
                 'RETURN b' % request.user.username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             self.permission_denied(request)
         return super(MissionViewSet, self).create(request, *args, **kwargs)
 
@@ -190,11 +190,14 @@ class MissionViewSet(viewsets.ModelViewSet):
         query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
                 % object_uuid
         res, _ = db.cypher_query(query)
-        serializer = self.get_serializer(Mission.inflate(res.one),
-                                         data=request.data, partial=True,
-                                         context={'request': request})
-        if serializer.is_valid():
-            self.perform_update(serializer)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        res = res[0] if res else None
+        if res is not None:
+            serializer = self.get_serializer(
+                Mission.inflate(res[0]),
+                data=request.data, partial=True,
+                context={'request': request})
+            if serializer.is_valid():
+                self.perform_update(serializer)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)

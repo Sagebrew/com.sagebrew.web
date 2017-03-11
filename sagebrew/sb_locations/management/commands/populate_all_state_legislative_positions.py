@@ -16,7 +16,11 @@ class Command(BaseCommand):
             query = 'MATCH (l:Location {name:"%s", sector:"federal"}) ' \
                     'RETURN l' % state.name
             res, _ = db.cypher_query(query)
-            state_node = Location.inflate(res.one)
+            res = res[0] if res else None
+            if res is not None:
+                state_node = Location.inflate(res)
+            else:
+                continue
             abbr = state.abbr.lower()
             with open('sb_locations/management/'
                       'commands/state_legislature/'

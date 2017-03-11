@@ -187,9 +187,9 @@ class Quest(Searchable):
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
             res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                quest = cls.inflate(res.one)
+            res = res[0] if res else None
+            if res:
+                quest = cls.inflate(res)
                 cache.set("%s_quest" % owner_username, quest)
             else:
                 raise DoesNotExist("Quest does not exist")
@@ -229,7 +229,8 @@ class Quest(Searchable):
                 '[:IS_WAGING]-(p:Pleb) return p.username' % object_uuid
         res, _ = db.cypher_query(query)
         try:
-            return reverse('quest', kwargs={"username": res.one},
+            return reverse('quest',
+                           kwargs={"username": res[0] if res else None},
                            request=request)
         except IndexError:
             return None
@@ -263,9 +264,7 @@ class Quest(Searchable):
                     '(p:Pleb {username:"%s"}) RETURN r.active' % \
                     (self.object_uuid, username)
             res, _ = db.cypher_query(query)
-            following = res.one
-            if following is None:
-                following = False
+            following = res[0] if res else False
             cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
                       following)
         return following
@@ -282,7 +281,7 @@ class Quest(Searchable):
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res.one
+        return res[0] if res else None
 
     def unfollow(self, username):
         """
@@ -295,7 +294,7 @@ class Quest(Searchable):
                 % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res.one
+        return res[0] if res else None
 
     def get_followers(self):
         query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
@@ -313,8 +312,9 @@ class Quest(Searchable):
                     self.object_uuid, self.application_fee,
                     settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        if res.one:
-            return '{:,.2f}'.format(float(res.one) / 100)
+        res = res[0] if res else None
+        if res:
+            return '{:,.2f}'.format(float(res) / 100)
         else:
             return "0.00"
 
@@ -352,9 +352,9 @@ class Position(SBObject):
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                     object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                position = Position.inflate(res.one)
+            res = res[0] if res else None
+            if res:
+                position = Position.inflate(res)
                 cache.set(object_uuid, position)
             else:
                 position = None

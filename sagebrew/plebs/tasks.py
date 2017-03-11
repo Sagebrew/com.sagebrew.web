@@ -45,7 +45,7 @@ def create_wall_task(username=None):
         query = 'MATCH (pleb:Pleb {username: "%s"})' \
                 '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             wall = Wall(wall_id=str(uuid1())).save()
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \

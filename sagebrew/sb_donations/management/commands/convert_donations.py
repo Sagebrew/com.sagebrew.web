@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     try:
                         if not Donation.get_mission(donation.object_uuid):
                             donation.mission.connect(mission)
-                    except(ConstraintViolation, Exception):
+                    except Exception:
                         pass
         self.stdout.write("completed donation migration\n", ending='')
 

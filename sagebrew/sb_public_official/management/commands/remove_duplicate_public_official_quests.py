@@ -74,7 +74,7 @@ class Command(BaseCommand):
                                                % (official.object_uuid,
                                                   row.username, row.type)
                                     db.cypher_query(re_query)
-                                except ConstraintViolation:
+                                except Exception:
                                     # handle potential constraint violations
                                     pass
                         query = 'MATCH (a:Quest {object_uuid: "%s"}) ' \

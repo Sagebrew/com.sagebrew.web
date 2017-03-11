@@ -344,7 +344,7 @@ class Position(SBObject):
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
     restrictions = RelationshipTo(
         'sagebrew.sb_privileges.neo_models.Restriction',
-                                  'RESTRICTED_BY')
+        'RESTRICTED_BY')
     seats = RelationshipTo('sagebrew.sb_quests.neo_models.Seat', 'SEATS')
 
     @classmethod

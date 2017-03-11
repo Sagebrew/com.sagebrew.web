@@ -35,5 +35,5 @@ def check_closed_reputation_changes():
                 spawn_task(task_func=check_privileges,
                            task_param={'username': pleb.username})
         return True
-    except (CypherError, IOError, ClientError) as e:
+    except (CypherError, IOError) as e:
         return e

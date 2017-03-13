@@ -55,7 +55,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.BANK_SETUP_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
     def test_set_quest_about(self):
         self.quest.about = "some short summary"
@@ -65,7 +65,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.QUEST_ABOUT_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
 
 class TestOrderTasks(TestCase):

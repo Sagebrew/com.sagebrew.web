@@ -27,7 +27,7 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
     skip = 0
     limit = 25
     res, _ = db.cypher_query(count_query)
-    total = res.one
+    total = res[0] if res else None
     while requests_left > limit and \
             requests_left > settings.WEBHOSE_REQUEST_LIMIT:
         news_objects = limit_offset_fxn(skip, limit)

@@ -43,7 +43,7 @@ class TestNewsSerializers(TestCase):
         tag.delete()
         query = 'MATCH (a:NewsArticle) RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
+        self.assertIsNone(res[0] if res else None)
 
     def test_quote_query(self):
         test_file = settings.PROJECT_DIR + "/sb_news/tests/sample_json/" \
@@ -64,9 +64,10 @@ class TestNewsSerializers(TestCase):
                 '{external_id: "c8a3179934b6d4609632383add7fb27ddf3d3842"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "Breaking: Donald Trump Stuns "
-                                           "With Announcement Of Foreign "
-                                           "Policy Dream Team")
+        self.assertEqual(res[0][0]['title'],
+                         "Breaking: Donald Trump Stuns "
+                         "With Announcement Of Foreign "
+                         "Policy Dream Team")
 
     def test_site_not_supported(self):
         test_file = settings.PROJECT_DIR + "/sb_news/tests/sample_json/" \
@@ -84,7 +85,7 @@ class TestNewsSerializers(TestCase):
         tag.delete()
         query = 'MATCH (a:NewsArticle) RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
+        self.assertIsNone(res[0] if res else None)
 
     def test_title_reformat(self):
         test_file = settings.PROJECT_DIR + "/sb_news/tests/sample_json/" \
@@ -104,26 +105,27 @@ class TestNewsSerializers(TestCase):
                 '{external_id: "c7dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "Obama's Team Welcomes Castro "
-                                           "& Cuba To America & To Receive "
-                                           "Criticism: 'Wouldn't Disagree'..."
-                                           "DNC; DNC: DNC. Dncabc DNC")
+        self.assertEqual(res[0][0]['title'],
+                         "Obama's Team Welcomes Castro "
+                         "& Cuba To America & To Receive "
+                         "Criticism: 'Wouldn't Disagree'..."
+                         "DNC; DNC: DNC. Dncabc DNC")
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c294037cba0aad280b655614c5c776f1c5b453ce"}) ' \
                 'RETURN a'
 
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "Friends Of Israel - "
-                                           "The New Yorker")
+        self.assertEqual(res[0]['title'], "Friends Of Israel - "
+                                          "The New Yorker")
 
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c6dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
                 'RETURN a'
 
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['title'], "What's This Another New "
-                                           "US USA U.S. U.S.A. Title It's A "
-                                           "Miracle...")
+        self.assertEqual(res[0]['title'], "What's This Another New "
+                                          "US USA U.S. U.S.A. Title It's A "
+                                          "Miracle...")
 
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c8dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \

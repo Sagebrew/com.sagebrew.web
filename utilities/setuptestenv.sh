@@ -45,3 +45,4 @@ env | grep STRIPE  >> ~/$CIRCLE_PROJECT_REPONAME/.env
 env | grep SYS  >> ~/$CIRCLE_PROJECT_REPONAME/.env
 env | grep TEST  >> ~/$CIRCLE_PROJECT_REPONAME/.env
 env | grep WEB  >> ~/$CIRCLE_PROJECT_REPONAME/.env
+env | grep SUNLIGHT_FOUNDATION  >> ~/$CIRCLE_PROJECT_REPONAME/.env

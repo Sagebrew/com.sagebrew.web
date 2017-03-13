@@ -45,7 +45,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.QUEST_WALLPAPER_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
     def test_set_bank_setup(self):
         self.quest.account_verified = "verified"

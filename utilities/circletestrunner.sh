@@ -10,6 +10,6 @@ set -o errexit
 
 #
 # We can use this same pattern to add the additional flake and coverage tests. (or whatever else we want)
-docker-compose -f dev.yml run pycharm flake8 /app/sagebrew/ --ignore C901
+docker-compose -f dev.yml run pycharm flake8 /app/sagebrew/
 docker-compose -f dev.yml run pycharm coverage run --source='/app' manage.py test  -v 3 --failfast  --noinput
 #docker-compose -f dev.yml run pycharm coverage html

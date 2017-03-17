@@ -85,8 +85,9 @@ class PublicOfficial(Searchable):
                 '[:IS_HOLDING]->(c:Quest) RETURN c' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            return Quest.inflate(res.one)
+        res = res[0] if res else None
+        if res:
+            return Quest.inflate(res[0][0])
         else:
             return None
 

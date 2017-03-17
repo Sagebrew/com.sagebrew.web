@@ -109,8 +109,8 @@ class QuestViewSet(viewsets.ModelViewSet):
                 '(mission:Mission) ' \
                 'RETURN mission.object_uuid' % instance.owner_username
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            [cache.delete("%s_mission" % mission) for mission in res.one]
+        if res[0] if res else None is not None:
+            [cache.delete("%s_mission" % mission) for mission in res[0]]
         # Delete all missions associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
                 '(mission:Mission) WITH mission, r ' \

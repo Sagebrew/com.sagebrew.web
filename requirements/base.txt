@@ -79,3 +79,6 @@ python-google-places==1.1.0
 html5lib==1.0b8
 python-amazon-simple-product-api==2.1.0
 shortuuid==0.4.2
+scipy==0.17.1
+awscli==1.10.34
+numpy==1.11.0

@@ -73,8 +73,9 @@ class PublicOfficialSerializer(SBSerializer):
                 '[:IS_HOLDING]->(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            quest = res.one
+        res = res[0] if res else None
+        if res:
+            quest = res[0][0]
         if quest is not None:
             quest = QuestSerializer(Quest.inflate(quest)).data
         return quest

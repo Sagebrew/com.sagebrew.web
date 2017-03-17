@@ -98,7 +98,7 @@ class Question(TitledContent):
                 'collect(solutions.owner_username) as authors' % (
                     self.object_uuid)
         res, _ = db.cypher_query(query)
-        authors = list(set(res.one))
+        authors = list(set(res[0][0]))
         author_list = []
         for author in authors:
             pleb = Pleb.get(author)

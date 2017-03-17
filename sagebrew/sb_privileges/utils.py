@@ -62,7 +62,7 @@ def manage_privilege_relation(username):
                     'RETURN action, privilege' % (
                         username, privilege.name, current_time, current_time)
             res, _ = db.cypher_query(query)
-            if res.one is not None:
+            if res[0] if res else None is not None:
                 continue
         else:
             try:

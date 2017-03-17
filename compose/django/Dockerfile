@@ -4,7 +4,10 @@ ENV PYTHONUNBUFFERED 1
 RUN echo 'deb http://ftp.debian.org/debian jessie-backports main' >> /etc/apt/sources.list
 RUN apt-get update && apt-get -t jessie-backports install -y \
   libicu-dev \
-  postgresql-client
+  postgresql-client \
+  libjpeg-dev libblas-dev liblapack-dev \
+  libatlas-base-dev gfortran \
+  libicu-dev python-pyicu
 
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements

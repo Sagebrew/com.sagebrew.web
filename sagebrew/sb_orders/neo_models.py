@@ -43,7 +43,7 @@ class Order(SBObject):
         query = 'MATCH (o:Order {object_uuid:"%s"})-[:GIFTED_TO]->' \
                 '(m:Mission) RETURN m' % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            res.one.pull()
-            return Mission.inflate(res.one)
+        res = res[0] if res else None
+        if res:
+            return Mission.inflate(res[0][0])
         return None

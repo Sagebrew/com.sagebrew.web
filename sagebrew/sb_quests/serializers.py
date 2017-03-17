@@ -381,7 +381,7 @@ class QuestSerializer(SBSerializer):
                     '-[:LOCATED_AT]->(b:Address) ' \
                     'RETURN b' % instance.owner_username
             res, _ = db.cypher_query(query)
-            account_address = Address.inflate(res.one)
+            account_address = Address.inflate(res[0][0])
             if not instance.tos_acceptance:
                 request = self.context.get('request', None)
                 if request is not None:
@@ -506,7 +506,7 @@ class QuestSerializer(SBSerializer):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:ENDORSES]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             return None
         if expand == 'true':
             return [MissionSerializer(Mission.inflate(row[0])).data
@@ -524,7 +524,7 @@ class QuestSerializer(SBSerializer):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             return None
         if expand == 'true':
             return [MissionSerializer(Mission.inflate(row[0])).data
@@ -560,7 +560,7 @@ class QuestSerializer(SBSerializer):
                 'OPTIONAL MATCH (p)-[r:LOCATED_AT]->(b:Address) ' \
                 'RETURN r IS NOT NULL as has_address' % obj.owner_username
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0] if res else None
 
     def get_title_summary(self, obj):
         if obj.title is not None:

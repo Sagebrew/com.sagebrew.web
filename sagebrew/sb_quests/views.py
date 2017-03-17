@@ -41,16 +41,15 @@ class QuestSettingsView(LoginRequiredMixin):
                 request.user.username)
         try:
             res, _ = db.cypher_query(query)
-            if res.one is None:
+            if res[0] if res else None is None:
                 return redirect("404_Error")
         except CypherError:
             return redirect("500_Error")
-        res.one.quest.pull()
-        quest_obj = Quest.inflate(res.one.quest)
+        quest_obj = Quest.inflate(res[0][0].quest)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
-        if res.one.missions is None:
+        if res[0][0].missions is None:
             mission_link = reverse('select_mission')
             mission_active = False
             onboarding_sort = []

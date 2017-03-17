@@ -40,7 +40,7 @@ def solution_edit_page(request, solution_uuid=None):
             'WHEN a.owner_username = "%s" THEN TRUE ' \
             'ELSE FALSE END' % (solution_uuid, request.user.username)
     res, _ = db.cypher_query(query)
-    if res.one is False:
+    if res[0] if res else None is False:
         return redirect('401_Error')
     return render(request, 'solutions/edit.html',
                   {"object_uuid": solution_uuid})

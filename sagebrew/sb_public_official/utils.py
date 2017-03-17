@@ -25,9 +25,9 @@ def determine_reps(pleb):
             'CREATE UNIQUE (pleb)-[:HAS_HOUSE_REPRESENTATIVE]->(public) ' \
             'RETURN public' % pleb.username
     res, _ = db.cypher_query(query)
-    if res.one:
+    if res[0] if res else None:
         cache.set("%s_house_representative" % pleb.username,
-                  PublicOfficial.inflate(res.one))
+                  PublicOfficial.inflate(res[0][0]))
 
     # Link pleb with their senator
     query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \

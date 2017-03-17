@@ -119,7 +119,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         temp_value = temp_value.replace("'", "\\'")
         query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value
         res, _ = db.cypher_query(query)
-        if res.one is not None:
+        if res[0] if res else None is not None:
             raise serializers.ValidationError("Sorry looks like a Question "
                                               "with that Title already exists.")
         return value
@@ -156,7 +156,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
                     'RETURN t' % slugify(tag)
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 if (request.user.username == "devon_bleibtrey" or
                         request.user.username == "tyler_wiersing" or
                         owner.reputation >= 1250):
@@ -165,7 +165,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 else:
                     continue
             else:
-                tag_obj = Tag.inflate(res.one)
+                tag_obj = Tag.inflate(res[0][0])
                 question.tags.connect(tag_obj)
 
         spawn_task(task_func=update_tags, task_param={"tags": tags})

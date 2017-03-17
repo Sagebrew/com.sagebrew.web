@@ -28,7 +28,7 @@ class Command(BaseCommand):
             query = 'MATCH (role:GTRole) ' \
                     'RETURN role SKIP %s LIMIT 25' % count
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             count += 24
             for role in [GTRole.inflate(row[0]) for row in res]:
@@ -37,10 +37,10 @@ class Command(BaseCommand):
                             '-[:IS]->(person:GTPerson) ' \
                             'RETURN person' % role.role_id
                     res, _ = db.cypher_query(query)
-                    if res.one is None:
+                    if res[0] if res else None is None:
                         continue
                     else:
-                        person = GTPerson.inflate(res.one)
+                        person = GTPerson.inflate(res[0][0])
 
                     try:
                         rep = PublicOfficial.nodes.get(gt_id=person.gt_id)

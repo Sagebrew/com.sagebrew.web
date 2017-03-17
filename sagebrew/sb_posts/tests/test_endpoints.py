@@ -587,14 +587,14 @@ class WallPostListCreateTest(APITestCase):
                 '-[:OWNS_WALL]->(wall:Wall) ' \
                 'RETURN wall' % self.pleb.username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             wall = Wall(wall_id=str(uuid1())).save()
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \
                     'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
                     'RETURN wall' % (self.pleb.username, wall.wall_id)
             res, _ = db.cypher_query(query)
-        self.wall = Wall.inflate(res.one)
+        self.wall = Wall.inflate(res[0][0])
 
     def test_unauthorized(self):
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
@@ -721,14 +721,14 @@ class WallPostListCreateTest(APITestCase):
                 '-[:OWNS_WALL]->(wall:Wall) ' \
                 'RETURN wall' % friend.username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             wall = Wall(wall_id=str(uuid1())).save()
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \
                     'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
                     'RETURN wall' % (friend.username, wall.wall_id)
             res, _ = db.cypher_query(query)
-        wall = Wall.inflate(res.one)
+        wall = Wall.inflate(res[0][0])
         post = Post(content="My first post",
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()

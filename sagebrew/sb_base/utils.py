@@ -218,7 +218,7 @@ class NeoQuerySet(object):
     def count(self):
         res, _ = db.cypher_query("MATCH %s RETURN COUNT(%sres)" %
                                  (self.query, self.is_distinct()))
-        return res[0] if res else None
+        return res[0][0] if res else None
 
     def filter(self, query_filter):
         return self._filter_or_exclude(query_filter)

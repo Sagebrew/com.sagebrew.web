@@ -170,9 +170,9 @@ class Mission(Searchable):
             query = 'MATCH (c:`Mission` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
             res, _ = db.cypher_query(query)
-            res = res[0] if res else None
+            res = res[0][0] if res else None
             if res:
-                mission = cls.inflate(res[0])
+                mission = cls.inflate(res)
                 cache.set("%s_mission" % object_uuid, mission)
             else:
                 raise DoesNotExist("Mission does not exist")
@@ -195,17 +195,17 @@ class Mission(Searchable):
         query = 'MATCH (a:Mission {object_uuid: "%s"})-[:FOCUSED_ON]->(b)' \
                 'RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
-            child_label = SBObject.inflate(res[0]).get_child_label()
+            child_label = SBObject.inflate(res).get_child_label()
             if child_label == "Position":
-                return PositionSerializer(Position.inflate(res[0]),
+                return PositionSerializer(Position.inflate(res),
                                           context={'request': request}).data
             elif child_label == "Tag":
-                return TagSerializer(Tag.inflate(res[0]),
+                return TagSerializer(Tag.inflate(res),
                                      context={'request': request}).data
             elif child_label == "Question":
-                return QuestionSerializerNeo(Question.inflate(res[0]),
+                return QuestionSerializerNeo(Question.inflate(res),
                                              context={'request': request}).data
         else:
             return None
@@ -215,9 +215,9 @@ class Mission(Searchable):
         query = 'MATCH (a:Mission {object_uuid: "%s"})' \
                 '-[:WITHIN]->(b:Location) RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
-            return Location.inflate(res[0])
+            return Location.inflate(res)
         else:
             return None
 
@@ -226,9 +226,9 @@ class Mission(Searchable):
         query = 'MATCH (a:Mission {object_uuid:"%s"})' \
                 '<-[:LIST_FOR]-(b:Giftlist) RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
-            return Giftlist.inflate(res[0])
+            return Giftlist.inflate(res)
         return None
 
     @classmethod
@@ -350,9 +350,9 @@ class Mission(Searchable):
                 % (self.object_uuid, quest.application_fee,
                    settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
-            return '{:,.2f}'.format(float(res[0]) / 100)
+            return '{:,.2f}'.format(float(res) / 100)
         else:
             return "0.00"
 
@@ -369,9 +369,9 @@ class Mission(Searchable):
                 cache.set("%s_average_donation_amount" % self.object_uuid,
                           "0.00")
                 return "0.00"
-            res = res[0] if res else None
-            if res[0]:
-                res = '{:,.2f}'.format(float(res[0]) / 100)
+            res = res[0][0] if res else None
+            if res:
+                res = '{:,.2f}'.format(float(res) / 100)
             cache.set("%s_average_donation_amount" % self.object_uuid, res)
         return res
 

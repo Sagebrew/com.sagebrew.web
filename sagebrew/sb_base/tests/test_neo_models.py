@@ -101,7 +101,7 @@ class TestGetUploadedObject(TestCase):
 
     def test_get_uploaded_object(self):
         res = self.post.get_uploaded_objects()
-        self.assertEqual(res[0]['url'], self.uploaded_object.url)
+        self.assertEqual(res[0][0]['url'], self.uploaded_object.url)
 
     def test_get_uploaded_object_no_objects(self):
         self.post.uploaded_objects.disconnect(self.uploaded_object)

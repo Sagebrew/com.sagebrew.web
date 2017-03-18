@@ -174,7 +174,7 @@ class DonationSerializer(SBSerializer):
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is None:
             return None
         quest = Quest.inflate(res)
@@ -193,7 +193,7 @@ class DonationSerializer(SBSerializer):
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is None:
             return None
         quest = Quest.inflate(res)

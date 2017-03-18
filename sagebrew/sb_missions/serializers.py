@@ -115,11 +115,11 @@ class MissionSerializer(SBSerializer):
                 '(mission:Mission) RETURN quest, ' \
                 'count(mission) as mission_count' % request.user.username
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
-            quest = Quest.inflate(res[0]['quest'])
+            quest = Quest.inflate(res['quest'])
             if quest.account_type == "free":
-                if res[0]['mission_count'] >= settings.FREE_MISSIONS:
+                if res['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
                         {"detail": "Sorry free Quests can only "
                                    "have 5 Missions.",

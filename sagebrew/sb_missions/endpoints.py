@@ -192,14 +192,19 @@ class MissionViewSet(viewsets.ModelViewSet):
         query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
                 % object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
             serializer = self.get_serializer(
-                Mission.inflate(res[0]),
+                Mission.inflate(res),
                 data=request.data, partial=True,
                 context={'request': request})
             if serializer.is_valid():
                 self.perform_update(serializer)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "detail": "Unknown Error",
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR},
+                status=status.HTTP_400_BAD_REQUEST)

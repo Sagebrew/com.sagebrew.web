@@ -14,6 +14,9 @@ from rest_framework import status
 
 from neomodel import DoesNotExist, db
 from neo4j.v1 import CypherError
+
+from config.utils import neo_node
+
 from sagebrew.sb_address.neo_models import Address
 from sagebrew.sb_address.serializers import AddressSerializer
 from sagebrew.sb_quests.neo_models import Quest
@@ -46,7 +49,7 @@ class PersonalProfileView(LoginRequiredMixin):
             query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
                 request.user.username)
             res, _ = db.cypher_query(query)
-            quest = QuestSerializer(Quest.inflate(res[0][0]),
+            quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                     context={'request': request}).data
         except (DoesNotExist, Quest.DoesNotExist, IndexError):
             quest = None
@@ -108,7 +111,7 @@ def general_settings(request):
                 request.user.username)
     try:
         res, col = db.cypher_query(query)
-        address = AddressSerializer(Address.inflate(res[0][0]),
+        address = AddressSerializer(Address.inflate(neo_node(res)),
                                     context={'request': request}).data
     except CypherError:
         return redirect("500_Error")
@@ -118,7 +121,7 @@ def general_settings(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
@@ -136,7 +139,7 @@ def delete_account(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
@@ -158,7 +161,7 @@ def contribute_settings(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None

@@ -22,7 +22,7 @@ from sagebrew.sb_quests.neo_models import Quest
 class AccountingHooksTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         try:
             self.pleb2 = Pleb.nodes.get(

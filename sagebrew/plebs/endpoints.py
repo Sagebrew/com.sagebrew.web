@@ -24,6 +24,7 @@ from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 from neomodel import db
 
 from config import errors
+from config.utils import neo_node
 
 from sagebrew.api.permissions import (
     IsSelfOrReadOnly, IsAnonCreateReadOnlyOrIsAuthenticated)
@@ -352,7 +353,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     "(s:PublicOfficial) RETURN s" % username
             res, col = db.cypher_query(query)
             try:
-                house_rep = PublicOfficial.inflate(res[0][0])
+                house_rep = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_house_representative" % username, house_rep,
                           timeout=1800)
             except IndexError:
@@ -368,7 +369,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(o:PublicOfficial) RETURN o' % username
             res, _ = db.cypher_query(query)
             try:
-                president = PublicOfficial.inflate(res[0][0])
+                president = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_president" % username, president, timeout=1800)
             except IndexError:
                 return Response({}, status=status.HTTP_200_OK)
@@ -719,7 +720,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:AFFILIATES_WITH]-(b) ' \
                         'RETURN r' % (party, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res[0] if res else None:
+                if neo_node(res):
                     added.append(party)
             response = serializer.data
             response['names'] = added
@@ -745,7 +746,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:WILL_PARTICIPATE]-(b) ' \
                         'RETURN r' % (interest, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res[0] if res else None:
+                if neo_node(res):
                     added.append(interest)
             response = serializer.data
             response['interests'] = added
@@ -892,7 +893,7 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "-[:REQUEST_TO]->(to_pleb:Pleb) " \
                 "RETURN from_pleb, to_pleb, friend_request" % object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = neo_node(res)
         if res is None:
             return Response({
                 'detail': 'Sorry this object does not exist.',

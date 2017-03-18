@@ -17,7 +17,7 @@ from sagebrew.sb_gifts.neo_models import Product, Giftlist
 
 class GiftlistEndpointTest(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'quest'

@@ -4,6 +4,8 @@ from django.test import TestCase
 from django.core.cache import cache
 from rest_framework.reverse import reverse
 
+from config.utils import neo_node
+
 from sagebrew.plebs.neo_models import Pleb
 from sagebrew.sb_registration.utils import create_user_util_test
 
@@ -125,7 +127,7 @@ class TestQuest(TestCase):
         donation.mission.connect(mission)
         donation.quest.connect(self.quest)
         res = Quest.get_donations(self.quest.owner_username)
-        self.assertEqual(donation.object_uuid, res[0].object_uuid)
+        self.assertEqual(donation.object_uuid, neo_node(res).object_uuid)
 
     def test_is_following(self):
         self.quest.follow(self.owner.username)

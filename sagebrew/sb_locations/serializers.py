@@ -83,7 +83,7 @@ class LocationExternalIDSerializer(serializers.Serializer):
                                            validated_data.get('place_id'))
             connect_related_element(end_node, validated_data.get('place_id'))
             return end_node
-        return Location.inflate(res[0])
+        return Location.inflate(res[0][0])
 
 
 class LocationManagerSerializer(SBSerializer):

@@ -35,7 +35,7 @@ def political_campaign(request):
     try:
         query = 'MATCH (position:Position) RETURN COUNT(position)'
         res, _ = db.cypher_query(query)
-        position_count = res.one
+        position_count = res[0][0] if res else None
         if position_count is None:  # pragma: no cover
             position_count = 7274
     except (CypherError, IOError):  # pragma: no cover

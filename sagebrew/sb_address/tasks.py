@@ -31,7 +31,7 @@ def update_address_location(object_uuid):
                 '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
             district = Location.inflate(res)
             address.encompassed_by.connect(district)
@@ -72,7 +72,7 @@ def connect_to_state_districts(object_uuid):
             except KeyError:
                 return False
             try:
-                res = res[0]
+                res = res[0][0]
             except IndexError as e:
                 raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                        max_retries=None)

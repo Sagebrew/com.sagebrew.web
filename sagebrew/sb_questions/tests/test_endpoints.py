@@ -155,7 +155,7 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
+        self.assertIsNone(res[0][0])
 
     def test_create_with_new_tags_with_rep(self):
         self.client.force_authenticate(user=self.user)
@@ -179,12 +179,12 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0][0])
         query = 'MATCH (a:Tag {name: "%s"})<-[:TAGGED_AS]-' \
                 '(question:Question {object_uuid: "%s"}) ' \
                 'RETURN question' % (slugify(tag_name), response.data['id'])
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0][0])
 
     def test_create_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
@@ -257,7 +257,7 @@ class QuestionEndpointTests(APITestCase):
         res, _ = db.cypher_query('MATCH (a:Question '
                                  '{object_uuid: "%s"}) RETURN a' %
                                  response.data['object_uuid'])
-        question = Question.inflate(res.one)
+        question = Question.inflate(res[0][0])
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
         self.assertEqual(question.content, data['content'])
         self.assertEqual(question.object_uuid, response.data['object_uuid'])
@@ -281,7 +281,7 @@ class QuestionEndpointTests(APITestCase):
         res, _ = db.cypher_query('MATCH (a:Question {object_uuid: '
                                  '"%s"}) RETURN a' %
                                  response.data['object_uuid'])
-        question = Question.inflate(res.one)
+        question = Question.inflate(res[0][0])
         self.assertEqual(question.content, data['content'])
 
     def test_create_duplicate_title(self):
@@ -629,7 +629,7 @@ class QuestionEndpointTests(APITestCase):
         res, _ = db.cypher_query('MATCH (a:Question '
                                  '{external_location_id: '
                                  '"ChIJCV7PpJGlJIgRkkwposHal-Q"}) RETURN a')
-        question = Question.inflate(res.one)
+        question = Question.inflate(res[0][0])
         updated_question = Question.get(self.question.object_uuid)
         self.assertEqual(question.affected_area, "Walled Lake, MI, USA")
         self.assertEqual(question.latitude, 42.537811)

@@ -49,7 +49,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     res = create_vote_relationship(object_uuid, current_pleb.username,
                                    vote_active_string, vote_type_string)
 
-    sb_object = VotableContent.inflate(res.one)
+    sb_object = VotableContent.inflate(res[0][0])
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 

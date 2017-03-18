@@ -23,7 +23,6 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
         query = 'MATCH (d:Donation {object_uuid: "%s"}) RETURN d' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
-        res[0][0].pull()
         return Donation.inflate(res[0][0])
 
     def list(self, request, *args, **kwargs):

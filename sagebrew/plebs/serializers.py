@@ -25,6 +25,8 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import db, DoesNotExist
 
+from config.utils import neo_node
+
 from sagebrew.api.serializers import SBSerializer
 from sagebrew.api.utils import (
     smart_truncate, spawn_task, gather_request_data, SBUniqueValidator)
@@ -560,7 +562,7 @@ class PlebSerializerNeo(SBSerializer):
                 'RETURN r IS NOT NULL as has_address' % obj.username
         res, _ = db.cypher_query(query)
 
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_name_summary(self, obj):
         full_name = "%s %s" % (obj.first_name, obj.last_name)
@@ -588,14 +590,14 @@ class FriendRequestSerializer(SBSerializer):
                 '[:REQUEST_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
-        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        return PlebSerializerNeo(Pleb.inflate(neo_node(res))).data
 
     def get_to_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
                 '[:REQUEST_TO]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
-        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        return PlebSerializerNeo(Pleb.inflate(neo_node(res))).data
 
 
 class PlebExportSerializer(serializers.Serializer):
@@ -644,7 +646,8 @@ class TopicInterestsSerializer(SBSerializer):
                         'RETURN tag' % (request.user.username, slugify(tag))
                 res, _ = db.cypher_query(query)
                 generated_tags.append(
-                    TagSerializer(Tag.inflate(res[0] if res else None)).data)
+                    TagSerializer(
+                        Tag.inflate(neo_node(res))).data)
             except Exception:
                 pass
         cache.delete(request.user.username)

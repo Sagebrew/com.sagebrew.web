@@ -15,6 +15,8 @@ from rest_framework.reverse import reverse
 from neomodel import db
 from neomodel.exception import DoesNotExist
 
+from config.utils import neo_node
+
 from sagebrew.api.serializers import SBSerializer
 from sagebrew.api.utils import (
     gather_request_data, spawn_task, clean_url,
@@ -381,7 +383,7 @@ class QuestSerializer(SBSerializer):
                     '-[:LOCATED_AT]->(b:Address) ' \
                     'RETURN b' % instance.owner_username
             res, _ = db.cypher_query(query)
-            account_address = Address.inflate(res[0][0])
+            account_address = Address.inflate(neo_node(res))
             if not instance.tos_acceptance:
                 request = self.context.get('request', None)
                 if request is not None:
@@ -506,7 +508,7 @@ class QuestSerializer(SBSerializer):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:ENDORSES]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
-        if res[0] if res else None is None:
+        if neo_node(res):
             return None
         if expand == 'true':
             return [MissionSerializer(Mission.inflate(row[0])).data
@@ -524,7 +526,7 @@ class QuestSerializer(SBSerializer):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
-        if res[0] if res else None is None:
+        if neo_node(res):
             return None
         if expand == 'true':
             return [MissionSerializer(Mission.inflate(row[0])).data
@@ -560,7 +562,7 @@ class QuestSerializer(SBSerializer):
                 'OPTIONAL MATCH (p)-[r:LOCATED_AT]->(b:Address) ' \
                 'RETURN r IS NOT NULL as has_address' % obj.owner_username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_title_summary(self, obj):
         if obj.title is not None:

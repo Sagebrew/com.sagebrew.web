@@ -62,7 +62,7 @@ def verify_hamming_distance(value, distance=11, time_frame=None):
                 'SKIP %s LIMIT 100' % (then, skip)
         skip += 99
         res, _ = db.cypher_query(query)
-        if not res.one:
+        if not res[0][0] if res else None:
             break
         for row in res:
             result = hamming_distance(row[0], str(value))
@@ -106,7 +106,7 @@ class UploadSerializer(SBSerializer):
             query = 'MATCH (a:SBObject {object_uuid: "%s"}) ' \
                     'RETURN a' % object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
+            if res[0][0] if res else None:
                 raise ValidationError("ID must be unique.")
             data['object_uuid'] = object_uuid
         if file_object is None:
@@ -156,7 +156,7 @@ class UploadSerializer(SBSerializer):
                     'WHERE upload.image_hash="%s" ' \
                     'RETURN true' % data['image_hash']
             res, _ = db.cypher_query(query)
-            if res.one:
+            if res[0][0] if res else None:
                 raise ValidationError("Image must be unique")
         if check_hamming:
             verify_hamming_distance(data['image_hash'],

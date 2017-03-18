@@ -22,7 +22,7 @@ class Giftlist(SBObject):
                 '(p:Product {vendor_id:"%s", vendor_name:"%s"}) RETURN p' \
                 % (self.object_uuid, vendor_id, vendor_name)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
             return Product.inflate(res)
         return None
@@ -45,7 +45,7 @@ class Giftlist(SBObject):
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})-[:LIST_FOR]->' \
                 '(m:Mission) RETURN m' % self.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
             return Mission.inflate(res)
         else:
@@ -87,8 +87,8 @@ class Product(SBObject):
         query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \
                 '(g:Giftlist) RETURN g' % self.object_uuid
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
-            return Giftlist.inflate(res[0])
+            return Giftlist.inflate(res)
         else:
             return None

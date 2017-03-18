@@ -6,6 +6,9 @@ from django.utils.text import slugify
 
 from neo4j.v1 import CypherError
 from neomodel import DoesNotExist, db
+
+from config.utils import neo_node
+
 from sagebrew.sb_address.neo_models import Address
 from sagebrew.sb_quests.neo_models import Quest
 from sagebrew.sb_quests.serializers import QuestSerializer
@@ -41,22 +44,23 @@ class QuestSettingsView(LoginRequiredMixin):
                 request.user.username)
         try:
             res, _ = db.cypher_query(query)
-            if res[0] if res else None is None:
+            if neo_node(res):
                 return redirect("404_Error")
         except CypherError:
             return redirect("500_Error")
-        quest_obj = Quest.inflate(res[0][0].quest)
+        res = neo_node(res)
+        quest_obj = Quest.inflate(res.quest)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
-        if res[0][0].missions is None:
+        if res.missions is None:
             mission_link = reverse('select_mission')
             mission_active = False
             onboarding_sort = []
             mission_obj = None
             onboarding_done = 0
         else:
-            mission_obj = Mission.inflate(res[0].missions)
+            mission_obj = Mission.inflate(res.missions)
             mission_link = reverse(
                 'mission_settings',
                 kwargs={"object_uuid": mission_obj.object_uuid,
@@ -69,8 +73,9 @@ class QuestSettingsView(LoginRequiredMixin):
         res, _ = db.cypher_query('MATCH (a:Quest {owner_username: "%s"})'
                                  '-[:LOCATED_AT]->(b:Address) '
                                  'RETURN b' % quest_obj.owner_username)
-        if res.one is not None:
-            address = Address.inflate(res.one)
+        res = neo_node(res)
+        if res:
+            address = Address.inflate(res)
         else:
             address = None
         if self.template_name == "manage/quest_banking.html" \

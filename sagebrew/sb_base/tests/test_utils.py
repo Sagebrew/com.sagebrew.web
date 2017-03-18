@@ -105,9 +105,9 @@ class TestNeoQuerySet(TestCase):
             .order_by('ORDER BY res.created')
         query_res = list(queryset)
         self.assertEqual(queryset.count(), 3)
-        self.assertEqual(query_res[0].content, "this is content number 2-0")
-        self.assertEqual(query_res[1].content, "this is content number 2-1")
-        self.assertEqual(query_res[2].content, "this is content number 2-2")
+        self.assertEqual(query_res[0][0].content, "this is content number 2-0")
+        self.assertEqual(query_res[0][1].content, "this is content number 2-1")
+        self.assertEqual(query_res[0][2].content, "this is content number 2-2")
 
     def test_get_count_with_order_filter_distinct_reversed(self):
         for content in range(0, 15):

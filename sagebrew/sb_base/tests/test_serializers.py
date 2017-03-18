@@ -22,7 +22,7 @@ from sagebrew.sb_missions.neo_models import Mission
 class IntercomMessageSerializerTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"
@@ -289,7 +289,7 @@ class IntercomMessageSerializerTests(APITestCase):
 class IntercomEventSerializerTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"

@@ -41,7 +41,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         query = 'MATCH (location:Location {%s: "%s"}) RETURN location' % (
             lookup_value, query_id)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res:
             return Location.inflate(res)
         else:

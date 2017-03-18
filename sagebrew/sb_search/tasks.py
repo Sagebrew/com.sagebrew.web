@@ -36,9 +36,8 @@ def update_search_query(username, query_param, keywords):
     try:
         res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  username)
-        if res.one:
-            res.one.pull()
-            pleb = Pleb.inflate(res.one)
+        if res[0] if res else None:
+            pleb = Pleb.inflate(res[0][0])
         else:
             raise update_search_query.retry(
                 exc=DoesNotExist("Profile with username: "
@@ -133,15 +132,15 @@ def update_search_object(object_uuid, label=None, object_data=None,
     query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
             (label.title(), object_uuid)
     res, _ = db.cypher_query(query)
-    if res.one:
-        res.one.pull()
+    if res[0] if res else None:
+        res = [0][0]
     else:
         raise update_search_object.retry(
             exc=DoesNotExist('Object with uuid: %s '
                              'does not exist' % object_uuid), countdown=3,
             max_retries=None)
     if label == "question":
-        instance = Question.inflate(res.one)
+        instance = Question.inflate(res)
         object_data = QuestionSerializerNeo(instance).data
         if 'mission' in object_data:
             object_data.pop('mission')
@@ -149,11 +148,11 @@ def update_search_object(object_uuid, label=None, object_data=None,
             object_data.pop('profile')
         logger.critical(object_data)
     elif label == "quest":
-        instance = Quest.inflate(res.one)
+        instance = Quest.inflate(res)
         object_data = QuestSerializer(instance).data
         logger.critical(object_data)
     elif label == "mission":
-        instance = Mission.inflate(res.one)
+        instance = Mission.inflate(res)
         object_data = MissionSerializer(instance).data
         # Need to pop review_feedback because ES's serializer cannot parse
         # set types.
@@ -171,7 +170,7 @@ def update_search_object(object_uuid, label=None, object_data=None,
             object_data.pop('quest')
         logger.critical(object_data)
     elif label == "pleb":
-        instance = Pleb.inflate(res.one)
+        instance = Pleb.inflate(res)
         object_data = PlebSerializerNeo(instance).data
         if 'quest' in object_data:
             object_data.pop('quest')

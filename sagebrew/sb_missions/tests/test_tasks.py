@@ -22,7 +22,7 @@ class TestReengageTask(TestCase):
 
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'quest'

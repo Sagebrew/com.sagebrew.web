@@ -11,6 +11,8 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist)
 from neomodel import db
 
+from config.utils import neo_node
+
 from sagebrew.api.neo_models import SBObject
 from sagebrew.sb_address.neo_models import Address
 from sagebrew.sb_search.neo_models import Searchable, Impression
@@ -301,9 +303,9 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            res = res[0] if res else None
+            res = neo_node(res)
             if res:
-                profile = cls.inflate(res[0])
+                profile = cls.inflate(res)
             else:
                 raise DoesNotExist('Profile with username: %s '
                                    'does not exist' % username)
@@ -361,7 +363,7 @@ class Pleb(Searchable):
                     'RETURN sum(d.amount)' \
                     % (username, mission_id, beg_year, end_year)
             res, col = db.cypher_query(query)
-            res = res[0] if res else None
+            res = neo_node(res)
             donation_amount = res if res is not None else 0
             cache.set('%s_%s_donation_amount' %
                       (username, mission_id), donation_amount)
@@ -371,13 +373,13 @@ class Pleb(Searchable):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
                 'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_official_phone(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
                 '(o:PublicOfficial) RETURN o.gov_phone' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def deactivate(self):
         pass
@@ -387,7 +389,7 @@ class Pleb(Searchable):
                 'RETURN a' % self.username
         res, _ = db.cypher_query(query)
         try:
-            return Address.inflate(res[0] if res else None)
+            return Address.inflate(neo_node(res))
         except AttributeError:
             return None
 
@@ -484,25 +486,25 @@ class Pleb(Searchable):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(question:Question) RETURN COUNT(question)' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_solution_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(solution:Solution) RETURN COUNT(solution)' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_post_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(post:Post) RETURN COUNT(post)' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_comment_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(comment:Comment) RETURN COUNT(comment)' % self.username
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_friends(self):
         return self.friends.all()
@@ -515,7 +517,7 @@ class Pleb(Searchable):
         if len(res) == 0:
             return False
         try:
-            return res[0][0]
+            return neo_node(res)
         except IndexError:
             return False
 
@@ -533,7 +535,7 @@ class Pleb(Searchable):
                     "[:OWNS_WALL]->(b:Wall) RETURN b" % self.username
             res, col = db.cypher_query(query)
             try:
-                wall = Wall.inflate(res[0][0])
+                wall = Wall.inflate(neo_node(res))
                 cache.set("%s_wall" % self.username, wall)
             except IndexError:
                 # This may not be needed as the only way to get here is if
@@ -574,7 +576,7 @@ class Pleb(Searchable):
                     % self.username
             res, _ = db.cypher_query(query)
             try:
-                official = PublicOfficial.inflate(res[0][0])
+                official = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_official" % self.username, official)
             except IndexError:
                 official = None
@@ -585,7 +587,7 @@ class Pleb(Searchable):
                 '(p2:Pleb {username:"%s"}) RETURN r.active' % \
                 (self.username, username)
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def follow(self, username):
         """
@@ -599,7 +601,7 @@ class Pleb(Searchable):
                 'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
                 'r.active=true RETURN r.active' % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     def unfollow(self, username):
         """
@@ -611,7 +613,7 @@ class Pleb(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return neo_node(res)
 
     @property
     def reputation_change(self):
@@ -632,7 +634,7 @@ class Pleb(Searchable):
                 return 0
             # Have to cast to dict because pickle cannot handle the object
             # returned from cypher_query
-            res = res[0].__dict__
+            res = neo_node(res).__dict__
             cache.set("%s_reputation_change" % self.username, res)
         reputation_change = res['rep_change']
         last_seen = res['last_created']
@@ -711,7 +713,7 @@ class FriendRequest(SBObject):
             '(n:FriendRequest) WHERE n.seen=False ' \
             'RETURN count(n)' % username
         res, col = db.cypher_query(query)
-        return res[0][0]
+        return neo_node(res)
 
 
 class PoliticalParty(SBObject):

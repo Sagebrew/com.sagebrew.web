@@ -35,8 +35,9 @@ class Solution(SBPublicContent):
                     '<-[:ASSOCIATED_WITH]-' \
                     '(mission:Mission) RETURN mission' % object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
+            if res[0] if res else None:
                 mission = MissionSerializer(
-                    Mission.inflate(res.one), context={"request": request}).data
+                    Mission.inflate(res[0][0]),
+                    context={"request": request}).data
                 cache.set("%s_mission" % object_uuid, mission)
         return mission

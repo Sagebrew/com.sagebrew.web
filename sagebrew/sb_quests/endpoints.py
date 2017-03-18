@@ -18,6 +18,8 @@ from rest_framework import status
 
 from neomodel import db
 
+from config.utils import neo_node
+
 from sagebrew.sb_base.utils import NeoQuerySet
 from sagebrew.api.utils import (
     calc_stripe_application_fee, humanize_dict_keys,
@@ -109,7 +111,7 @@ class QuestViewSet(viewsets.ModelViewSet):
                 '(mission:Mission) ' \
                 'RETURN mission.object_uuid' % instance.owner_username
         res, _ = db.cypher_query(query)
-        if res[0] if res else None is not None:
+        if neo_node(res):
             [cache.delete("%s_mission" % mission) for mission in res[0]]
         # Delete all missions associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \

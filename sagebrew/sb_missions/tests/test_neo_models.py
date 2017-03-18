@@ -91,7 +91,7 @@ class TestMission(TestCase):
         donation = Donation(amount=500).save()
         donation.mission.connect(self.mission)
         res = Mission.get_donations(self.mission.object_uuid)
-        self.assertEqual(res[0].object_uuid, donation.object_uuid)
+        self.assertEqual(res[0][0].object_uuid, donation.object_uuid)
 
     def test_get_donors(self):
         donation = Donation(amount=500, completed=True,
@@ -100,7 +100,7 @@ class TestMission(TestCase):
         donation.mission.connect(self.mission)
         cache.clear()
         res = Mission.get_donors(self.mission.object_uuid)
-        self.assertEqual(res[0], self.owner.username)
+        self.assertEqual(res[0][0], self.owner.username)
 
     def test_get_donors_order(self):
         order = Order(completed=True,
@@ -108,7 +108,7 @@ class TestMission(TestCase):
         order.mission.connect(self.mission)
         cache.clear()
         res = Mission.get_donors(self.mission.object_uuid)
-        self.assertEqual(res[0], self.owner.username)
+        self.assertEqual(res[0][0], self.owner.username)
 
     def test_get_mission_title(self):
         res = self.mission.get_mission_title()

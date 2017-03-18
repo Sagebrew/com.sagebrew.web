@@ -193,7 +193,7 @@ class VotableContent(NotificationCapable):
                     'WHEN False THEN NULL ' \
                     'ELSE rel.vote_type END' % (username, self.object_uuid)
             res, _ = db.cypher_query(query)
-            return res[0] if res else None
+            return res[0][0] if res else None
 
     @apply_defense
     def get_rep_breakout(self):
@@ -240,7 +240,7 @@ class VotableContent(NotificationCapable):
                 '(v:Vote)-[:MADE_VOTE]->(p:Pleb {username:"%s"}) RETURN v' % \
                 (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        vote = res[0] if res else None
+        vote = res[0][0] if res else None
         if vote:
             return Vote.inflate(vote)
         return vote
@@ -311,7 +311,7 @@ class SBContent(VotableContent):
                 'CREATE UNIQUE (a)-[rel:COUNCIL_VOTE]->(content) ' \
                 'RETURN rel' % (pleb.username, self.object_uuid)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = res[0][0] if res else None
         if res is not None:
             council_vote_rel = VoteRelationship.inflate(res)
             if vote_type == council_vote_rel.vote_type and \
@@ -326,7 +326,7 @@ class SBContent(VotableContent):
                 '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
                 'RETURN r.vote_type' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        return res[0] if res else None
+        return res[0][0] if res else None
 
     def get_council_decision(self):
         # True denotes that the vote is for the content to be removed, while
@@ -340,7 +340,8 @@ class SBContent(VotableContent):
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            percentage = float(res[0].remove_vote) / float(res[0].total_votes)
+            percentage = float(
+                res[0][0].remove_vote) / float(res[0][0].total_votes)
         except ZeroDivisionError:
             percentage = 0
         if percentage >= .66:
@@ -357,7 +358,7 @@ class SBContent(VotableContent):
                     '<-[:ASSOCIATED_WITH]-' \
                     '(mission:Mission) RETURN mission' % object_uuid
             res, _ = db.cypher_query(query)
-            res = res[0] if res else None
+            res = res[0][0] if res else None
             if res:
                 mission = MissionSerializer(
                     Mission.inflate(res),
@@ -388,7 +389,7 @@ class SBContent(VotableContent):
         if single:
             try:
                 return URLContentSerializer(
-                    URLContent.inflate(res[0] if res else None)).data
+                    URLContent.inflate(res[0][0] if res else None)).data
             except AttributeError:
                 return []
         return [URLContentSerializer(URLContent.inflate(row[0])).data
@@ -423,7 +424,7 @@ class TaggableContent(SBContent):
                 name
             )
             res, _ = db.cypher_query(query)
-            if res[0] if res else None is None:
+            if res[0][0] if res else None is None:
                 AutoTag(name=name).save()
             res, _ = db.cypher_query(
                 'MATCH (autotag:AutoTag {name: "%s"}),'
@@ -432,9 +433,9 @@ class TaggableContent(SBContent):
                 'SET rel.relevance=%f '
                 'RETURN autotag' % (name, self.object_uuid,
                                     tag['tags']['relevance']))
-            res = res[0] if res else None
+            res = res[0][0] if res else None
             if res is not None:
-                auto_tag_list.append(AutoTag.inflate(res[0] if res else None))
+                auto_tag_list.append(AutoTag.inflate(res if res else None))
         return auto_tag_list
 
 
@@ -468,7 +469,7 @@ def get_parent_titled_content(object_uuid):
                 % object_uuid
         res, _ = db.cypher_query(query)
         try:
-            content = TitledContent.inflate(res[0] if res else None)
+            content = TitledContent.inflate(res[0][0] if res else None)
         except AttributeError as e:
             return e
         return content

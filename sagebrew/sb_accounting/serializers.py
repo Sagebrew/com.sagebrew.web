@@ -14,6 +14,8 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
+from config.utils import neo_node
+
 from sagebrew.api.serializers import SBSerializer
 from sagebrew.sb_base.serializers import IntercomMessageSerializer
 from sagebrew.sb_notifications.utils import create_system_notification
@@ -110,7 +112,7 @@ class AccountSerializer(SBSerializer):
                         '-[:NOTIFICATION_TO]->(pleb:Pleb {username: "%s"}) ' \
                         'RETURN a' % pleb.username
                 res, _ = db.cypher_query(query)
-                if res[0] if res else None is None:
+                if neo_node(res):
                     create_system_notification(
                         to_plebs=[pleb],
                         notification_id=str(uuid1()),

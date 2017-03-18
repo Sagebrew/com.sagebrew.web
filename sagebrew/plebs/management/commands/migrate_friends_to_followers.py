@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
+from config.utils import neo_node
 from sagebrew.plebs.neo_models import Pleb
 
 
@@ -14,7 +15,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res[0] if res else None:
+            if neo_node(res):
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \

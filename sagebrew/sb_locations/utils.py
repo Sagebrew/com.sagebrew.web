@@ -122,7 +122,7 @@ def create_tree(structure, external_id):
                     name=name, created_by="google_maps",
                     sector="federal").save()
             else:
-                parent_node = Location.inflate(res[0])
+                parent_node = Location.inflate(res[0][0])
         else:
             # Otherwise take parent and see if it has any children with name
             #       (Check if any children at any depth down the tree)
@@ -150,7 +150,7 @@ def create_tree(structure, external_id):
                 child_node.encompassed_by.connect(parent_node)
                 parent_node = child_node
             else:
-                parent_node = Location.inflate(res[0])
+                parent_node = Location.inflate(res[0][0])
                 if 'locality' in element['types']:
                     parent_node.sector = "local"
                     parent_node.external_id = external_id
@@ -167,7 +167,7 @@ def connect_related_element(location, element_id):
     query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)
-    res = res[0] if res else None
+    res = res[0][0] if res else None
     if res:
         connection_node = Question.inflate(res)
         connection_node.focus_location.connect(location)
@@ -223,7 +223,7 @@ def get_positions(identifier, filter_param="", lookup="name", distinct=False,
     res, _ = db.cypher_query(query)
     if not res[0] if res else None:
         return []
-    return res
+    return res[0][0]
 
 
 def get_districts(identifier, filter_param="", lookup="name", distinct=False,
@@ -247,4 +247,4 @@ def get_districts(identifier, filter_param="", lookup="name", distinct=False,
     res, _ = db.cypher_query(query)
     if not res[0] if res else None:
         return []
-    return res
+    return res[0][0]

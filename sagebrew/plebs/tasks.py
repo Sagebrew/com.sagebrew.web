@@ -7,6 +7,9 @@ from celery import shared_task
 
 from neomodel import DoesNotExist, db
 from neo4j.v1 import CypherError
+
+from config.utils import neo_node
+
 from sagebrew.api.utils import spawn_task, generate_oauth_user
 from sagebrew.sb_search.tasks import update_search_object
 from sagebrew.sb_privileges.tasks import check_privileges
@@ -45,7 +48,7 @@ def create_wall_task(username=None):
         query = 'MATCH (pleb:Pleb {username: "%s"})' \
                 '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
         res, _ = db.cypher_query(query)
-        if res[0] if res else None is None:
+        if neo_node(res):
             wall = Wall(wall_id=str(uuid1())).save()
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \

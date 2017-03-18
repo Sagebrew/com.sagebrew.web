@@ -109,6 +109,8 @@ services:
     depends_on:
       - postgres
       - neo4j_db
+      - celeryworker
+      - celerybeat
     environment:
       - POSTGRES_USER=sagebrew
       - POSTGRES_PASSWORD=sagebrew

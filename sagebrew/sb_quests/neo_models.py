@@ -9,6 +9,8 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
                       DateTimeProperty, ArrayProperty)
 
+from config.utils import neo_node
+
 from sagebrew.sb_search.neo_models import Searchable, SBObject
 
 
@@ -188,7 +190,7 @@ class Quest(Searchable):
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
             res, _ = db.cypher_query(query)
-            res = res[0] if res else None
+            res = neo_node(res)
             if res:
                 quest = cls.inflate(res)
                 cache.set("%s_quest" % owner_username, quest)
@@ -231,7 +233,7 @@ class Quest(Searchable):
         res, _ = db.cypher_query(query)
         try:
             return reverse('quest',
-                           kwargs={"username": res[0] if res else None},
+                           kwargs={"username": neo_node(res)},
                            request=request)
         except IndexError:
             return None
@@ -265,7 +267,7 @@ class Quest(Searchable):
                     '(p:Pleb {username:"%s"}) RETURN r.active' % \
                     (self.object_uuid, username)
             res, _ = db.cypher_query(query)
-            following = res[0] if res else False
+            following = neo_node(res)
             cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
                       following)
         return following
@@ -282,7 +284,7 @@ class Quest(Searchable):
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res[0] if res else None
+        return neo_node(res)
 
     def unfollow(self, username):
         """
@@ -295,7 +297,7 @@ class Quest(Searchable):
                 % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res[0] if res else None
+        return neo_node(res)
 
     def get_followers(self):
         query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
@@ -313,7 +315,7 @@ class Quest(Searchable):
                     self.object_uuid, self.application_fee,
                     settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        res = res[0] if res else None
+        res = neo_node(res)
         if res:
             return '{:,.2f}'.format(float(res) / 100)
         else:
@@ -354,7 +356,7 @@ class Position(SBObject):
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                     object_uuid
             res, _ = db.cypher_query(query)
-            res = res[0] if res else None
+            res = neo_node(res)
             if res:
                 position = Position.inflate(res)
                 cache.set(object_uuid, position)
@@ -371,7 +373,7 @@ class Position(SBObject):
                     'RETURN c.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             try:
-                location = res[0][0]
+                location = neo_node(res)
                 cache.set("%s_location" % object_uuid, location)
             except IndexError:
                 location = None
@@ -387,7 +389,7 @@ class Position(SBObject):
                 'location2.name as second_name' % object_uuid
         res, col = db.cypher_query(query)
         try:
-            res = res[0]
+            res = neo_node(res)
             location = "%s, %s" % (res.first_name, res.second_name)
         except IndexError:
             location = None
@@ -425,15 +427,17 @@ class Position(SBObject):
             # do an if to determine what position we are looking at, it allows
             # for generalization of the query.
             try:
-                if res[0][0] == 'House Representative' \
-                        or res[0].position_level == "state_upper" \
-                        or res[0].position_level == "state_lower":
+                res = neo_node(res)
+                if res == 'House Representative' \
+                        or res.position_level == "state_upper" \
+                        or res.position_level == "state_lower":
                     full_name = "%s for %s's %s district" % \
-                                (res[0].position_name, res[0].location_name2,
-                                 ordinal(res[0].location_name1))
+                                (res.position_name,
+                                 res.location_name2,
+                                 ordinal(res.location_name1))
                 else:
-                    full_name = "%s of %s" % (res[0].position_name,
-                                              res[0].location_name1)
+                    full_name = "%s of %s" % (res.position_name,
+                                              res.location_name1)
                 return {"full_name": full_name, "object_uuid": object_uuid}
             except IndexError:
                 return None

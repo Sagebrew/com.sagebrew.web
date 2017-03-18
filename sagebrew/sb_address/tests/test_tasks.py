@@ -64,8 +64,8 @@ class TestCreateStateDistricts(TestCase):
         query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
                 '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
         res, _ = db.cypher_query(query)
-        lower = Location.inflate(res[0].l)
-        upper = Location.inflate(res[0].l2)
+        lower = Location.inflate(res[0][0].l)
+        upper = Location.inflate(res[0][0].l2)
         self.assertTrue(lower in address.encompassed_by)
         self.assertTrue(upper in address.encompassed_by)
         res = connect_to_state_districts.apply_async(
@@ -74,10 +74,10 @@ class TestCreateStateDistricts(TestCase):
         query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
                 '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
         res, _ = db.cypher_query(query)
-        self.assertEqual(len(res[0]), 2)  # assert only two nodes returned
-        self.assertEqual(lower, Location.inflate(res[0].l))
+        self.assertEqual(len(res[0][0]), 2)  # assert only two nodes returned
+        self.assertEqual(lower, Location.inflate(res[0][0].l))
         # assert only one lower node
-        self.assertEqual(upper, Location.inflate(res[0].l2))
+        self.assertEqual(upper, Location.inflate(res[0][0].l2))
         # assert only one upper node
         mi.delete()
         address.delete()

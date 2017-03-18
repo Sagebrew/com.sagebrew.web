@@ -6,7 +6,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
 from rest_framework.response import Response
 
-from .serializers import AccountSerializer
+from sagebrew.sb_accounting.serializers import AccountSerializer
 
 logger = getLogger("loggly_logs")
 

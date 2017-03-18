@@ -1,11 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (QuestionManagerView,
                     solution_edit_page,
                     question_redirect_page)
 
-urlpatterns = patterns(
-    'sb_questions.views',
+urlpatterns = [
     url(r'^(?P<question_uuid>[A-Za-z0-9.@_%+-]{36})/$', question_redirect_page,
         name='question_redirect_page'),
     url(r'^solutions/(?P<solution_uuid>[A-Za-z0-9.@_%+-]{36})/edit/$',
@@ -19,4 +18,4 @@ urlpatterns = patterns(
     url(r'^(?P<question_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/$',
         QuestionManagerView.as_view(template_name='conversation.html'),
         name="question_detail_page"),
-)
+]

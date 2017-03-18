@@ -12,17 +12,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from py2neo.cypher import ClientError
+from neomodel import DoesNotExist, db
+from neo4j.v1 import CypherError
 
-from neomodel import DoesNotExist, CypherException, db
+from config.utils import neo_node
 
-from sb_address.neo_models import Address
-from sb_address.serializers import AddressSerializer
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_address.serializers import AddressSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
-from .neo_models import Pleb
-from .serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
 
 
 def root_profile_page(request):
@@ -48,7 +49,7 @@ class PersonalProfileView(LoginRequiredMixin):
             query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
                 request.user.username)
             res, _ = db.cypher_query(query)
-            quest = QuestSerializer(Quest.inflate(res[0][0]),
+            quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                     context={'request': request}).data
         except (DoesNotExist, Quest.DoesNotExist, IndexError):
             quest = None
@@ -71,7 +72,7 @@ class ProfileView(View):
             page_user_pleb = Pleb.get(username=pleb_username)
         except (Pleb.DoesNotExist, DoesNotExist):
             return redirect('404_Error')
-        except (CypherException, ClientError):
+        except CypherError:
             return redirect("500_Error")
         page_user = User.objects.get(username=page_user_pleb.username)
         if page_user.username == request.user.username:
@@ -110,9 +111,9 @@ def general_settings(request):
                 request.user.username)
     try:
         res, col = db.cypher_query(query)
-        address = AddressSerializer(Address.inflate(res[0][0]),
+        address = AddressSerializer(Address.inflate(neo_node(res)),
                                     context={'request': request}).data
-    except(CypherException, ClientError):
+    except CypherError:
         return redirect("500_Error")
     except IndexError:
         address = False
@@ -120,7 +121,7 @@ def general_settings(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
@@ -138,7 +139,7 @@ def delete_account(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None
@@ -160,7 +161,7 @@ def contribute_settings(request):
         query = 'MATCH (q:Quest {owner_username:"%s"}) RETURN q' % (
             request.user.username)
         res, _ = db.cypher_query(query)
-        quest = QuestSerializer(Quest.inflate(res[0][0]),
+        quest = QuestSerializer(Quest.inflate(neo_node(res)),
                                 context={'request': request}).data
     except (DoesNotExist, Quest.DoesNotExist, IndexError):
         quest = None

@@ -5,8 +5,8 @@ from django.utils.text import slugify
 
 from neomodel import db
 
-from sb_registration.neo_models import OnboardingTask
-from sb_registration.serializers import OnboardingTaskSerializer
+from sagebrew.sb_registration.neo_models import OnboardingTask
+from sagebrew.sb_registration.serializers import OnboardingTaskSerializer
 
 
 def setup_onboarding(quest, mission):
@@ -45,7 +45,7 @@ def setup_onboarding(quest, mission):
                       'RETURN task' % (mission.object_uuid,
                                        onboarding_task['title'])
         res, _ = db.cypher_query(check_query)
-        if res.one is None:
+        if res[0] if res else None is None:
             # If the task doesn't exist create it
             onboarding_ser = OnboardingTaskSerializer(data=onboarding_task)
             onboarding_ser.is_valid(raise_exception=True)

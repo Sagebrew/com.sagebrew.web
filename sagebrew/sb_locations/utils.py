@@ -117,12 +117,12 @@ def create_tree(structure, external_id):
             # node with neomodel to get UUID and defaults set properly
             query = 'MATCH (a:Location {name: "%s"}) RETURN a' % name
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 parent_node = Location(
                     name=name, created_by="google_maps",
                     sector="federal").save()
             else:
-                parent_node = Location.inflate(res.one)
+                parent_node = Location.inflate(res[0][0])
         else:
             # Otherwise take parent and see if it has any children with name
             #       (Check if any children at any depth down the tree)
@@ -136,7 +136,7 @@ def create_tree(structure, external_id):
                         parent_node.object_uuid, name)
             res, _ = db.cypher_query(query)
 
-            if not res.one:
+            if not res[0] if res else None:
                 if 'locality' in element['types']:
                     sector = "local"
                     external_holder = external_id
@@ -150,7 +150,7 @@ def create_tree(structure, external_id):
                 child_node.encompassed_by.connect(parent_node)
                 parent_node = child_node
             else:
-                parent_node = Location.inflate(res.one)
+                parent_node = Location.inflate(res[0][0])
                 if 'locality' in element['types']:
                     parent_node.sector = "local"
                     parent_node.external_id = external_id
@@ -163,12 +163,13 @@ def create_tree(structure, external_id):
 def connect_related_element(location, element_id):
     # This could be generalized to manage other nodes we want to link to a
     # location but since we only do questions right now, simplifying it.
-    from sb_questions.neo_models import Question
+    from sagebrew.sb_questions.neo_models import Question
     query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)
-    if res.one:
-        connection_node = Question.inflate(res.one)
+    res = res[0][0] if res else None
+    if res:
+        connection_node = Question.inflate(res)
         connection_node.focus_location.connect(location)
     else:
         connection_node = None
@@ -220,9 +221,9 @@ def get_positions(identifier, filter_param="", lookup="name", distinct=False,
                 '[:POSITIONS_AVAILABLE]->(p:Position) RETURN %s p%s' % (
                     identifier, distinct_string, property_name)
     res, _ = db.cypher_query(query)
-    if not res.one:
+    if not res[0] if res else None:
         return []
-    return res
+    return res[0][0]
 
 
 def get_districts(identifier, filter_param="", lookup="name", distinct=False,
@@ -244,6 +245,6 @@ def get_districts(identifier, filter_param="", lookup="name", distinct=False,
                 lookup, identifier, constructed_filter, distinct_string,
                 property_name)
     res, _ = db.cypher_query(query)
-    if not res.one:
+    if not res[0] if res else None:
         return []
-    return res
+    return res[0][0]

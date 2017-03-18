@@ -13,22 +13,24 @@ from rest_framework.test import APITestCase
 from neomodel import db
 from elasticsearch import Elasticsearch, TransportError
 
-from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb, Address
-from sb_registration.utils import create_user_util_test
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_donations.neo_models import Donation
-from sb_updates.neo_models import Update
+from config.utils import neo_node
 
-from sb_quests.neo_models import Quest, Position
-from sb_quests.serializers import QuestSerializer
+from sagebrew.sb_privileges.neo_models import SBAction, Privilege
+from sagebrew.plebs.neo_models import Pleb, Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_updates.neo_models import Update
+
+from sagebrew.sb_quests.neo_models import Quest, Position
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
@@ -193,7 +195,7 @@ class QuestEndpointTests(APITestCase):
                 '(b:SBAction {resource: "intercom", permission: "write"}) ' \
                 'RETURN b' % self.pleb.username
         res, _ = db.cypher_query(query)
-        self.assertEqual(SBAction.inflate(res.one).resource, "intercom")
+        self.assertEqual(SBAction.inflate(neo_node(res)).resource, "intercom")
         action.delete()
         position.delete()
         privilege.delete()
@@ -222,7 +224,7 @@ class QuestEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         action.delete()
         privilege.delete()
-        self.assertEqual(Privilege.inflate(res.one).name, "quest")
+        self.assertEqual(Privilege.inflate(neo_node(res)).name, "quest")
 
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -543,7 +545,7 @@ class QuestEndpointTests(APITestCase):
         query = 'MATCH (a:Quest {object_uuid: "%s"})-[:LOCATED_AT]' \
                 '->(b:Address) RETURN b' % response.data['id']
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['city'], "Walled Lake")
+        self.assertEqual(neo_node(res)['city'], "Walled Lake")
 
     def test_update_ssn_not_none(self):
         self.client.force_authenticate(user=self.user)

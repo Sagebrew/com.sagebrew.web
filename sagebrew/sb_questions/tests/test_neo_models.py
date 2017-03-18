@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_tags.neo_models import Tag
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class TestQuestionNeoModel(TestCase):
@@ -38,7 +38,7 @@ class TestQuestionNeoModel(TestCase):
         res = self.question.add_auto_tags(auto_tags)
         self.assertIsInstance(res, list)
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0].name, 'testautotag')
+        self.assertEqual(res[0][0].name, 'testautotag')
 
     def test_add_multiple_auto_tags(self):
         auto_tags = [{'tags': {'text': 'testautotag4', 'relevance': 0.10201}},
@@ -46,8 +46,8 @@ class TestQuestionNeoModel(TestCase):
         res = self.question.add_auto_tags(auto_tags)
         self.assertIsInstance(res, list)
         self.assertEqual(len(res), 2)
-        self.assertEqual(res[0].name, 'testautotag4')
-        self.assertEqual(res[1].name, 'testautotag8')
+        self.assertEqual(res[0][0].name, 'testautotag4')
+        self.assertEqual(res[0][1].name, 'testautotag8')
 
     def test_add_multiple_auto_tags_not_unique(self):
         auto_tags = [{'tags': {'text': 'testautotag6', 'relevance': 0.10201}},
@@ -55,8 +55,8 @@ class TestQuestionNeoModel(TestCase):
         res = self.question.add_auto_tags(auto_tags)
         self.assertIsInstance(res, list)
         self.assertEqual(len(res), 2)
-        self.assertEqual(res[0].name, 'testautotag6')
-        self.assertEqual(res[0].object_uuid, res[1].object_uuid)
+        self.assertEqual(res[0][0].name, 'testautotag6')
+        self.assertEqual(res[0][0].object_uuid, res[0][1].object_uuid)
 
     def test_empty_get_tags_string(self):
         res = self.question.get_tags_string()

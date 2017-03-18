@@ -1,12 +1,11 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from .views import (PersonalProfileView, ProfileView,
-                    deactivate_user, root_profile_page, general_settings,
-                    contribute_settings,
-                    authenticate_representative, delete_account)
+from sagebrew.plebs.views import (
+    PersonalProfileView, ProfileView,
+    deactivate_user, root_profile_page, general_settings,
+    contribute_settings, authenticate_representative, delete_account)
 
-urlpatterns = patterns(
-    'plebs.views',
+urlpatterns = [
     url(r'^settings/$', general_settings, name="general_settings"),
     url(r'^settings/delete/$', delete_account, name="settings_delete_account"),
     url(r'^settings/donations/$',
@@ -22,4 +21,4 @@ urlpatterns = patterns(
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',
         ProfileView.as_view(), name="profile_page"),
     url(r'^', root_profile_page, name="root_profile_page"),
-)
+]

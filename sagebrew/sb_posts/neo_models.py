@@ -2,8 +2,8 @@ from rest_framework.reverse import reverse
 
 from neomodel import (RelationshipTo, StringProperty)
 
-from sb_base.neo_models import SBPrivateContent
-from plebs.neo_models import Pleb
+from sagebrew.sb_base.neo_models import SBPrivateContent
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Post(SBPrivateContent):
@@ -14,7 +14,8 @@ class Post(SBPrivateContent):
     wall_owner_username = StringProperty()
 
     # relationships
-    posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
+    posted_on_wall = RelationshipTo(
+        'sagebrew.sb_wall.neo_models.Wall', 'POSTED_ON')
 
     def get_url(self, request=None):
         return reverse('profile_page', kwargs={

@@ -3,7 +3,7 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_quests.neo_models import Quest
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class Command(BaseCommand):

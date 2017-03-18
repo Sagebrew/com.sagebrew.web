@@ -5,9 +5,10 @@ from django.conf import settings
 from django.utils.text import slugify
 
 from elasticsearch import Elasticsearch
-from neomodel import DoesNotExist, CypherException
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from sb_tags.neo_models import Tag
+from sagebrew.sb_tags.neo_models import Tag
 
 logger = getLogger('loggly_logs')
 
@@ -26,7 +27,7 @@ class Command(BaseCommand):
                     tag_node = Tag.nodes.get(name=slugify(tag['name']))
                 except (Tag.DoesNotExist, DoesNotExist):
                     tag_node = Tag(name=slugify(tag['name']), base=True).save()
-                except (CypherException, IOError):
+                except (CypherError, IOError):
                     logger.exception(
                         dumps(
                             {"detail": "Cypher exception, "
@@ -41,7 +42,7 @@ class Command(BaseCommand):
                     except (Tag.DoesNotExist, DoesNotExist):
                         sub_tag_node = Tag(name=slugify(sub_tag),
                                            base=False).save()
-                    except (CypherException, IOError):
+                    except (CypherError, IOError):
                         logger.exception(
                             dumps(
                                 {"detail": "Cypher exception, "
@@ -59,7 +60,7 @@ class Command(BaseCommand):
                             tag_node)
                         rel.in_sphere = True
                         rel.save()
-                    except (CypherException, IOError):
+                    except (CypherError, IOError):
                         logger.exception(
                             dumps(
                                 {

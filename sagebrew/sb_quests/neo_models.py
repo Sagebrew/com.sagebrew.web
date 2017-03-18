@@ -9,7 +9,9 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
                       DateTimeProperty, ArrayProperty)
 
-from sb_search.neo_models import Searchable, SBObject
+from config.utils import neo_node
+
+from sagebrew.sb_search.neo_models import Searchable, SBObject
 
 
 def get_default_wallpaper_pic():
@@ -109,35 +111,40 @@ class Quest(Searchable):
     # Donations
     # Access Donations that are related to this Quest through:
     # Neomodel: quest Cypher: CONTRIBUTED_TO
-    # RelationshipTo('sb_donations.neo_models.Donation')
+    # RelationshipTo('sagebrew.sb_donations.neo_models.Donation')
 
-    updates = RelationshipTo('sb_updates.neo_models.Update', 'CREATED_AN')
+    updates = RelationshipTo(
+        'sagebrew.sb_updates.neo_models.Update', 'CREATED_AN')
 
     # Pleb
     # Access the Pleb that owns this Quest through:
     # Neomodel: quest Cypher: IS_WAGING
-    # RelationshipTo('sb_plebs.neo_models.Pleb')
+    # RelationshipTo('sagebrew.sb_plebs.neo_models.Pleb')
 
     # Will be an endpoint with the usernames of all the users that can edit
     # the page. That way we can easily check who has the right to modify
     # the page. These names should not be public
-    editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
-    moderators = RelationshipFrom('plebs.neo_models.Pleb', 'MODERATOR_OF')
+    editors = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'EDITOR_OF')
+    moderators = RelationshipFrom(
+        'sagebrew.plebs.neo_models.Pleb', 'MODERATOR_OF')
 
-    address = RelationshipTo("sb_address.neo_models.Address", 'LOCATED_AT')
+    address = RelationshipTo(
+        "sagebrew.sb_address.neo_models.Address", 'LOCATED_AT')
 
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
-    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
-    holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
-    news_articles = RelationshipTo('sb_news.neo_models.NewsArticle',
-                                   "NEWS")
+    missions = RelationshipTo(
+        'sagebrew.sb_missions.neo_models.Mission', "EMBARKS_ON")
+    holds = RelationshipTo(
+        'sagebrew.sb_quests.neo_models.Seat', "HOLDS")
+    news_articles = RelationshipTo(
+        'sagebrew.sb_news.neo_models.NewsArticle', "NEWS")
     # Followers are users which have decided to follow a Quest, this means that
     # they will get a notification whenever the quest makes an update.
-    followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")
+    followers = RelationshipTo('sagebrew.plebs.neo_models.Pleb', "FOLLOWERS")
 
     # Owner of the Quest
-    owner = RelationshipFrom('plebs.neo_models.Pleb', 'IS_WAGING')
+    owner = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'IS_WAGING')
 
     @property
     def ein(self):
@@ -183,9 +190,9 @@ class Quest(Searchable):
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
             res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                quest = cls.inflate(res.one)
+            res = neo_node(res)
+            if res:
+                quest = cls.inflate(res)
                 cache.set("%s_quest" % owner_username, quest)
             else:
                 raise DoesNotExist("Quest does not exist")
@@ -225,7 +232,8 @@ class Quest(Searchable):
                 '[:IS_WAGING]-(p:Pleb) return p.username' % object_uuid
         res, _ = db.cypher_query(query)
         try:
-            return reverse('quest', kwargs={"username": res.one},
+            return reverse('quest',
+                           kwargs={"username": neo_node(res)},
                            request=request)
         except IndexError:
             return None
@@ -244,7 +252,7 @@ class Quest(Searchable):
 
     @classmethod
     def get_donations(cls, owner_username):
-        from sb_donations.neo_models import Donation
+        from sagebrew.sb_donations.neo_models import Donation
         query = 'MATCH (c:Quest {owner_username:"%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission)<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % owner_username
@@ -259,9 +267,7 @@ class Quest(Searchable):
                     '(p:Pleb {username:"%s"}) RETURN r.active' % \
                     (self.object_uuid, username)
             res, _ = db.cypher_query(query)
-            following = res.one
-            if following is None:
-                following = False
+            following = neo_node(res)
             cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
                       following)
         return following
@@ -278,7 +284,7 @@ class Quest(Searchable):
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res.one
+        return neo_node(res)
 
     def unfollow(self, username):
         """
@@ -291,7 +297,7 @@ class Quest(Searchable):
                 % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
-        return res.one
+        return neo_node(res)
 
     def get_followers(self):
         query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
@@ -309,8 +315,9 @@ class Quest(Searchable):
                     self.object_uuid, self.application_fee,
                     settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        if res.one:
-            return '{:,.2f}'.format(float(res.one) / 100)
+        res = neo_node(res)
+        if res:
+            return '{:,.2f}'.format(float(res) / 100)
         else:
             return "0.00"
 
@@ -333,13 +340,14 @@ class Position(SBObject):
     #     local - Everything else :)
     level = StringProperty(default="federal")
 
-    location = RelationshipFrom('sb_locations.neo_models.Location',
+    location = RelationshipFrom('sagebrew.sb_locations.neo_models.Location',
                                 'POSITIONS_AVAILABLE')
-    currently_held_by = RelationshipTo('sb_public_official.neo_models.'
+    currently_held_by = RelationshipTo('sagebrew.sb_public_official.neo_models.'
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
-    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
-                                  'RESTRICTED_BY')
-    seats = RelationshipTo('sb_quests.neo_models.Seat', 'SEATS')
+    restrictions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Restriction',
+        'RESTRICTED_BY')
+    seats = RelationshipTo('sagebrew.sb_quests.neo_models.Seat', 'SEATS')
 
     @classmethod
     def get(cls, object_uuid):
@@ -348,9 +356,9 @@ class Position(SBObject):
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                     object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                position = Position.inflate(res.one)
+            res = neo_node(res)
+            if res:
+                position = Position.inflate(res)
                 cache.set(object_uuid, position)
             else:
                 position = None
@@ -365,7 +373,7 @@ class Position(SBObject):
                     'RETURN c.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             try:
-                location = res[0][0]
+                location = neo_node(res)
                 cache.set("%s_location" % object_uuid, location)
             except IndexError:
                 location = None
@@ -381,7 +389,7 @@ class Position(SBObject):
                 'location2.name as second_name' % object_uuid
         res, col = db.cypher_query(query)
         try:
-            res = res[0]
+            res = neo_node(res)
             location = "%s, %s" % (res.first_name, res.second_name)
         except IndexError:
             location = None
@@ -419,15 +427,17 @@ class Position(SBObject):
             # do an if to determine what position we are looking at, it allows
             # for generalization of the query.
             try:
-                if res[0][0] == 'House Representative' \
-                        or res[0].position_level == "state_upper" \
-                        or res[0].position_level == "state_lower":
+                res = neo_node(res)
+                if res == 'House Representative' \
+                        or res.position_level == "state_upper" \
+                        or res.position_level == "state_lower":
                     full_name = "%s for %s's %s district" % \
-                                (res[0].position_name, res[0].location_name2,
-                                 ordinal(res[0].location_name1))
+                                (res.position_name,
+                                 res.location_name2,
+                                 ordinal(res.location_name1))
                 else:
-                    full_name = "%s of %s" % (res[0].position_name,
-                                              res[0].location_name1)
+                    full_name = "%s of %s" % (res.position_name,
+                                              res.location_name1)
                 return {"full_name": full_name, "object_uuid": object_uuid}
             except IndexError:
                 return None
@@ -435,6 +445,8 @@ class Position(SBObject):
 
 class Seat(SBObject):
     # relationships
-    position = RelationshipTo("sb_quests.neo_models.Position", "POSITION")
-    current_holder = RelationshipTo("sb_quests.neo_models.PoliticalCampaign",
-                                    "CURRENTLY_HELD_BY")
+    position = RelationshipTo(
+        "sagebrew.sb_quests.neo_models.Position", "POSITION")
+    current_holder = RelationshipTo(
+        "sagebrew.sb_quests.neo_models.PoliticalCampaign",
+        "CURRENTLY_HELD_BY")

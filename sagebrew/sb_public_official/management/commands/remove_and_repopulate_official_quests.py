@@ -6,8 +6,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from sb_quests.neo_models import Quest
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 logger = getLogger('loggly_logs')
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for official in [PublicOfficial.inflate(row[0]) for row in res]:
                 query = 'MATCH (official:PublicOfficial {object_uuid:"%s"})-' \

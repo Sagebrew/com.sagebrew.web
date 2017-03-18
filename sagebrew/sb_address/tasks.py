@@ -4,22 +4,21 @@ from django.conf import settings
 
 from celery import shared_task
 
-from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
-from neomodel import DoesNotExist, CypherException, db
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 
-from api.utils import spawn_task
-from sb_public_official.tasks import create_and_attach_state_level_reps
-from sb_locations.neo_models import Location
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_public_official.tasks import create_and_attach_state_level_reps
+from sagebrew.sb_locations.neo_models import Location
 
-from .neo_models import Address
+from sagebrew.sb_address.neo_models import Address
 
 
 @shared_task()
 def update_address_location(object_uuid):
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
-            ClientError) as e:
+    except (DoesNotExist, Address.DoesNotExist, CypherError, IOError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     try:
@@ -32,11 +31,12 @@ def update_address_location(object_uuid):
                 '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            district = Location.inflate(res.one)
+        res = res[0][0] if res else None
+        if res is not None:
+            district = Location.inflate(res)
             address.encompassed_by.connect(district)
         address.set_encompassing()
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherError, IOError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     return True
@@ -46,8 +46,7 @@ def update_address_location(object_uuid):
 def connect_to_state_districts(object_uuid):
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
-            ClientError) as e:
+    except (DoesNotExist, Address.DoesNotExist, CypherError, IOError) as e:
         raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                max_retries=None)
     try:
@@ -73,13 +72,13 @@ def connect_to_state_districts(object_uuid):
             except KeyError:
                 return False
             try:
-                res = res[0]
+                res = res[0][0]
             except IndexError as e:
                 raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                        max_retries=None)
             try:
                 state_district = Location.inflate(res.district)
-            except (CypherException, ClientError, IOError, CouldNotCommit) as e:
+            except (CypherError, IOError) as e:
                 raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                        max_retries=None)
             if state_district not in address.encompassed_by:
@@ -87,6 +86,6 @@ def connect_to_state_districts(object_uuid):
         spawn_task(task_func=create_and_attach_state_level_reps,
                    task_param={"rep_data": response_json})
         return True
-    except (CypherException, IOError, ClientError, CouldNotCommit) as e:
+    except (CypherError, IOError) as e:
         raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                max_retries=None)

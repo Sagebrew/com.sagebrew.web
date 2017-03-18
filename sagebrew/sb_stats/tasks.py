@@ -4,8 +4,8 @@ from django.core.cache import cache
 
 from neomodel import db, DoesNotExist
 
-from plebs.neo_models import Pleb
-from sb_search.neo_models import Searchable
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_search.neo_models import Searchable
 from .utils import update_view_count
 
 

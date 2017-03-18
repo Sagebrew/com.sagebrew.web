@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from neomodel.exception import DoesNotExist
 
-from plebs.neo_models import Pleb, FriendRequest
-from plebs.utils import create_friend_request_util
-from plebs.serializers import generate_username
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb, FriendRequest
+from sagebrew.plebs.utils import create_friend_request_util
+from sagebrew.plebs.serializers import generate_username
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 # TODO add this back in

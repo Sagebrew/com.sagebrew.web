@@ -23,21 +23,22 @@ from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
 
-from py2neo.cypher.error.schema import ConstraintViolation
-
 from neomodel import db, DoesNotExist
 
-from api.serializers import SBSerializer
-from api.utils import (smart_truncate, spawn_task,
-                       gather_request_data, SBUniqueValidator)
-from sb_address.serializers import AddressSerializer, AddressExportSerializer
-from sb_base.serializers import (IntercomMessageSerializer,
-                                 IntercomEventSerializer)
-from sb_quests.serializers import QuestSerializer
-from sb_quests.neo_models import Quest
+from config.utils import neo_node
 
-from .neo_models import Pleb
-from .tasks import create_wall_task, generate_oauth_info
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.api.utils import (
+    smart_truncate, spawn_task, gather_request_data, SBUniqueValidator)
+from sagebrew.sb_address.serializers import (
+    AddressSerializer, AddressExportSerializer)
+from sagebrew.sb_base.serializers import (
+    IntercomMessageSerializer, IntercomEventSerializer)
+from sagebrew.sb_quests.serializers import QuestSerializer
+from sagebrew.sb_quests.neo_models import Quest
+
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.tasks import create_wall_task, generate_oauth_info
 
 logger = getLogger('loggly_logs')
 
@@ -561,7 +562,7 @@ class PlebSerializerNeo(SBSerializer):
                 'RETURN r IS NOT NULL as has_address' % obj.username
         res, _ = db.cypher_query(query)
 
-        return res.one
+        return neo_node(res)
 
     def get_name_summary(self, obj):
         full_name = "%s %s" % (obj.first_name, obj.last_name)
@@ -589,14 +590,14 @@ class FriendRequestSerializer(SBSerializer):
                 '[:REQUEST_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
-        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        return PlebSerializerNeo(Pleb.inflate(neo_node(res))).data
 
     def get_to_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
                 '[:REQUEST_TO]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
-        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        return PlebSerializerNeo(Pleb.inflate(neo_node(res))).data
 
 
 class PlebExportSerializer(serializers.Serializer):
@@ -630,8 +631,8 @@ class TopicInterestsSerializer(SBSerializer):
         allow_blank=True)
 
     def create(self, validated_data):
-        from sb_tags.neo_models import Tag
-        from sb_tags.serializers import TagSerializer
+        from sagebrew.sb_tags.neo_models import Tag
+        from sagebrew.sb_tags.serializers import TagSerializer
         request, _, _, _, _ = gather_request_data(self.context)
         generated_tags = []
         if request is None:
@@ -644,8 +645,10 @@ class TopicInterestsSerializer(SBSerializer):
                         'CREATE UNIQUE (profile)-[:INTERESTED_IN]->(tag) ' \
                         'RETURN tag' % (request.user.username, slugify(tag))
                 res, _ = db.cypher_query(query)
-                generated_tags.append(TagSerializer(Tag.inflate(res.one)).data)
-            except(ConstraintViolation, Exception):
+                generated_tags.append(
+                    TagSerializer(
+                        Tag.inflate(neo_node(res))).data)
+            except Exception:
                 pass
         cache.delete(request.user.username)
         return generated_tags

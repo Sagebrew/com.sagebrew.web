@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 
 from rest_framework.reverse import reverse
 
-from sb_notifications.tasks import (spawn_notifications,
-                                    spawn_system_notification)
-from sb_notifications.neo_models import Notification
-from sb_posts.neo_models import Post
-from sb_comments.neo_models import Comment
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_notifications.tasks import (
+    spawn_notifications, spawn_system_notification)
+from sagebrew.sb_notifications.neo_models import Notification
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
 
 class TestNotificationTasks(TestCase):

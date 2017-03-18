@@ -5,11 +5,11 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from api.utils import render_content
-from sb_questions.neo_models import Question
-from sb_missions.neo_models import Mission
-from sb_solutions.neo_models import Solution
-from sb_updates.neo_models import Update
+from sagebrew.api.utils import render_content
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_updates.neo_models import Update
 
 
 class Command(BaseCommand):
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             query = 'MATCH (m:Mission) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for mission in [Mission.inflate(row[0]) for row in res]:
                 rendered = render_content(markdown.markdown(
@@ -35,7 +35,7 @@ class Command(BaseCommand):
             query = 'MATCH (m:Question) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for question in [Question.inflate(row[0]) for row in res]:
                 rendered = render_content(markdown.markdown(
@@ -48,7 +48,7 @@ class Command(BaseCommand):
             query = 'MATCH (m:Solution) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for solution in [Solution.inflate(row[0]) for row in res]:
                 rendered = render_content(markdown.markdown(
@@ -61,7 +61,7 @@ class Command(BaseCommand):
             query = 'MATCH (m:Update) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for update in [Update.inflate(row[0]) for row in res]:
                 rendered = render_content(markdown.markdown(

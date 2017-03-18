@@ -10,14 +10,14 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import gather_request_data, spawn_task
-from api.serializers import SBSerializer
-from sb_base.serializers import IntercomMessageSerializer
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebExportSerializer
-from sb_privileges.tasks import check_privileges
+from sagebrew.api.utils import gather_request_data, spawn_task
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.sb_base.serializers import IntercomMessageSerializer
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebExportSerializer
+from sagebrew.sb_privileges.tasks import check_privileges
 
-from .neo_models import Donation
+from sagebrew.sb_donations.neo_models import Donation
 
 
 class DonationSerializer(SBSerializer):
@@ -40,7 +40,7 @@ class DonationSerializer(SBSerializer):
         Quests should be able to set this dynamically per mission and us
         display the max amount in the custom input field.
 
-        from sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.neo_models import Mission
         request = self.context.get('request', None)
         mission = Mission.get(self.context['view'].kwargs['object_uuid'])
 
@@ -150,8 +150,8 @@ class DonationSerializer(SBSerializer):
         return donation
 
     def get_mission(self, obj):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
         mission = Donation.get_mission(obj.object_uuid)
         if mission is None:
@@ -166,17 +166,18 @@ class DonationSerializer(SBSerializer):
         return mission
 
     def get_quest(self, obj):
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.serializers import QuestSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
         query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
                 '[:CONTRIBUTED_TO]->' \
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0][0] if res else None
+        if res is None:
             return None
-        quest = Quest.inflate(res.one)
+        quest = Quest.inflate(res)
         if expand == 'true':
             return QuestSerializer(quest).data
         if relation == "hyperlink":
@@ -186,15 +187,16 @@ class DonationSerializer(SBSerializer):
         return quest.owner_username
 
     def get_actual_amount(self, obj):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
                 '[:CONTRIBUTED_TO]->' \
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0][0] if res else None
+        if res is None:
             return None
-        quest = Quest.inflate(res.one)
+        quest = Quest.inflate(res)
         application_fee = obj.amount * (
             quest.application_fee +
             settings.STRIPE_TRANSACTION_PERCENT) + 30

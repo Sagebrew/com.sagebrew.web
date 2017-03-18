@@ -7,10 +7,10 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sb_registration.utils import create_user_util_test
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
-from sb_updates.neo_models import Update
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_updates.neo_models import Update
 
 
 class UpdateEndpointsTest(APITestCase):

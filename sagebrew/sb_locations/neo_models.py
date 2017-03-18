@@ -1,6 +1,6 @@
 from neomodel import (db, StringProperty, RelationshipTo)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class Location(SBObject):
@@ -13,9 +13,9 @@ class Location(SBObject):
     sector = StringProperty(default=None)
     geo_data = StringProperty(default=None)
 
-    encompasses = RelationshipTo('sb_locations.neo_models.Location',
+    encompasses = RelationshipTo('sagebrew.sb_locations.neo_models.Location',
                                  'ENCOMPASSES')
-    encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
+    encompassed_by = RelationshipTo('sagebrew.sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
     # Questions
     # Access Questions that are related to this location through:
@@ -58,7 +58,7 @@ class Location(SBObject):
                 '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.name' % (
                     object_uuid)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0][0] if res else None
 
     @classmethod
     def get_positions(cls, object_uuid):

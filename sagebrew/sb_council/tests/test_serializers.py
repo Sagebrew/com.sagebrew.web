@@ -5,17 +5,17 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_address.neo_models import Address
-from sb_registration.utils import create_user_util_test
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionReviewSerializer
-from sb_quests.neo_models import Quest
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionReviewSerializer
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class TestMissionReviewSerializer(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"

@@ -20,22 +20,24 @@ from neomodel import db
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sagebrew import errors
-from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import (Pleb, FriendRequest, Address,
-                              PoliticalParty, ActivityInterest)
-from sb_privileges.neo_models import Privilege, SBAction
-from sb_quests.neo_models import Position, Quest
-from sb_updates.neo_models import Update
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_news.neo_models import NewsArticle
-from sb_questions.neo_models import Question
-from sb_registration.utils import create_user_util_test
-from sb_tags.neo_models import Tag
-from sb_posts.neo_models import Post
-from sb_solutions.neo_models import Solution
-from sb_donations.neo_models import Donation
+from config import errors
+from config.utils import neo_node
+
+from sagebrew.sb_public_official.neo_models import PublicOfficial
+from sagebrew.plebs.neo_models import (
+    Pleb, FriendRequest, Address, PoliticalParty, ActivityInterest)
+from sagebrew.sb_privileges.neo_models import Privilege, SBAction
+from sagebrew.sb_quests.neo_models import Position, Quest
+from sagebrew.sb_updates.neo_models import Update
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_news.neo_models import NewsArticle
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_donations.neo_models import Donation
 
 
 class TestPasswordReset(APITestCase):
@@ -381,11 +383,9 @@ class MeEndpointTests(APITestCase):
 
     def test_update_quest_customer(self):
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         url = reverse('me-list')
         quest = Quest(owner_username=self.pleb.username).save()
@@ -424,11 +424,9 @@ class MeEndpointTests(APITestCase):
 
     def test_update_customer_dne(self):
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         url = reverse('me-list')
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -463,11 +461,9 @@ class MeEndpointTests(APITestCase):
     @requests_mock.mock()
     def test_update_customer_exists(self, m):
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         url = reverse('me-list')
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -580,7 +576,7 @@ class MeEndpointTests(APITestCase):
         self.assertTrue(res.data['sagebrew_donations'], [donation.object_uuid])
 
     def test_donations_with_only_sagebrew_donation(self):
-        query = 'MATCH (a:Donation) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Donation) DETACH DELETE a'
         db.cypher_query(query)
         donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
@@ -1031,7 +1027,7 @@ class FriendManagerEndpointTests(APITestCase):
 class ProfileEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -1256,7 +1252,7 @@ class ProfileEndpointTests(APITestCase):
 
     @requests_mock.mock()
     def test_create_pleb_not_authed(self, m):
-        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        db.cypher_query('MATCH (n:Pleb) DETACH DELETE n')
         m.get(self.intercom_url, json=self.admin_data,
               status_code=status.HTTP_200_OK)
         url = reverse('profile-list')
@@ -1274,7 +1270,7 @@ class ProfileEndpointTests(APITestCase):
 
     @requests_mock.mock()
     def test_create_pleb_bad_admins(self, m):
-        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        db.cypher_query('MATCH (n:Pleb) DETACH DELETE n')
         self.client.force_authenticate(user=self.user)
         bad_admin_data = {
             "type": "admin.list",
@@ -1396,7 +1392,8 @@ class ProfileEndpointTests(APITestCase):
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(b:Address) RETURN b' % self.user.username
         res, col = db.cypher_query(query)
-        self.assertEqual(len(Address.inflate(res[0][0]).object_uuid), 36)
+        self.assertEqual(
+            len(Address.inflate(neo_node(res)).object_uuid), 36)
 
 
 class ProfileContentMethodTests(APITestCase):
@@ -1422,7 +1419,7 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pleb_question_id(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1437,7 +1434,7 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_type(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1452,7 +1449,7 @@ class ProfileContentMethodTests(APITestCase):
                          'question')
 
     def test_get_pleb_question_object_uuid(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1467,7 +1464,7 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_content(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1482,7 +1479,7 @@ class ProfileContentMethodTests(APITestCase):
                          question.content)
 
     def test_get_pleb_question_profile(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1497,7 +1494,7 @@ class ProfileContentMethodTests(APITestCase):
                          "test_test")
 
     def test_get_pleb_question_url(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1514,7 +1511,7 @@ class ProfileContentMethodTests(APITestCase):
                                      slugify(question.title)))
 
     def test_get_pleb_question_title(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         title = str(uuid1())
         question = Question(
@@ -1550,7 +1547,7 @@ class ProfileContentMethodTests(APITestCase):
         self.assertGreater(response.data['count'], 0)
 
     def test_get_pleb_question_public_content_to_be_deleted(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -1566,9 +1563,9 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
 
     def test_get_solution_public(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
-        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Solution) DETACH DELETE n'
         db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
@@ -1590,9 +1587,9 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_solution_public_to_be_deleted(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Question) DETACH DELETE n'
         db.cypher_query(query)
-        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (n:Solution) DETACH DELETE n'
         db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
@@ -1650,11 +1647,9 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_pleb_public_content_id(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -2716,7 +2711,7 @@ class NewsfeedTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -2730,11 +2725,9 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_posts(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
@@ -2788,11 +2781,9 @@ class NewsfeedTests(APITestCase):
 
     def test_get_news(self):
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         content = str(uuid1())
         news = NewsArticle(
@@ -2833,11 +2824,9 @@ class NewsfeedTests(APITestCase):
 
     def test_get_news_content(self):
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         content = str(uuid1())
         news = NewsArticle(
@@ -2862,11 +2851,9 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['content'], content)
 
     def test_get_missions(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
@@ -2938,14 +2925,11 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_mission_updates(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Update) OPTIONAL MATCH " \
-                "(n:Update)-[r]-() DELETE n,r"
+        query = "MATCH (n:Update) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
@@ -3076,11 +3060,9 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_question_multiple(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         content = "This is the content for my question."
         title = str(uuid1())
@@ -3141,11 +3123,9 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_solution_multiple(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
@@ -3171,14 +3151,11 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_multiple_objects(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Mission) OPTIONAL MATCH " \
-                "(n:Mission)-[r]-() DELETE n,r"
+        query = "MATCH (n:Mission) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
@@ -3388,7 +3365,7 @@ class TestFollowEndpoints(APITestCase):
 class TestAcceptFriendRequest(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -3477,7 +3454,7 @@ class TestAcceptFriendRequest(APITestCase):
 class TestDeclineFriendRequest(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -3566,7 +3543,7 @@ class TestDeclineFriendRequest(APITestCase):
 class TestBlockFriendRequest(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -3668,11 +3645,9 @@ class ProfileMissionsTests(APITestCase):
         self.url = "http://testserver"
 
     def test_missions(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
@@ -3698,14 +3673,11 @@ class ProfileMissionsTests(APITestCase):
         self.assertEqual(response.data['count'], 1)
 
     def test_no_missions(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         db.cypher_query(query)
-        query = "MATCH (n:Mission) OPTIONAL MATCH " \
-                "(n:Mission)-[r]-() DELETE n,r"
+        query = "MATCH (n:Mission) DETACH DELETE n"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-missions', kwargs={
@@ -3811,7 +3783,7 @@ class PublicDataTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-public')
@@ -3825,11 +3797,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_no_posts(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
@@ -3853,11 +3823,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
 
     def test_get_questions_by_you(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -3879,11 +3847,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_dont_get_questions_by_others(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -3905,7 +3871,7 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
 
     def test_get_pleb_question_public_content_to_be_deleted(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Question) DETACH DELETE a'
         db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -3920,9 +3886,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
 
     def test_get_solution_public(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Question) DETACH DELETE a'
         db.cypher_query(query)
-        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Solution) DETACH DELETE a'
         db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
@@ -3943,9 +3909,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_solution_public_to_be_deleted(self):
-        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Question) DETACH DELETE a'
         db.cypher_query(query)
-        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        query = 'MATCH (a:Solution) DETACH DELETE a'
         db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
@@ -3967,11 +3933,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 1)
 
     def test_get_solutions_by_you(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -3991,11 +3955,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_solutions_by_you_on_question_by_other(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -4015,11 +3977,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 1)
 
     def test_dont_get_solutions_by_other(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -4039,11 +3999,9 @@ class PublicDataTests(APITestCase):
         self.assertEqual(response.data['count'], 0)
 
     def test_dont_get_solutions_by_other_on_your_question(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
+        query = "MATCH (n:SBContent) DETACH DELETE n"
         res, _ = db.cypher_query(query)
-        query = "MATCH (n:Quest) OPTIONAL MATCH " \
-                "(n:Quest)-[r]-() DELETE n,r"
+        query = "MATCH (n:Quest) DETACH DELETE n"
         res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
@@ -4066,7 +4024,7 @@ class PublicDataTests(APITestCase):
 class InterestsEndpointTest(APITestCase):
 
     def setUp(self):
-        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        query = "MATCH (a) DETACH DELETE a"
         db.cypher_query(query)
         cache.clear()
         call_command("create_prepopulated_tags")
@@ -4094,12 +4052,12 @@ class InterestsEndpointTest(APITestCase):
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(neo_node(res))
 
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
+        self.assertIsNone(neo_node(res))
 
     def test_all_topics_selected(self):
         self.client.force_authenticate(user=self.user)
@@ -4116,7 +4074,7 @@ class InterestsEndpointTest(APITestCase):
                 '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
 
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(neo_node(res))
 
     def test_some_topics_selected(self):
         self.client.force_authenticate(user=self.user)
@@ -4131,7 +4089,7 @@ class InterestsEndpointTest(APITestCase):
                 '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
 
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(neo_node(res))
 
     def test_topics_dont_exist(self):
         self.client.force_authenticate(user=self.user)

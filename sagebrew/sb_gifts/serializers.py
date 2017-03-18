@@ -3,11 +3,11 @@ from django.conf import settings
 from amazon.api import AmazonAPI
 from rest_framework import serializers
 
-from api.utils import chunk_list, gather_request_data
-from api.serializers import SBSerializer
-from sb_missions.serializers import MissionSerializer
+from sagebrew.api.utils import chunk_list, gather_request_data
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.sb_missions.serializers import MissionSerializer
 
-from .neo_models import Product
+from sagebrew.sb_gifts.neo_models import Product
 
 
 class GiftlistSerializer(SBSerializer):

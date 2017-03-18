@@ -23,36 +23,38 @@ from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
 
-from sagebrew import errors
+from config import errors
+from config.utils import neo_node
 
-from api.permissions import (IsSelfOrReadOnly,
-                             IsAnonCreateReadOnlyOrIsAuthenticated)
-from sb_base.utils import get_filter_params, NeoQuerySet
-from sb_base.neo_models import SBContent
-from sb_base.serializers import ContentSerializer
-from sb_posts.neo_models import Post
-from sb_posts.serializers import PostSerializerNeo
-from sb_questions.neo_models import Question
-from sb_questions.serializers import (QuestionSerializerNeo,
-                                      SolutionSerializerNeo)
-from sb_solutions.neo_models import Solution
-from sb_public_official.serializers import PublicOfficialSerializer
-from sb_public_official.neo_models import PublicOfficial
-from sb_donations.neo_models import Donation
-from sb_donations.serializers import DonationSerializer
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_updates.neo_models import Update
-from sb_updates.serializers import UpdateSerializer
-from sb_news.neo_models import NewsArticle
-from sb_news.serializers import NewsArticleSerializer
-from .serializers import (UserSerializer, PlebSerializerNeo,
-                          FriendRequestSerializer, PoliticalPartySerializer,
-                          InterestsSerializer, TopicInterestsSerializer,
-                          ResetPasswordEmailSerializer,
-                          EmailVerificationSerializer)
-from .neo_models import Pleb, FriendRequest
-from .utils import get_filter_by
+from sagebrew.api.permissions import (
+    IsSelfOrReadOnly, IsAnonCreateReadOnlyOrIsAuthenticated)
+from sagebrew.sb_base.utils import get_filter_params, NeoQuerySet
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.sb_base.serializers import ContentSerializer
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_posts.serializers import PostSerializerNeo
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.serializers import (
+    QuestionSerializerNeo, SolutionSerializerNeo)
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_public_official.serializers import PublicOfficialSerializer
+from sagebrew.sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_donations.serializers import DonationSerializer
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_updates.neo_models import Update
+from sagebrew.sb_updates.serializers import UpdateSerializer
+from sagebrew.sb_news.neo_models import NewsArticle
+from sagebrew.sb_news.serializers import NewsArticleSerializer
+from sagebrew.plebs.serializers import (
+    UserSerializer, PlebSerializerNeo,
+    FriendRequestSerializer, PoliticalPartySerializer,
+    InterestsSerializer, TopicInterestsSerializer,
+    ResetPasswordEmailSerializer,
+    EmailVerificationSerializer)
+from sagebrew.plebs.neo_models import Pleb, FriendRequest
+from sagebrew.plebs.utils import get_filter_by
 
 
 class LimitPerDayUserThrottle(UserRateThrottle):
@@ -351,7 +353,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     "(s:PublicOfficial) RETURN s" % username
             res, col = db.cypher_query(query)
             try:
-                house_rep = PublicOfficial.inflate(res[0][0])
+                house_rep = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_house_representative" % username, house_rep,
                           timeout=1800)
             except IndexError:
@@ -367,7 +369,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(o:PublicOfficial) RETURN o' % username
             res, _ = db.cypher_query(query)
             try:
-                president = PublicOfficial.inflate(res[0][0])
+                president = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_president" % username, president, timeout=1800)
             except IndexError:
                 return Response({}, status=status.HTTP_200_OK)
@@ -718,7 +720,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:AFFILIATES_WITH]-(b) ' \
                         'RETURN r' % (party, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res.one:
+                if neo_node(res):
                     added.append(party)
             response = serializer.data
             response['names'] = added
@@ -744,7 +746,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'CREATE UNIQUE (a)<-[r:WILL_PARTICIPATE]-(b) ' \
                         'RETURN r' % (interest, request.user.username)
                 res, _ = db.cypher_query(query)
-                if res.one:
+                if neo_node(res):
                     added.append(interest)
             response = serializer.data
             response['interests'] = added
@@ -891,7 +893,8 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "-[:REQUEST_TO]->(to_pleb:Pleb) " \
                 "RETURN from_pleb, to_pleb, friend_request" % object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = neo_node(res)
+        if res is None:
             return Response({
                 'detail': 'Sorry this object does not exist.',
                 "status": status.HTTP_404_NOT_FOUND,
@@ -902,13 +905,13 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
                     " out to us through our email at"
                     " developers@sagebrew.com"
             }, status=status.HTTP_404_NOT_FOUND)
-        to_pleb = Pleb.inflate(res.one.from_pleb)
-        from_pleb = Pleb.inflate(res.one.to_pleb)
+        to_pleb = Pleb.inflate(res.from_pleb)
+        from_pleb = Pleb.inflate(res.to_pleb)
         if from_pleb not in to_pleb.friends:
             to_pleb.friends.connect(from_pleb)
         if to_pleb not in from_pleb.friends:
             from_pleb.friends.connect(to_pleb)
-        FriendRequest.inflate(res.one.friend_request).delete()
+        FriendRequest.inflate(res.friend_request).delete()
         return Response({
             'detail': 'Successfully accepted friend request.',
             "status": status.HTTP_200_OK,

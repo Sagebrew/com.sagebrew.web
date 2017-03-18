@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
-urlpatterns = patterns(
-    'help_center.views',
+urlpatterns = [
     url(r'^admin-council/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -106,7 +105,8 @@ urlpatterns = patterns(
         url='/help/reputation/admin-council/', permanent=True),
         name='admin_council_redirect'),
     url(r'^reputation_changed_user_removed/$', RedirectView.as_view(
-        url='/help/reputation/reputation-changed-user-removed/', permanent=True),
+        url='/help/reputation/reputation-changed-user-removed/',
+        permanent=True),
         name='reputation_changed_user_removed_redirect'),
     url(r'^serial_voting_change/$', RedirectView.as_view(
         url='/help/reputation/serial-voting-change/', permanent=True),
@@ -117,4 +117,4 @@ urlpatterns = patterns(
     url(r'^voting_importance/$', RedirectView.as_view(
         url='/help/reputation/voting-importance/', permanent=True),
         name='voting_importance_redirect'),
-)
+]

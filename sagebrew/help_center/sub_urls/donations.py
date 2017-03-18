@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
-urlpatterns = patterns(
-    'help_center.views',
+urlpatterns = [
     url(r'^after-donating-to-a-candidate/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -66,4 +65,4 @@ urlpatterns = patterns(
     url(r'^donating_to_a_candidate/$', RedirectView.as_view(
         url='/help/donating/donating-to-a-candidate/', permanent=True),
         name='donating_to_a_candidate_redirect')
-)
+]

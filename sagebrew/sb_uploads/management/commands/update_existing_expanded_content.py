@@ -8,8 +8,8 @@ from django.core.management.base import BaseCommand
 
 from rest_framework import status
 
-from sb_uploads.neo_models import URLContent
-from sb_registration.utils import upload_image
+from sagebrew.sb_uploads.neo_models import URLContent
+from sagebrew.sb_registration.utils import upload_image
 
 
 class Command(BaseCommand):
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                             temp_file, True)
                         url_object.selected_image = image
                         url_object.save()
-                except (requests.RequestException):
+                except requests.RequestException:
                     continue
 
     def handle(self, *args, **options):

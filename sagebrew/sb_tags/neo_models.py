@@ -2,7 +2,7 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, StructuredRel, BooleanProperty,
                       FloatProperty)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class TagRelevanceModel(StructuredRel):
@@ -20,7 +20,7 @@ class Tag(SBObject):
     base = BooleanProperty(default=False)
 
     # relationships
-    frequently_tagged_with = RelationshipTo('sb_tags.neo_models.Tag',
+    frequently_tagged_with = RelationshipTo('sagebrew.sb_tags.neo_models.Tag',
                                             'FREQUENTLY_TAGGED_WITH',
                                             model=FrequentTagModel)
 

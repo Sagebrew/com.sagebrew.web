@@ -12,17 +12,18 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import (spawn_task, gather_request_data, smart_truncate,
-                       render_content)
-from sb_base.serializers import TitledContentSerializer, validate_is_owner
-from plebs.neo_models import Pleb
-from sb_locations.tasks import create_location_tree
+from sagebrew.api.utils import (
+    spawn_task, gather_request_data, smart_truncate, render_content)
+from sagebrew.sb_base.serializers import (
+    TitledContentSerializer, validate_is_owner)
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_locations.tasks import create_location_tree
 
-from sb_tags.neo_models import Tag
-from sb_tags.tasks import update_tags
-from sb_solutions.serializers import SolutionSerializerNeo
-from sb_solutions.neo_models import Solution
-from sb_missions.neo_models import Mission
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_tags.tasks import update_tags
+from sagebrew.sb_solutions.serializers import SolutionSerializerNeo
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_missions.neo_models import Mission
 
 from .neo_models import Question
 from .tasks import (add_auto_tags_to_question_task,
@@ -118,7 +119,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         temp_value = temp_value.replace("'", "\\'")
         query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value
         res, _ = db.cypher_query(query)
-        if res.one is not None:
+        if res[0] if res else None is not None:
             raise serializers.ValidationError("Sorry looks like a Question "
                                               "with that Title already exists.")
         return value
@@ -155,7 +156,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
                     'RETURN t' % slugify(tag)
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 if (request.user.username == "devon_bleibtrey" or
                         request.user.username == "tyler_wiersing" or
                         owner.reputation >= 1250):
@@ -164,7 +165,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 else:
                     continue
             else:
-                tag_obj = Tag.inflate(res.one)
+                tag_obj = Tag.inflate(res[0][0])
                 question.tags.connect(tag_obj)
 
         spawn_task(task_func=update_tags, task_param={"tags": tags})

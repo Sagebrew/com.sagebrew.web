@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from plebs.neo_models import Pleb
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 
 class Command(BaseCommand):

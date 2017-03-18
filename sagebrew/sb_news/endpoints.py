@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from api.permissions import (IsOwnerOrModeratorOrReadOnly, )
-from sb_base.utils import NeoQuerySet
+from sagebrew.api.permissions import (IsOwnerOrModeratorOrReadOnly, )
+from sagebrew.sb_base.utils import NeoQuerySet
 
 from .serializers import NewsArticleSerializer
 from .neo_models import NewsArticle

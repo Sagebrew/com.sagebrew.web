@@ -2,7 +2,7 @@ from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, db)
 
-from sb_search.neo_models import Searchable
+from sagebrew.sb_search.neo_models import Searchable
 
 
 class CongressVoteRelationship(StructuredRel):
@@ -53,28 +53,31 @@ class PublicOfficial(Searchable):
     # bioguide is used to get the reps public profile picture
 
     # relationships
-    pleb = RelationshipTo('plebs.neo_models.Pleb', 'AUTHORIZED_AS')
-    # sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
+    pleb = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'AUTHORIZED_AS')
+    # sponsored = RelationshipTo('sagebrew.sb_public_official.neo_models.Bill',
     #                            "SPONSORED")
-    # co_sponsored = RelationshipTo('sb_public_official.neo_models.Bill',
-    #                               "COSPONSORED")
-    # proposed = RelationshipTo('sb_public_official.neo_models.Bill',
-    #                           "PROPOSED")
-    # hearings = RelationshipTo('sb_public_official.neo_models.Hearing',
-    #                           "ATTENDED")
-    # experience = RelationshipTo('sb_public_official.neo_models.Experience',
-    #                             "EXPERIENCED")
-    gt_person = RelationshipTo('govtrack.neo_models.GTPerson', 'GTPERSON')
-    gt_role = RelationshipTo('govtrack.neo_models.GTRole', 'GTROLE')
+    # co_sponsored = RelationshipTo(
+    # 'sagebrew.sb_public_official.neo_models.Bill', "COSPONSORED")
+    # proposed = RelationshipTo(
+    # 'sagebrew.sb_public_official.neo_models.Bill', "PROPOSED")
+    # hearings = RelationshipTo(
+    # 'sagebrew.sb_public_official.neo_models.Hearing', "ATTENDED")
+    # experience = RelationshipTo(
+    # 'sagebrew.sb_public_official.neo_models.Experience', "EXPERIENCED")
+    gt_person = RelationshipTo('sagebrew.govtrack.neo_models.GTPerson',
+                               'GTPERSON')
+    gt_role = RelationshipTo('sagebrew.govtrack.neo_models.GTRole',
+                             'GTROLE')
     # the current term is also included in the number of terms under the term
     # relationship, the current_term relationship is a shortcut for us to
     # access the term that the official is currently in
-    term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
-    current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
-    quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_HOLDING')
+    term = RelationshipTo('sagebrew.govtrack.neo_models.Term', 'SERVED_TERM')
+    current_term = RelationshipTo('sagebrew.govtrack.neo_models.Term',
+                                  'CURRENT_TERM')
+    quest = RelationshipTo('sagebrew.sb_quests.neo_models.Quest', 'IS_HOLDING')
 
     def get_quest(self):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         # DEPRECATED use get_mission or get_quest instead
         # Not adding a deprecation warning as we cover this with the migration
         # command. Once that is executed we'll need to fix or remove this
@@ -82,8 +85,9 @@ class PublicOfficial(Searchable):
                 '[:IS_HOLDING]->(c:Quest) RETURN c' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            return Quest.inflate(res.one)
+        res = res[0] if res else None
+        if res:
+            return Quest.inflate(res[0][0])
         else:
             return None
 

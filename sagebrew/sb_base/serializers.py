@@ -8,12 +8,12 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist
 
-from api.serializers import SBSerializer
-from api.utils import gather_request_data, spawn_task
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.api.utils import gather_request_data, spawn_task
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 
-from .tasks import create_email, create_event
+from sagebrew.sb_base.tasks import create_email, create_event
 
 
 class VotableContentSerializer(SBSerializer):
@@ -44,7 +44,7 @@ class VotableContentSerializer(SBSerializer):
     is_private = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        from plebs.serializers import PlebSerializerNeo
+        from sagebrew.plebs.serializers import PlebSerializerNeo
         request, expand, _, relation, _ = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),

@@ -14,14 +14,14 @@ from rest_framework.test import APITestCase
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError
 
-from plebs.serializers import PlebSerializerNeo
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 class SearchEndpointTests(APITestCase):

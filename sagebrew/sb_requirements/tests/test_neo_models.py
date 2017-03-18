@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_requirements.neo_models import Requirement
+from sagebrew.sb_requirements.neo_models import Requirement
 
 
 class TestRequirementModel(TestCase):

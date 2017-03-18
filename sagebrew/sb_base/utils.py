@@ -15,11 +15,11 @@ from rest_framework.response import Response
 
 from elasticsearch import exceptions as es_exceptions
 
-from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
-from neomodel.exception import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel.exception import DoesNotExist
 from neomodel import db
 
-from sagebrew import errors
+from config import errors
 
 
 logger = logging.getLogger('loggly_logs')
@@ -49,8 +49,7 @@ def defensive_exception(function_name, exception, return_value, message=None):
 
 
 def custom_exception_handler(exc, context):
-    if isinstance(exc, CypherException) or isinstance(exc, IOError) \
-            or isinstance(exc, CouldNotCommit) or isinstance(exc, ClientError):
+    if isinstance(exc, CypherError) or isinstance(exc, IOError):
         data = errors.CYPHER_EXCEPTION
         logger.exception("%s Cypher Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -219,7 +218,7 @@ class NeoQuerySet(object):
     def count(self):
         res, _ = db.cypher_query("MATCH %s RETURN COUNT(%sres)" %
                                  (self.query, self.is_distinct()))
-        return res.one
+        return res[0][0] if res else None
 
     def filter(self, query_filter):
         return self._filter_or_exclude(query_filter)

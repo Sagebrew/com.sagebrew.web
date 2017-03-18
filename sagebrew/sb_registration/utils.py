@@ -6,12 +6,13 @@ from django.contrib.auth.models import User
 
 from boto import connect_s3
 from boto.s3.key import Key
-from neomodel import DoesNotExist, CypherException
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from api.utils import spawn_task
-from plebs.tasks import create_wall_task, generate_oauth_info
-from plebs.neo_models import Pleb
-from sb_base.decorators import apply_defense
+from sagebrew.api.utils import spawn_task
+from sagebrew.plebs.tasks import create_wall_task, generate_oauth_info
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_base.decorators import apply_defense
 
 
 def calc_age(birthday):
@@ -91,7 +92,7 @@ def generate_profile_pic_url(image_uuid):
 
 def create_user_util_test(email, first_name="test", last_name="test",
                           password="test_test", birthday=None, task=False):
-    from plebs.serializers import generate_username
+    from sagebrew.plebs.serializers import generate_username
     """
     For test purposes only
     :param task:
@@ -123,9 +124,9 @@ def create_user_util_test(email, first_name="test", last_name="test",
                         last_name=user.last_name, username=user.username,
                         date_of_birth=birthday)
             pleb.save()
-        except(CypherException, IOError):
+        except(CypherError, IOError):
             return False
-    except(CypherException, IOError):
+    except(CypherError, IOError):
         raise False
     if task:
         res = spawn_task(task_func=create_wall_task,

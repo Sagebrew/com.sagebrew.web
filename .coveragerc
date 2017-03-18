@@ -1,0 +1,106 @@
+[run]
+branch = True
+omit =
+    */tests*
+    */migrations/*
+    *__init__.py*
+    */settings/*
+    *wsgi.py*
+    *admin.py*
+    *sitemap.py*
+    *s3utils.py*
+    *sagebrew/celery.py*
+    # Management commands should be included usually but these are tested
+    # in a different way than running unit tests. The build will fail if
+    # these fail when docker attempts to run.
+    */management/commands/dockerfilepopulation.py
+    */management/commands/logglypopulation.py
+    */management/commands/populatenginx.py
+    */management/commands/populatesupervisor.py
+    */api/alchemyapi.py
+    */govtrack/*
+    */management/commands/populatetopiccats.py
+    */management/commands/populateschools.py
+    */management/commands/remove_official_search.py
+    */management/commands/populateenvconfig.py
+    */management/commands/populatehistoricaldata.py
+    */management/commands/create_prepopulated_tags.py
+    */management/commands/create_oauth_client.py
+    */management/commands/createsite.py
+    */management/commands/populate_rep_models.py
+    */management/commands/createtokens.py
+    */management/commands/populate_indices.py
+    */management/commands/repopulate_elasticsearch.py
+    */management/commands/update_rep_districts.py
+    */management/commands/create_prepopulated_reps.py
+    */management/commands/populate_president.py
+    */management/commands/update_posts.py
+    */management/commands/update_pleb_search.py
+    */management/commands/update_existing_expanded_content.py
+    */management/commands/remove_duplicate_plebs_search.py
+    */management/commands/add_full_name_to_positions.py
+    */management/commands/remove_duplicates_from_search.py
+    */management/commands/populate_state_external_ids.py
+    */management/commands/connect_addresses_to_federal_districts.py
+    */management/commands/migrate_friends_to_followers.py
+    */management/commands/create_subscription_plans.py
+    */management/commands/empty_elasticsearch.py
+    */management/commands/update_official_search.py
+    */management/commands/populate_dummy_campaign.py
+    */management/commands/create_badges.py
+    */management/commands/populate_location_data.py
+    */management/commands/populate_owner_username.py
+    */management/commands/add_addresses_to_locations.py
+    */management/commands/clear_neo_db.py
+    */management/commands/create_dynamo_tables.py
+    */management/commands/create_privileges.py
+    */management/commands/add_cities_from_addresses.py
+    */management/commands/migrate_addresses.py
+    */management/commands/migrate_comments.py
+    */management/commands/setup_onboarding_for_missions.py
+    */management/commands/populate_nltk.py
+    */management/commands/migrate_solutions.py
+    */management/commands/migrate_questions.py
+    */management/commands/set_quest_titles.py
+    */management/commands/migrate_public_official_states.py
+    */management/commands/create_affiliations.py
+    */management/commands/create_activity_interests.py
+    */management/commands/populate_sectors.py
+    */management/commands/populate_all_state_legislative_positions.py
+    */management/commands/populate_existing_state_districts.py
+    */management/commands/convert_social_links.py
+    */management/commands/convert_donations.py
+    */management/commands/remove_duplicate_quests.py
+    */management/commands/remove_full_search_base.py
+    */management/commands/remove_duplicate_public_official_quests.py
+    */management/commands/remove_and_repopulate_official_quests.py
+    */management/commands/remove_unconnected_quests.py
+    */management/commands/migrate_to_new_editor.py
+    */management/commands/populate_last_rep_node.py
+    */management/commands/add_formatted_location_name.py
+    */sagebrew/test_runner.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    except ImportError:
+    except CypherException as e:
+    except JSONResponseError as e:
+    except(TypeError, IoError, BotoClientError, BotoServerError, AWSConnectionError, Exception) as e:
+    except(CypherException, IOError) as e:
+    except (CypherException, IOError):
+    except (CypherException, IOError, ClientError) as e:
+    except (CypherException, IOError, ClientError):
+    except CypherException:
+    pass
+
+
+[html]
+directory = $CIRCLE_ARTIFACTS

@@ -3,12 +3,12 @@ from django.utils.text import slugify
 
 from rest_framework.reverse import reverse
 
-from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
+from neo4j.v1 import CypherError
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, BooleanProperty, FloatProperty,
-                      db, DoesNotExist, CypherException)
+                      db, DoesNotExist)
 
-from sb_base.neo_models import TitledContent
+from sagebrew.sb_base.neo_models import TitledContent
 
 
 class Question(TitledContent):
@@ -39,10 +39,10 @@ class Question(TitledContent):
     external_location_id = StringProperty(index=True)
 
     # relationships
-    closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
-    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
+    closed_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'CLOSED_BY')
+    solutions = RelationshipTo('sagebrew.sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
-    focus_location = RelationshipTo('sb_locations.neo_models.Location',
+    focus_location = RelationshipTo('sagebrew.sb_locations.neo_models.Location',
                                     'FOCUSED_ON')
 
     @classmethod
@@ -53,12 +53,6 @@ class Question(TitledContent):
                 "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
                     cls.__name__, object_uuid))
             try:
-                try:
-                    res[0][0].pull()
-                except(ClientError, Exception):
-                    # This is here because in local development we've seen
-                    # res[0][0] create a runtime exception
-                    pass
                 question = cls.inflate(res[0][0])
             except IndexError:
                 raise DoesNotExist('Question with id: %s '
@@ -75,8 +69,7 @@ class Question(TitledContent):
     def get_tags_string(self):
         try:
             return ", ".join(self.get_tags())
-        except (CypherException, IOError,
-                CouldNotCommit, ClientError):  # pragma: no cover
+        except (CypherError, IOError):  # pragma: no cover
             # Not covering since we don't have a good way to repeatably trigger
             # these exceptions. - Devon Bleibtrey
             return ""
@@ -91,7 +84,7 @@ class Question(TitledContent):
         return [row[0] for row in res]
 
     def get_conversation_authors(self):
-        from plebs.neo_models import Pleb
+        from sagebrew.plebs.neo_models import Pleb
         query = 'MATCH (a:Question {object_uuid: "%s"}) WITH a ' \
                 'OPTIONAL MATCH (a)-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
                 'WHERE solutions.to_be_deleted = false ' \
@@ -99,7 +92,7 @@ class Question(TitledContent):
                 'collect(solutions.owner_username) as authors' % (
                     self.object_uuid)
         res, _ = db.cypher_query(query)
-        authors = list(set(res.one))
+        authors = list(set(res[0][0]))
         author_list = []
         for author in authors:
             pleb = Pleb.get(author)

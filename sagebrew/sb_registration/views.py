@@ -12,11 +12,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import (CypherException, db, DoesNotExist)
+from neo4j.v1 import CypherError
+from neomodel import (db, DoesNotExist)
 
-from sb_base.serializers import IntercomEventSerializer
-from plebs.neo_models import Pleb
-from plebs.serializers import EmailAuthTokenGenerator
+from sagebrew.sb_base.serializers import IntercomEventSerializer
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import EmailAuthTokenGenerator
 from .forms import LoginForm
 
 logger = getLogger('loggly_logs')
@@ -34,10 +35,10 @@ def political_campaign(request):
     try:
         query = 'MATCH (position:Position) RETURN COUNT(position)'
         res, _ = db.cypher_query(query)
-        position_count = res.one
+        position_count = res[0][0] if res else None
         if position_count is None:  # pragma: no cover
             position_count = 7274
-    except (CypherException, IOError):  # pragma: no cover
+    except (CypherError, IOError):  # pragma: no cover
         position_count = 7274
     return render(request, 'political_campaign.html',
                   {"position_count": position_count})
@@ -118,7 +119,7 @@ def logout_view(request):
 
 @login_required()
 def email_verification(request, confirmation):
-    from sb_quests.serializers import QuestSerializer
+    from sagebrew.sb_quests.serializers import QuestSerializer
     try:
         try:
             profile = Pleb.get(username=request.user.username,
@@ -148,5 +149,5 @@ def email_verification(request, confirmation):
             return redirect('mission_list')
         else:
             return redirect('401_Error')
-    except(CypherException, IOError):    # pragma: no cover
+    except(CypherError, IOError):    # pragma: no cover
         return redirect('500_Error')

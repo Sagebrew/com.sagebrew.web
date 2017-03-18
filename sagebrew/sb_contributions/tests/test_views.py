@@ -9,9 +9,9 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from sb_registration.utils import create_user_util_test
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class ContributionViewTests(TestCase):

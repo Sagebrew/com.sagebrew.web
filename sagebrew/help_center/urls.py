@@ -1,6 +1,6 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.views.generic.base import RedirectView
-from .views import related_articles, help_area
+from sagebrew.help_center.views import related_articles, help_area
 '''
 content_path is used in sync with the ssi tag in help_page.html to include
 the rendered html files from S3. Using python's
@@ -11,15 +11,15 @@ material displayed while manging our docs in a markdown format making it easy
 for our content creators to manage the information.
 
 '''
-urlpatterns = patterns(
-    'help_center.views',
-    (r'^questions/', include('help_center.sub_urls.questions')),
-    (r'^solutions/', include('help_center.sub_urls.solutions')),
-    (r'^reputation_and_moderation/', include(
-        'help_center.sub_urls.reputation_and_moderation')),
-    (r'^conversation/', include('help_center.sub_urls.conversation')),
-    (r'^privileges/', include('help_center.sub_urls.privileges')),
-    (r'^donating/', include('help_center.sub_urls.donations')),
+urlpatterns = [
+    url(r'^questions/', include('sagebrew.help_center.sub_urls.questions')),
+    url(r'^solutions/', include('sagebrew.help_center.sub_urls.solutions')),
+    url(r'^reputation_and_moderation/', include(
+        'sagebrew.help_center.sub_urls.reputation_and_moderation')),
+    url(r'^conversation/',
+        include('sagebrew.help_center.sub_urls.conversation')),
+    url(r'^privileges/', include('sagebrew.help_center.sub_urls.privileges')),
+    url(r'^donating/', include('sagebrew.help_center.sub_urls.donations')),
     url(r'^quests/how_to_run/$', RedirectView.as_view(
         url='/help/quest/how-to-run/', permanent=True),
         name='s-how-to-run-redirect'),
@@ -41,16 +41,16 @@ urlpatterns = patterns(
     url(r'^quests/funding_not_in_account/$', RedirectView.as_view(
         url='/help/quest/funding-not-in-account/', permanent=True),
         name='funding_not_in_account_direct_redirect'),
-    (r'^quest/', include('help_center.sub_urls.quest')),
-    (r'^reputation/', include(
-        'help_center.sub_urls.reputation_and_moderation')),
-    (r'^accounts/', include('help_center.sub_urls.account')),
-    (r'^security/', include('help_center.sub_urls.security')),
-    (r'^terms/', include('help_center.sub_urls.terms')),
-    (r'^policies/', include('help_center.sub_urls.policies')),
+    url(r'^quest/', include('sagebrew.help_center.sub_urls.quest')),
+    url(r'^reputation/', include(
+        'sagebrew.help_center.sub_urls.reputation_and_moderation')),
+    url(r'^accounts/', include('sagebrew.help_center.sub_urls.account')),
+    url(r'^security/', include('sagebrew.help_center.sub_urls.security')),
+    url(r'^terms/', include('sagebrew.help_center.sub_urls.terms')),
+    url(r'^policies/', include('sagebrew.help_center.sub_urls.policies')),
     url(r'^related_articles/$', related_articles, name="related_articles"),
     url(r'^$', help_area, name="help_center")
-)
+]
 
 """
 TODO: We need to ensure we do the following to allow indexing and easier search

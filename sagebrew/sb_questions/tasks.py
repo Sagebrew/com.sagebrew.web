@@ -4,10 +4,11 @@ from celery import shared_task
 
 from django.core.cache import cache
 
-from neomodel import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from api.utils import spawn_task, create_auto_tags, generate_summary
-from sb_tags.tasks import add_auto_tags
+from sagebrew.api.utils import spawn_task, create_auto_tags, generate_summary
+from sagebrew.sb_tags.tasks import add_auto_tags
 
 from .neo_models import Question
 
@@ -18,7 +19,7 @@ logger = getLogger("loggly_logs")
 def create_question_summary_task(object_uuid):
     try:
         question = Question.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Question.DoesNotExist, CypherException, IOError) as e:
+    except (DoesNotExist, Question.DoesNotExist, CypherError, IOError) as e:
         raise create_question_summary_task.retry(exc=e, countdown=5,
                                                  max_retries=None)
     summary = generate_summary(question.content)
@@ -42,7 +43,7 @@ def add_auto_tags_to_question_task(object_uuid):
     """
     try:
         question = Question.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Question.DoesNotExist, CypherException, IOError) as e:
+    except (DoesNotExist, Question.DoesNotExist, CypherError, IOError) as e:
         raise add_auto_tags_to_question_task.retry(exc=e, countdown=5,
                                                    max_retries=None)
     auto_tags = create_auto_tags(question.content)

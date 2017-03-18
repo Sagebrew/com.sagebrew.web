@@ -6,14 +6,14 @@ from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.serializers import SBSerializer
-from sb_base.serializers import IntercomMessageSerializer
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.sb_base.serializers import IntercomMessageSerializer
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
 
-from sb_volunteers.neo_models import Volunteer
+from sagebrew.sb_volunteers.neo_models import Volunteer
 
 
 class VolunteerSerializer(SBSerializer):

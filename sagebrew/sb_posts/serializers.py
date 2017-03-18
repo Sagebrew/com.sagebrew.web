@@ -9,11 +9,11 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist
 
-from api.utils import gather_request_data
-from sb_base.serializers import ContentSerializer, validate_is_owner
-from plebs.serializers import PlebSerializerNeo
-from plebs.neo_models import Pleb
-from sb_uploads.neo_models import UploadedObject, URLContent
+from sagebrew.api.utils import gather_request_data
+from sagebrew.sb_base.serializers import ContentSerializer, validate_is_owner
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_uploads.neo_models import UploadedObject, URLContent
 
 from .neo_models import Post
 

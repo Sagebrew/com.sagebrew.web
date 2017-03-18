@@ -3,7 +3,7 @@ import time
 from django.conf import settings
 from django.test.testcases import TestCase
 
-from govtrack.tasks import (populate_gt_role, populate_gt_person,
+from sagebrew.govtrack.tasks import (populate_gt_role, populate_gt_person,
                             populate_gt_votes, populate_gt_committee)
 
 

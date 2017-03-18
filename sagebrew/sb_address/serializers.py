@@ -4,11 +4,11 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 
-from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data
+from sagebrew.api.serializers import SBSerializer
+from sagebrew.api.utils import spawn_task, gather_request_data
 
-from .neo_models import Address
-from .tasks import update_address_location
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_address.tasks import update_address_location
 
 
 class AddressSerializer(SBSerializer):

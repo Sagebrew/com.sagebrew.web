@@ -4,12 +4,12 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_registration.utils import create_user_util_test
-from sb_flags.neo_models import Flag
-from sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_flags.neo_models import Flag
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_council.tasks import (update_closed_task,
-                              check_closed_reputation_changes_task)
+from sagebrew.sb_council.tasks import (
+    update_closed_task, check_closed_reputation_changes_task)
 
 
 class TestUpdateClosedTask(TestCase):

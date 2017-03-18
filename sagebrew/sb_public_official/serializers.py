@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from neomodel import db
 
-from api.serializers import SBSerializer
+from sagebrew.api.serializers import SBSerializer
 
 
 class PublicOfficialSerializer(SBSerializer):
@@ -64,8 +64,8 @@ class PublicOfficialSerializer(SBSerializer):
         return None
 
     def get_quest(self, obj):
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.serializers import QuestSerializer
         # We use object_uuid here instead of owner_username as none of the
         # public officials have a owner
         quest = None
@@ -73,8 +73,9 @@ class PublicOfficialSerializer(SBSerializer):
                 '[:IS_HOLDING]->(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            quest = res.one
+        res = res[0] if res else None
+        if res:
+            quest = res[0][0]
         if quest is not None:
             quest = QuestSerializer(Quest.inflate(quest)).data
         return quest

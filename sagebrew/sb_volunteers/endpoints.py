@@ -9,8 +9,8 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_missions.neo_models import Mission
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_missions.neo_models import Mission
 
 from .serializers import VolunteerSerializer
 from .neo_models import Volunteer
@@ -33,7 +33,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         query = 'MATCH (volunteer:Volunteer {object_uuid: "%s"}) ' \
                 'RETURN volunteer' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
-        return Volunteer.inflate(res.one)
+        return Volunteer.inflate(res[0][0])
 
     def perform_create(self, serializer):
         volunteer = Pleb.get(self.request.user.username)
@@ -72,8 +72,8 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 '(mission:Mission {object_uuid: "%s"}) ' \
                 'RETURN volunteer' % (request.user.username, object_uuid)
         res, _ = db.cypher_query(query)
-        if res.one:
-            volunteered = VolunteerSerializer(Volunteer.inflate(res.one),
+        if res[0] if res else None:
+            volunteered = VolunteerSerializer(Volunteer.inflate(res[0][0]),
                                               context={"request": request}).data
         else:
             volunteered = None

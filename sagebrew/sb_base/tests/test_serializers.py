@@ -8,21 +8,21 @@ from rest_framework.test import APITestCase, APIRequestFactory
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_base.serializers import (IntercomMessageSerializer,
-                                 IntercomEventSerializer,
-                                 VotableContentSerializer)
-from sb_questions.neo_models import Question
-from sb_comments.neo_models import Comment
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_base.serializers import (
+    IntercomMessageSerializer, IntercomEventSerializer,
+    VotableContentSerializer)
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class IntercomMessageSerializerTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"
@@ -289,7 +289,7 @@ class IntercomMessageSerializerTests(APITestCase):
 class IntercomEventSerializerTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"

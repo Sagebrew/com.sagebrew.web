@@ -1,8 +1,8 @@
 from neomodel import (db, RelationshipTo, IntegerProperty, BooleanProperty,
                       DateTimeProperty, StringProperty)
 
-from api.neo_models import SBObject
-from sb_base.neo_models import get_current_time
+from sagebrew.api.neo_models import SBObject
+from sagebrew.sb_base.neo_models import get_current_time
 
 
 class Order(SBObject):
@@ -26,11 +26,12 @@ class Order(SBObject):
 
     # relationships
     # Who placed the order.
-    owner = RelationshipTo("plebs.neo_models.Pleb", "PLACED")
-    mission = RelationshipTo("sb_missions.neo_models.Mission", "GIFTED_TO")
+    owner = RelationshipTo("sagebrew.plebs.neo_models.Pleb", "PLACED")
+    mission = RelationshipTo(
+        "sagebrew.sb_missions.neo_models.Mission", "GIFTED_TO")
 
     def get_products(self):
-        from sb_gifts.neo_models import Product
+        from sagebrew.sb_gifts.neo_models import Product
         query = 'MATCH (o:Order {object_uuid:"%s"})<-[:INCLUDED_IN]' \
                 '-(p:Product) RETURN p' % self.object_uuid
         res, _ = db.cypher_query(query)
@@ -38,11 +39,11 @@ class Order(SBObject):
         return [Product.inflate(row[0]) for row in res]
 
     def get_mission(self):
-        from sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.neo_models import Mission
         query = 'MATCH (o:Order {object_uuid:"%s"})-[:GIFTED_TO]->' \
                 '(m:Mission) RETURN m' % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            res.one.pull()
-            return Mission.inflate(res.one)
+        res = res[0] if res else None
+        if res:
+            return Mission.inflate(res[0][0])
         return None

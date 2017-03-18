@@ -1,6 +1,6 @@
 from neomodel import (StringProperty, IntegerProperty, BooleanProperty)
 
-from sb_base.neo_models import TitledContent
+from sagebrew.sb_base.neo_models import TitledContent
 
 
 class OnboardingTask(TitledContent):

@@ -4,8 +4,8 @@ from django.core.cache import cache
 
 from elasticsearch import Elasticsearch
 
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
 
 
 class Command(BaseCommand):

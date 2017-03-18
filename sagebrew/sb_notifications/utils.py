@@ -1,9 +1,10 @@
 from django.core.cache import cache
 
-from neomodel import DoesNotExist, CypherException
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
 from .neo_models import Notification, NotificationCapable
-from sb_base.decorators import apply_defense
+from sagebrew.sb_base.decorators import apply_defense
 
 
 @apply_defense
@@ -26,7 +27,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
     """
     try:
         sb_object = NotificationCapable.nodes.get(object_uuid=sb_object)
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         return e
     try:
         try:
@@ -53,7 +54,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
 
         return True
 
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         return e
 
 
@@ -92,5 +93,5 @@ def create_system_notification(to_plebs, notification_id, url, action_name):
 
         return True
 
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         return e

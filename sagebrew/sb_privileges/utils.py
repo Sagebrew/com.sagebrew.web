@@ -4,12 +4,13 @@ from time import sleep
 from datetime import datetime
 
 from django.core.cache import cache
-from py2neo.cypher.error.schema import ConstraintViolation
-from neomodel import (DoesNotExist, CypherException, db)
 
-from sb_requirements.neo_models import Requirement
+from neo4j.v1 import CypherError
+from neomodel import (DoesNotExist, db, )
 
-from .neo_models import Privilege, SBAction
+from sagebrew.sb_requirements.neo_models import Requirement
+
+from sagebrew.sb_privileges.neo_models import Privilege, SBAction
 
 logger = logging.getLogger('loggly_logs')
 
@@ -38,7 +39,7 @@ def manage_privilege_relation(username):
     """
     try:
         privileges = Privilege.nodes.all()
-    except(CypherException, IOError) as e:
+    except(CypherError, IOError) as e:
         return e
     for privilege in privileges:
         try:
@@ -61,7 +62,7 @@ def manage_privilege_relation(username):
                     'RETURN action, privilege' % (
                         username, privilege.name, current_time, current_time)
             res, _ = db.cypher_query(query)
-            if res.one is not None:
+            if res[0] if res else None is not None:
                 continue
         else:
             try:
@@ -72,7 +73,7 @@ def manage_privilege_relation(username):
                         'RETURN privilege' % (
                             username, privilege.name, current_time)
                 res, _ = db.cypher_query(query)
-            except(ConstraintViolation, Exception):
+            except Exception:
                 query = 'MATCH (pleb:Pleb {username: "%s"})-[r:HAS]->' \
                         '(privilege:Privilege {name: "%s"}) ' \
                         'SET r.active=true, r.gained_on=%s ' \
@@ -88,7 +89,7 @@ def manage_privilege_relation(username):
                         'RETURN action' % (
                             username, privilege.name, current_time)
                 res, _ = db.cypher_query(query)
-            except(ConstraintViolation, Exception):
+            except Exception:
                 query = 'MATCH (privilege:Privilege {name: "%s"})-[:GRANTS]->' \
                         '(action:SBAction)<-[r:CAN]-' \
                         '(pleb:Pleb {username: "%s"}) ' \
@@ -112,18 +113,18 @@ def create_privilege(privilege_data, actions, requirements):
     except(Privilege.DoesNotExist, DoesNotExist):
         try:
             privilege = Privilege(**privilege_data).save()
-        except (CypherException, IOError) as e:
+        except (CypherError, IOError) as e:
             return e
     for action in actions:
         try:
             sb_action = SBAction.nodes.get(object_uuid=action['object_uuid'])
-        except (CypherException, IOError, SBAction.DoesNotExist,
+        except (CypherError, IOError, SBAction.DoesNotExist,
                 DoesNotExist) as e:
             return e
         try:
             privilege.actions.connect(sb_action)
             sb_action.privilege.connect(privilege)
-        except (CypherException, IOError) as e:
+        except (CypherError, IOError) as e:
             return e
     for requirement in requirements:
         try:
@@ -133,6 +134,6 @@ def create_privilege(privilege_data, actions, requirements):
             except (Requirement.DoesNotExist, DoesNotExist) as e:
                 return e
             privilege.requirements.connect(sb_requirement)
-        except (CypherException, IOError) as e:
+        except (CypherError, IOError) as e:
             return e
     return True

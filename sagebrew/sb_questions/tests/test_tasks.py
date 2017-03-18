@@ -7,11 +7,11 @@ from django.contrib.auth.models import User
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.neo_models import Question
-from sb_questions.tasks import (add_auto_tags_to_question_task,
-                                create_question_summary_task)
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_questions.tasks import (
+    add_auto_tags_to_question_task, create_question_summary_task)
 
 
 class TestAddAutoTagsToQuestionTask(TestCase):

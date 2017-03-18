@@ -3,9 +3,10 @@ from datetime import datetime
 from uuid import uuid1
 
 from django.conf import settings
-
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, db)
+
+from config.utils import neo_node
 
 
 def get_current_time():
@@ -23,8 +24,8 @@ class SBObject(StructuredNode):
 
     def get_labels(self):
         query = 'MATCH n WHERE id(n)=%d RETURN DISTINCT labels(n)' % self._id
-        res, col = db.cypher_query(query)
-        return res[0][0]
+        res, _ = db.cypher_query(query)
+        return neo_node(res)
 
     def get_child_label(self):
         """

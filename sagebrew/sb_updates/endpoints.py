@@ -10,9 +10,9 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_base.views import ObjectRetrieveUpdateDestroy
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
 from .serializers import UpdateSerializer
 from .neo_models import Update

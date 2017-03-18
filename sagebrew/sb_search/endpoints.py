@@ -10,9 +10,9 @@ from elasticsearch import Elasticsearch
 from amazon.api import SearchException
 from amazon.api import AmazonAPI
 
-from sagebrew import errors
-from api.utils import (spawn_task)
-from api.alchemyapi import AlchemyAPI
+from config import errors
+from sagebrew.api.utils import spawn_task
+from sagebrew.api.alchemyapi import AlchemyAPI
 
 from .tasks import update_search_query
 

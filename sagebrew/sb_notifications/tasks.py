@@ -1,8 +1,9 @@
 from celery import shared_task
 
-from neomodel.exception import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel.exception import DoesNotExist
 
-from plebs.neo_models import Pleb
+from sagebrew.plebs.neo_models import Pleb
 from .utils import create_notification_util, create_system_notification
 
 
@@ -28,14 +29,14 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
         to_plebs.remove(from_pleb)
     try:
         from_pleb = Pleb.get(username=from_pleb)
-    except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+    except(CypherError, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
         raise spawn_notifications.retry(exc=e, countdown=3, max_retries=100)
 
     for plebeian in to_plebs:
         try:
             to_pleb = Pleb.get(username=plebeian)
             plebeians.append(to_pleb)
-        except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+        except(CypherError, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
             raise spawn_notifications.retry(
                 exc=e, countdown=3, max_retries=100)
     response = create_notification_util(sb_object, from_pleb, plebeians,
@@ -54,7 +55,7 @@ def spawn_system_notification(to_plebs, notification_id, url, action_name):
         try:
             to_pleb = Pleb.get(username=plebeian)
             plebeians.append(to_pleb)
-        except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+        except(CypherError, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
             raise spawn_notifications.retry(
                 exc=e, countdown=3, max_retries=100)
 

@@ -3,9 +3,9 @@ from django.test import TestCase
 
 from neomodel import db
 
-from sb_tags.neo_models import Tag
+from sagebrew.sb_tags.neo_models import Tag
 
-from sb_news.tasks import find_tag_news
+from sagebrew.sb_news.tasks import find_tag_news
 
 
 class TestNewsTasks(TestCase):

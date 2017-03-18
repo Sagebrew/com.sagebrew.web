@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from sb_oauth.models import SBApplication
+from sagebrew.sb_oauth.models import SBApplication
 
 
 class Command(BaseCommand):

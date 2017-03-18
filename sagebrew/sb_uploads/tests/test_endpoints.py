@@ -12,10 +12,10 @@ from neomodel import UniqueProperty
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_uploads.neo_models import URLContent
+from sagebrew.sb_uploads.neo_models import URLContent
 
 
 class UploadEndpointTests(APITestCase):
@@ -30,7 +30,7 @@ class UploadEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         self.uuid = str(uuid1())
         self.image_path = "%s/frontend/assets/images/" \
-                          "capitol_building.jpg" % settings.REPO_DIR
+                          "capitol_building.jpg" % settings.APPS_DIR
         self.image_width = 2200
         self.image_height = 600
         self.file_size = 428455

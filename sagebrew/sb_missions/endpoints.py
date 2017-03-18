@@ -6,15 +6,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
-from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
-                       generate_csv_html_file_response)
-from sb_base.utils import NeoQuerySet
-from sb_donations.serializers import DonationExportSerializer
-from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from sagebrew.api.utils import (
+    calc_stripe_application_fee, humanize_dict_keys,
+    generate_csv_html_file_response)
+from sagebrew.sb_base.utils import NeoQuerySet
+from sagebrew.sb_donations.serializers import DonationExportSerializer
+from sagebrew.api.permissions import (IsOwnerOrModeratorOrReadOnly,
+                                      IsOwnerOrModerator)
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.plebs.serializers import PlebSerializerNeo
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 from .serializers import MissionSerializer, MissionReviewSerializer
 from .neo_models import Mission
@@ -60,7 +62,7 @@ class MissionViewSet(viewsets.ModelViewSet):
         query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest) ' \
                 'RETURN b' % request.user.username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if res[0] if res else None is None:
             self.permission_denied(request)
         return super(MissionViewSet, self).create(request, *args, **kwargs)
 
@@ -190,11 +192,19 @@ class MissionViewSet(viewsets.ModelViewSet):
         query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
                 % object_uuid
         res, _ = db.cypher_query(query)
-        serializer = self.get_serializer(Mission.inflate(res.one),
-                                         data=request.data, partial=True,
-                                         context={'request': request})
-        if serializer.is_valid():
-            self.perform_update(serializer)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        res = res[0][0] if res else None
+        if res is not None:
+            serializer = self.get_serializer(
+                Mission.inflate(res),
+                data=request.data, partial=True,
+                context={'request': request})
+            if serializer.is_valid():
+                self.perform_update(serializer)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "detail": "Unknown Error",
+                "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR},
+                status=status.HTTP_400_BAD_REQUEST)

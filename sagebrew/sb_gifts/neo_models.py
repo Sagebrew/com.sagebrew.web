@@ -1,6 +1,6 @@
 from neomodel import (db, RelationshipTo, StringProperty, BooleanProperty)
 
-from api.neo_models import SBObject
+from sagebrew.api.neo_models import SBObject
 
 
 class Giftlist(SBObject):
@@ -14,16 +14,17 @@ class Giftlist(SBObject):
     public = BooleanProperty(default=False)
 
     # Which Mission has this list of gifts they want from their supporters
-    mission = RelationshipTo("sb_missions.neo_models.Mission", "LIST_FOR")
+    mission = RelationshipTo(
+        "sagebrew.sb_missions.neo_models.Mission", "LIST_FOR")
 
     def get_product(self, vendor_id, vendor_name):
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})<-[:IN_LIST]-' \
                 '(p:Product {vendor_id:"%s", vendor_name:"%s"}) RETURN p' \
                 % (self.object_uuid, vendor_id, vendor_name)
         res, _ = db.cypher_query(query)
-        if res.one:
-            res.one.pull()
-            return Product.inflate(res.one)
+        res = res[0][0] if res else None
+        if res:
+            return Product.inflate(res)
         return None
 
     def get_products(self):
@@ -40,12 +41,15 @@ class Giftlist(SBObject):
         return [row[0] for row in res]
 
     def get_mission(self):
-        from sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.neo_models import Mission
         query = 'MATCH (g:Giftlist {object_uuid:"%s"})-[:LIST_FOR]->' \
                 '(m:Mission) RETURN m' % self.object_uuid
         res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return Mission.inflate(res.one)
+        res = res[0][0] if res else None
+        if res is not None:
+            return Mission.inflate(res)
+        else:
+            return None
 
 
 class Product(SBObject):
@@ -73,13 +77,18 @@ class Product(SBObject):
 
     # relationships
     # Which list this product is in
-    giftlist = RelationshipTo("sb_gifts.neo_models.Giftlist", "IN_LIST")
+    giftlist = RelationshipTo(
+        "sagebrew.sb_gifts.neo_models.Giftlist", "IN_LIST")
     # Which orders this product is included in
-    orders = RelationshipTo("sb_orders.neo_models.Order", "INCLUDED_IN")
+    orders = RelationshipTo(
+        "sagebrew.sb_orders.neo_models.Order", "INCLUDED_IN")
 
     def get_giftlist(self):
         query = 'MATCH (p:Product {object_uuid:"%s"})-[:IN_LIST]->' \
-                '(g:Giftlist) RETURN g' % (self.object_uuid)
+                '(g:Giftlist) RETURN g' % self.object_uuid
         res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return Giftlist.inflate(res.one)
+        res = res[0][0] if res else None
+        if res is not None:
+            return Giftlist.inflate(res)
+        else:
+            return None

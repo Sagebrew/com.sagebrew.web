@@ -18,17 +18,21 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_base.utils import NeoQuerySet
-from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
-                       generate_csv_html_file_response)
-from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
-                             IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
+from config.utils import neo_node
 
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
-from sb_donations.serializers import DonationExportSerializer
-from sb_search.utils import remove_search_object
-from plebs.neo_models import Pleb
+from sagebrew.sb_base.utils import NeoQuerySet
+from sagebrew.api.utils import (
+    calc_stripe_application_fee, humanize_dict_keys,
+    generate_csv_html_file_response)
+from sagebrew.api.permissions import (
+    IsOwnerOrAdmin, IsOwnerOrModerator,
+    IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
+
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.serializers import MissionSerializer
+from sagebrew.sb_donations.serializers import DonationExportSerializer
+from sagebrew.sb_search.utils import remove_search_object
+from sagebrew.plebs.neo_models import Pleb
 
 from .serializers import (EditorSerializer, ModeratorSerializer,
                           PositionSerializer,
@@ -107,8 +111,8 @@ class QuestViewSet(viewsets.ModelViewSet):
                 '(mission:Mission) ' \
                 'RETURN mission.object_uuid' % instance.owner_username
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            [cache.delete("%s_mission" % mission) for mission in res.one]
+        if neo_node(res):
+            [cache.delete("%s_mission" % mission) for mission in res[0]]
         # Delete all missions associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
                 '(mission:Mission) WITH mission, r ' \

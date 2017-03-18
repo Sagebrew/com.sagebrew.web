@@ -4,11 +4,11 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
-from sb_search.tasks import update_search_object
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_search.tasks import update_search_object
 
 logger = getLogger('loggly_logs')
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 update_search_object.apply_async(
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for question in [Question.inflate(row[0]) for row in res]:
                 update_search_object.apply_async(
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for quest in [Quest.inflate(row[0]) for row in res]:
                 update_search_object.apply_async(
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for mission in [Mission.inflate(row[0]) for row in res]:
                 update_search_object.apply_async(

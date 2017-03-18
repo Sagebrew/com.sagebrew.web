@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from sb_base.serializers import TitledContentSerializer
+from sagebrew.sb_base.serializers import TitledContentSerializer
 
 from .neo_models import OnboardingTask
 

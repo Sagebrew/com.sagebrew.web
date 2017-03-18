@@ -2,11 +2,11 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb, Address
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb, Address
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_public_official.utils import (determine_reps)
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_public_official.utils import (determine_reps)
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 
 class TestPublicOfficialUtils(TestCase):

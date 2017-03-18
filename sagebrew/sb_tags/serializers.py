@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.serializers import SBSerializer
+from sagebrew.api.serializers import SBSerializer
 
 
 class TagSerializer(SBSerializer):

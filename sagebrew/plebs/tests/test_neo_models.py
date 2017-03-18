@@ -4,11 +4,11 @@ from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
 
-from sb_donations.neo_models import Donation
-from sb_questions.neo_models import Question
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from plebs.neo_models import BetaUser, Pleb
+from sagebrew.plebs.neo_models import BetaUser, Pleb
 
 
 class TestBetaUser(TestCase):

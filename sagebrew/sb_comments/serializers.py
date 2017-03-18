@@ -10,11 +10,11 @@ from rest_framework import serializers
 
 from neomodel import db
 
-from api.utils import request_to_api, gather_request_data
-from sb_base.serializers import ContentSerializer, validate_is_owner
-from sb_base.neo_models import SBContent
+from sagebrew.api.utils import request_to_api, gather_request_data
+from sagebrew.sb_base.serializers import ContentSerializer, validate_is_owner
+from sagebrew.sb_base.neo_models import SBContent
 
-from .neo_models import Comment
+from sagebrew.sb_comments.neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):

@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand
 
-from py2neo.cypher.error.schema import ConstraintViolation
-
 from neomodel import db
 
-from plebs.neo_models import Pleb
+from config.utils import neo_node
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Command(BaseCommand):
@@ -16,7 +15,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if neo_node(res):
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \
@@ -28,7 +27,7 @@ class Command(BaseCommand):
                     try:
                         profile.follow(friend.username)
                         friend.follow(profile.username)
-                    except(ConstraintViolation, Exception):
+                    except Exception:
                         pass
         self.stdout.write("completed friend migration\n", ending='')
 

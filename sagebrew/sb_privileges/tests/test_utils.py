@@ -11,11 +11,12 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_privileges.neo_models import SBAction, Privilege
-from sb_privileges.utils import create_privilege, manage_privilege_relation
-from sb_requirements.neo_models import Requirement
+from sagebrew.sb_privileges.neo_models import SBAction, Privilege
+from sagebrew.sb_privileges.utils import (
+    create_privilege, manage_privilege_relation)
+from sagebrew.sb_requirements.neo_models import Requirement
 
 
 class TestManagePrivilegeRelation(APITestCase):

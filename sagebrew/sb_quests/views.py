@@ -4,17 +4,20 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 
-from py2neo.cypher import ClientError
-from neomodel import DoesNotExist, CypherException, db
-from sb_address.neo_models import Address
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
+
+from config.utils import neo_node
+
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_quests.serializers import QuestSerializer
 
 
 def quest(request, username):
     try:
         quest_obj = Quest.get(owner_username=username)
-    except (CypherException, IOError, Quest.DoesNotExist, DoesNotExist):
+    except (CypherError, IOError, Quest.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     return redirect('profile_page', pleb_username=quest_obj.owner_username)
 
@@ -31,9 +34,9 @@ class QuestSettingsView(LoginRequiredMixin):
     template_name = 'manage/quest_settings.html'
 
     def get(self, request, username=None):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
-        from sb_missions.utils import order_tasks
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.utils import order_tasks
         query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
             'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
@@ -41,23 +44,23 @@ class QuestSettingsView(LoginRequiredMixin):
                 request.user.username)
         try:
             res, _ = db.cypher_query(query)
-            if res.one is None:
+            if neo_node(res):
                 return redirect("404_Error")
-        except(CypherException, ClientError):
+        except CypherError:
             return redirect("500_Error")
-        res.one.quest.pull()
-        quest_obj = Quest.inflate(res.one.quest)
+        res = neo_node(res)
+        quest_obj = Quest.inflate(res.quest)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
-        if res.one.missions is None:
+        if res.missions is None:
             mission_link = reverse('select_mission')
             mission_active = False
             onboarding_sort = []
             mission_obj = None
             onboarding_done = 0
         else:
-            mission_obj = Mission.inflate(res[0].missions)
+            mission_obj = Mission.inflate(res.missions)
             mission_link = reverse(
                 'mission_settings',
                 kwargs={"object_uuid": mission_obj.object_uuid,
@@ -70,8 +73,9 @@ class QuestSettingsView(LoginRequiredMixin):
         res, _ = db.cypher_query('MATCH (a:Quest {owner_username: "%s"})'
                                  '-[:LOCATED_AT]->(b:Address) '
                                  'RETURN b' % quest_obj.owner_username)
-        if res.one is not None:
-            address = Address.inflate(res.one)
+        res = neo_node(res)
+        if res:
+            address = Address.inflate(res)
         else:
             address = None
         if self.template_name == "manage/quest_banking.html" \

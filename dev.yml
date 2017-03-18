@@ -1,0 +1,185 @@
+version: '2'
+
+volumes:
+  postgres_data_dev: {}
+  postgres_backup_dev: {}
+  neo4j_data_dev: {}
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+
+networks:
+  esnet:
+    driver: bridge
+
+services:
+  postgres:
+    build: ./compose/postgres
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - postgres_backup_dev:/backups
+    environment:
+      - POSTGRES_USER=sagebrew
+      - POSTGRES_PASSWORD=sagebrew
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    container_name: elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  neo4j_db:
+    image: neo4j:3.0.8
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data_dev:/db/dbms
+    environment:
+      - NEO4J_AUTH=neo4j/password
+  django:
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    env_file:
+      - .env
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", "/start-dev.sh"]
+    domainname: sagebrew.local
+    hostname: sagebrew.local
+    depends_on:
+      - postgres
+      - neo4j_db
+    environment:
+      - POSTGRES_USER=sagebrew
+      - POSTGRES_PASSWORD=sagebrew
+      - USE_DOCKER=yes
+    volumes:
+      - .:/app
+    ports:
+      - "5000:8000"
+    links:
+      - postgres
+      - redis
+      - neo4j_db
+  pycharm:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - neo4j_db
+      - celeryworker
+      - celerybeat
+    environment:
+      - POSTGRES_USER=sagebrew
+      - POSTGRES_PASSWORD=sagebrew
+    volumes:
+      - .:/app
+    links:
+      - postgres
+      - redis
+      - neo4j_db
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  celeryflower:
+    image: mwisner/flower:latest
+    ports:
+      - "5555:5555"
+    links:
+      - redis
+    depends_on:
+     - redis
+    environment:
+      - REDIS_DATABASE=1
+
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    env_file: .env
+    environment:
+      - POSTGRES_USER=sagebrew
+      - POSTGRES_PASSWORD=sagebrew
+      - MYSQL_DATABASE=sagebrew
+      - MYSQL_USER=sagebrew
+      - MYSQL_PASSWORD=sagebrew
+    depends_on:
+     - postgres
+     - redis
+     - neo4j_db
+    links:
+      - postgres
+      - redis
+      - neo4j_db
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", celery, -A,
+              sagebrew.tasks, worker, --workdir=/app, --concurrency=4,  -l, INFO]
+    volumes:
+      - .:/app
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile-dev
+    env_file: .env
+    environment:
+      - POSTGRES_USER=sagebrew
+      - POSTGRES_PASSWORD=sagebrew
+      - MYSQL_DATABASE=sagebrew
+      - MYSQL_USER=sagebrew
+      - MYSQL_PASSWORD=sagebrew
+    depends_on:
+      - postgres
+      - redis
+      - neo4j_db
+    links:
+      - postgres
+      - redis
+      - neo4j_db
+    command: ["./wait-for-it.sh -t 90", "neo4j_db:7474", "--", celery, -A,
+              sagebrew.tasks, beat, --workdir=/app, -l, INFO]
+    volumes:
+      - .:/app

@@ -9,13 +9,13 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from sb_comments.neo_models import Comment
-from sb_posts.neo_models import Post
-from sb_registration.utils import create_user_util_test
-from api.utils import wait_util
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.api.utils import wait_util
 
-from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import ProfileView
+from sagebrew.plebs.neo_models import Pleb, FriendRequest
+from sagebrew.plebs.views import ProfileView
 
 
 class ProfilePageTest(TestCase):

@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from sb_tags.utils import limit_offset_query
+from sagebrew.sb_tags.utils import limit_offset_query
 from .utils import find_news, tag_callback
 
 

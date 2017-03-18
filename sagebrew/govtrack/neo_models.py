@@ -6,7 +6,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       BooleanProperty, DateTimeProperty,
                       JSONProperty, RelationshipTo)
 
-from sb_search.neo_models import Searchable
+from sagebrew.sb_search.neo_models import Searchable
 
 
 class GTCongressNumbers(StructuredNode):

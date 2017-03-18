@@ -1,6 +1,6 @@
 from neomodel import (RelationshipTo, StringProperty)
 
-from sb_base.neo_models import TitledContent
+from sagebrew.sb_base.neo_models import TitledContent
 
 
 class Update(TitledContent):
@@ -21,9 +21,9 @@ class Update(TitledContent):
     # are now using "ABOUT" for the relationship type for each of the
     # properties. This is because only one ABOUT relationship should
     # exist coming from an update.
-    mission = RelationshipTo('sb_missions.neo_models.Mission', "ABOUT")
-    seat = RelationshipTo('sb_quests.neo_models.Seat', "ABOUT")
-    quest = RelationshipTo('sb_quests.neo_models.Quest', "ABOUT")
+    mission = RelationshipTo('sagebrew.sb_missions.neo_models.Mission', "ABOUT")
+    seat = RelationshipTo('sagebrew.sb_quests.neo_models.Seat', "ABOUT")
+    quest = RelationshipTo('sagebrew.sb_quests.neo_models.Quest', "ABOUT")
 
     # Helper function that can be associated with the serializer and gets
     # the object the update is about.

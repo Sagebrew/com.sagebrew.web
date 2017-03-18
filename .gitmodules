@@ -1,6 +1,0 @@
-[submodule "sagebrew/sb_assets"]
-	path = sagebrew/sb_assets
-	url = git@github.com:Sagebrew/sb_assets.git
-[submodule "deployment_upgrade"]
-	path = deployment_upgrade
-	url = git@github.com:Sagebrew/deployment.git

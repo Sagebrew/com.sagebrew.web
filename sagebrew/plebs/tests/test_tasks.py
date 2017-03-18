@@ -10,15 +10,14 @@ from django.contrib.auth.models import User
 
 from boto.dynamodb2.table import Table
 
-from api.utils import wait_util
-from plebs.neo_models import Pleb
-from sb_docstore.utils import connect_to_dynamo, get_table_name
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
-from plebs.tasks import (create_wall_task,
-                         finalize_citizen_creation,
-                         update_reputation)
-from sb_wall.neo_models import Wall
+from sagebrew.api.utils import wait_util
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_docstore.utils import connect_to_dynamo, get_table_name
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.plebs.tasks import (
+    create_wall_task, finalize_citizen_creation, update_reputation)
+from sagebrew.sb_wall.neo_models import Wall
 
 
 class TestCreateWallTask(TestCase):

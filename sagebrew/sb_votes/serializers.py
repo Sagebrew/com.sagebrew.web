@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.serializers import SBSerializer
+from sagebrew.api.serializers import SBSerializer
 
 
 class VoteSerializer(SBSerializer):

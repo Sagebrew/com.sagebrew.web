@@ -9,12 +9,12 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sb_registration.utils import create_user_util_test
-from sb_quests.neo_models import Quest
-from sb_missions.neo_models import Mission
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_missions.neo_models import Mission
 
-from sb_volunteers.neo_models import Volunteer
-from sb_volunteers.serializers import VolunteerSerializer
+from sagebrew.sb_volunteers.neo_models import Volunteer
+from sagebrew.sb_volunteers.serializers import VolunteerSerializer
 
 
 class VolunteerEndpointTests(APITestCase):

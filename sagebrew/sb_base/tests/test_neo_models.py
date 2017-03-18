@@ -2,12 +2,13 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_registration.utils import create_user_util_test
-from sb_posts.neo_models import Post
-from sb_questions.neo_models import Question
-from sb_uploads.neo_models import UploadedObject
-from sb_base.neo_models import (get_parent_votable_content, VotableContent,
-                                get_parent_titled_content, TitledContent)
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_uploads.neo_models import UploadedObject
+from sagebrew.sb_base.neo_models import (
+    get_parent_votable_content, VotableContent,
+    get_parent_titled_content, TitledContent)
 
 
 class TestVotableContentNeoModel(TestCase):
@@ -100,7 +101,7 @@ class TestGetUploadedObject(TestCase):
 
     def test_get_uploaded_object(self):
         res = self.post.get_uploaded_objects()
-        self.assertEqual(res[0]['url'], self.uploaded_object.url)
+        self.assertEqual(res[0][0]['url'], self.uploaded_object.url)
 
     def test_get_uploaded_object_no_objects(self):
         self.post.uploaded_objects.disconnect(self.uploaded_object)

@@ -2,11 +2,12 @@ from celery import shared_task
 from requests import get
 from datetime import datetime
 
-from neomodel import CypherException, DoesNotExist
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from .utils import populate_gt_roles_util
-from govtrack.neo_models import (GTPerson, GTCommittee,
-                                 GT_RCVotes, GTVoteOption)
+from sagebrew.govtrack.utils import populate_gt_roles_util
+from sagebrew.govtrack.neo_models import (
+    GTPerson, GTCommittee, GT_RCVotes, GTVoteOption)
 
 
 @shared_task()
@@ -49,9 +50,9 @@ def populate_gt_person(requesturl):
             my_person = GTPerson(**person)
             try:
                 my_person.save()
-            except (CypherException, IOError) as e:
+            except (CypherError, IOError) as e:
                 populate_gt_person.retry(exc=e, countdown=3, max_retries=None)
-        except (CypherException, IOError) as e:
+        except (CypherError, IOError) as e:
             populate_gt_person.retry(exc=e, countdown=3, max_retries=None)
     return True
 
@@ -79,10 +80,10 @@ def populate_gt_committee(requesturl):
             my_committee = GTCommittee(**committee)
             try:
                 my_committee.save()
-            except (CypherException, IOError) as e:
+            except (CypherError, IOError) as e:
                 populate_gt_committee.retry(exc=e,
                                             countdown=3, max_retries=None)
-        except (CypherException, IOError) as e:
+        except (CypherError, IOError) as e:
             populate_gt_committee.retry(exc=e, countdown=3,
                                         max_retries=None)
     return True
@@ -125,10 +126,10 @@ def populate_gt_votes(requesturl):
                 my_vote.save()
                 for item in my_votes:
                     my_vote.option.connect(item)
-            except (CypherException, IOError) as e:
+            except (CypherError, IOError) as e:
                 raise populate_gt_votes.retry(exc=e, countdown=3,
                                               max_retries=None)
             my_votes = []
-        except(CypherException, IOError) as e:
+        except(CypherError, IOError) as e:
             raise populate_gt_votes.retry(exc=e, countdown=3, max_retries=None)
     return True

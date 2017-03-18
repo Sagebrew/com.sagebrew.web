@@ -7,11 +7,12 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_docstore.utils import add_object_to_table
-from sb_docstore.tasks import spawn_user_updates, add_object_to_table_task
+from sagebrew.sb_docstore.utils import add_object_to_table
+from sagebrew.sb_docstore.tasks import (
+    spawn_user_updates, add_object_to_table_task)
 
 
 class TestSpawnUserUpdates(TestCase):

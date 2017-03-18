@@ -14,15 +14,15 @@ from rest_framework.test import APITestCase
 
 from neomodel import db, DoesNotExist
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_quests.neo_models import Quest
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class AccountingHooksTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         try:
             self.pleb2 = Pleb.nodes.get(

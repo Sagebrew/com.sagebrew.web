@@ -7,7 +7,7 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.types import STRING
 from boto.dynamodb2.exceptions import JSONResponseError
 
-from sb_docstore.utils import connect_to_dynamo, get_table_name
+from sagebrew.sb_docstore.utils import connect_to_dynamo, get_table_name
 
 
 class Command(BaseCommand):

@@ -1,4 +1,0 @@
--r base.txt
-coveralls
-flake8
-requests_mock

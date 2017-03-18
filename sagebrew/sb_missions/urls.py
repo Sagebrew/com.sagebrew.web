@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 
-from sb_contributions.views import ContributionMissionView
+from sagebrew.sb_contributions.views import ContributionMissionView
 
 from .views import (mission_redirect_page, mission_updates,
                     MissionSettingsView, MissionBaseView,
@@ -10,8 +10,7 @@ from .views import (mission_redirect_page, mission_updates,
                     mission_account_signup, mission_conversations)
 
 
-urlpatterns = patterns(
-    'sb_missions.views',
+urlpatterns = [
     # List
     url(r'^$', TemplateView.as_view(template_name="mission/list.html"),
         name='mission_list'),
@@ -165,4 +164,4 @@ urlpatterns = patterns(
         mission_endorsements, name="mission_endorsements"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/$',
         MissionBaseView.as_view(), name="mission"),
-)
+]

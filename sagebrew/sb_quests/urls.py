@@ -1,11 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from sb_contributions.views import ContributionQuestView
+from sagebrew.sb_contributions.views import ContributionQuestView
 
 from .views import (quest, QuestSettingsView)
 
-urlpatterns = patterns(
-    'sb_quests.views',
+urlpatterns = [
     # Donate
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
         r'donate/choose/$', ContributionQuestView.as_view(
@@ -54,6 +53,4 @@ urlpatterns = patterns(
 
     # View
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest, name='quest'),
-
-
-)
+]

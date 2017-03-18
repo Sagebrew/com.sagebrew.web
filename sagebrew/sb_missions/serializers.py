@@ -12,15 +12,16 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate, render_content, remove_smart_quotes,
-                       spawn_task)
-from api.serializers import SBSerializer
+from sagebrew.api.utils import (
+    gather_request_data, clean_url, empty_text_to_none,
+    smart_truncate, render_content, remove_smart_quotes,
+    spawn_task)
+from sagebrew.api.serializers import SBSerializer
 
-from sb_base.serializers import (IntercomEventSerializer,
-                                 IntercomMessageSerializer)
-from sb_locations.serializers import LocationSerializer
-from sb_tags.neo_models import Tag
+from sagebrew.sb_base.serializers import (
+    IntercomEventSerializer, IntercomMessageSerializer)
+from sagebrew.sb_locations.serializers import LocationSerializer
+from sagebrew.sb_tags.neo_models import Tag
 
 from .neo_models import Mission
 from .utils import setup_onboarding
@@ -106,18 +107,19 @@ class MissionSerializer(SBSerializer):
             u'Please specify which district you are running in'
 
     def create(self, validated_data):
-        from sb_gifts.neo_models import Giftlist
-        from sb_quests.neo_models import Quest, Position
+        from sagebrew.sb_gifts.neo_models import Giftlist
+        from sagebrew.sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest {owner_username: "%s"}) WITH quest ' \
                 'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN quest, ' \
                 'count(mission) as mission_count' % request.user.username
         res, _ = db.cypher_query(query)
-        if res.one is not None:
-            quest = Quest.inflate(res.one['quest'])
+        res = res[0][0] if res else None
+        if res is not None:
+            quest = Quest.inflate(res['quest'])
             if quest.account_type == "free":
-                if res.one['mission_count'] >= settings.FREE_MISSIONS:
+                if res['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
                         {"detail": "Sorry free Quests can only "
                                    "have 5 Missions.",
@@ -200,7 +202,8 @@ class MissionSerializer(SBSerializer):
                     '{name:"%s", level:"%s"}) RETURN position' % \
                     (loc_query, focused_on, level)
             res, _ = db.cypher_query(query)
-            if not res.one:
+            res = res[0] if res else None
+            if not res:
                 focused_on = slugify(focused_on).title().replace('-', ' ')\
                     .replace('_', ' ')
                 new_position = Position(verified=False, name=focused_on,
@@ -226,7 +229,13 @@ class MissionSerializer(SBSerializer):
                         loc_query, focused_on, level, mission.object_uuid,
                         owner_username)
             res, _ = db.cypher_query(query)
-            mission = Mission.inflate(res.one)
+            res = res[0] if res else None
+            if res is not None:
+                mission = Mission.inflate(res[0])
+            else:
+                # Failed to create Mission. TODO should probably roll back the
+                # nodes that were created.
+                return False
         elif focus_type == "advocacy":
             focused_on = slugify(focused_on)
             try:
@@ -283,8 +292,9 @@ class MissionSerializer(SBSerializer):
                                         owner_username, mission.object_uuid,
                                         loc_query)
             res, _ = db.cypher_query(query)
-            if res.one is not None:
-                mission = Mission.inflate(res.one)
+            res = res[0] if res else None
+            if res is not None:
+                mission = Mission.inflate(res[0])
         setup_onboarding(quest, mission)
         spawn_task(task_func=send_reengage_message,
                    task_param={"mission_uuid": mission.object_uuid,
@@ -293,7 +303,7 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
-        from sb_base.serializers import validate_is_owner
+        from sagebrew.sb_base.serializers import validate_is_owner
         validate_is_owner(self.context.get('request', None), instance)
         instance.completed = validated_data.pop(
             'completed', instance.completed)
@@ -454,15 +464,16 @@ class MissionSerializer(SBSerializer):
         return obj.get_focused_on(request=request)
 
     def get_quest(self, obj):
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
+        from sagebrew.sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.serializers import QuestSerializer
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
                 '(:Mission {object_uuid: "%s"}) RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        res = res[0] if res else None
+        if res is None:
             return None
-        return QuestSerializer(Quest.inflate(res.one),
+        return QuestSerializer(Quest.inflate(res[0]),
                                context={'request': request}).data
 
     def get_focus_name_formatted(self, obj):
@@ -572,7 +583,7 @@ class MissionReviewSerializer(SBSerializer):
         return validated_data
 
     def update(self, instance, validated_data):
-        from plebs.neo_models import Pleb
+        from sagebrew.plebs.neo_models import Pleb
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback
         instance.review_feedback = validated_data.pop('review_feedback',

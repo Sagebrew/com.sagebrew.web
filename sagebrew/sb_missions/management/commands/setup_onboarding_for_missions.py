@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from sb_missions.neo_models import Mission
-from sb_missions.utils import setup_onboarding
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.utils import setup_onboarding
 
 
 class Command(BaseCommand):

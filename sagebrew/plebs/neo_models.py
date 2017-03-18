@@ -11,10 +11,12 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist)
 from neomodel import db
 
-from api.neo_models import SBObject
-from sb_address.neo_models import Address
-from sb_search.neo_models import Searchable, Impression
-from sb_base.neo_models import RelationshipWeight
+from config.utils import neo_node
+
+from sagebrew.api.neo_models import SBObject
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_search.neo_models import Searchable, Impression
+from sagebrew.sb_base.neo_models import RelationshipWeight
 
 
 def get_current_time():
@@ -168,38 +170,50 @@ class Pleb(Searchable):
     mission_signup = StringProperty(default=None)
 
     # Relationships
-    privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
-                                model=ActionActiveRel)
-    actions = RelationshipTo('sb_privileges.neo_models.SBAction', 'CAN',
-                             model=ActionActiveRel)
-    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
-                                  'RESTRICTED_BY', model=RestrictionRel)
-    badges = RelationshipTo("sb_badges.neo_models.Badge", "BADGES")
-    oauth = RelationshipTo("plebs.neo_models.OauthUser", "OAUTH_CLIENT")
-    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGS',
+    privileges = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Privilege', 'HAS',
+        model=ActionActiveRel)
+    actions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.SBAction', 'CAN',
+        model=ActionActiveRel)
+    restrictions = RelationshipTo(
+        'sagebrew.sb_privileges.neo_models.Restriction',
+        'RESTRICTED_BY', model=RestrictionRel)
+    badges = RelationshipTo("sagebrew.sb_badges.neo_models.Badge", "BADGES")
+    oauth = RelationshipTo(
+        "sagebrew.plebs.neo_models.OauthUser", "OAUTH_CLIENT")
+    tags = RelationshipTo('sagebrew.sb_tags.neo_models.Tag', 'TAGS',
                           model=TagRelationship)
-    voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
-    viewed = RelationshipTo('sb_search.neo_models.Searchable', "VIEWED",
-                            model=Impression)
-    interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
-    friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
+    voted_on = RelationshipTo(
+        'sagebrew.sb_base.neo_models.VotableContent', 'VOTES')
+    viewed = RelationshipTo(
+        'sagebrew.sb_search.neo_models.Searchable', "VIEWED",
+        model=Impression)
+    interests = RelationshipTo(
+        "sagebrew.sb_tags.neo_models.Tag", "INTERESTED_IN")
+    friends = RelationshipTo(
+        "sagebrew.plebs.neo_models.Pleb", "FRIENDS_WITH",
+        model=FriendRelationship)
     # Optimization
-    wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
+    wall = RelationshipTo('sagebrew.sb_wall.neo_models.Wall', 'OWNS_WALL')
     friend_requests_sent = RelationshipTo(
-        "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
+        "sagebrew.plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
-        "plebs.neo_models.FriendRequest", 'RECEIVED_A_REQUEST')
+        "sagebrew.plebs.neo_models.FriendRequest", 'RECEIVED_A_REQUEST')
     user_weight = RelationshipTo('Pleb', 'WEIGHTED_USER',
                                  model=UserWeightRelationship)
     object_weight = RelationshipTo(
-        'sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
+        'sagebrew.sb_base.neo_models.SBContent', 'OBJECT_WEIGHT',
         model=RelationshipWeight)
-    searches = RelationshipTo('sb_search.neo_models.SearchQuery', 'SEARCHED',
-                              model=SearchCount)
-    clicked_results = RelationshipTo('sb_search.neo_models.SearchResult',
-                                     'CLICKED_RESULT')
-    official = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
-                              'IS_AUTHORIZED_AS', model=OfficialRelationship)
+    searches = RelationshipTo(
+        'sagebrew.sb_search.neo_models.SearchQuery', 'SEARCHED',
+        model=SearchCount)
+    clicked_results = RelationshipTo(
+        'sagebrew.sb_search.neo_models.SearchResult',
+        'CLICKED_RESULT')
+    official = RelationshipTo(
+        'sagebrew.sb_public_official.neo_models.PublicOfficial',
+        'IS_AUTHORIZED_AS', model=OfficialRelationship)
     # TODO our queries might not need HAS_SENATOR or HAS_HOUSE_REPRESENTATIVE
     # this distinction is covered by our endpoints of senators/house
     # representatives. We can change the relationship to REPRESENTED_BY
@@ -211,17 +225,22 @@ class Pleb(Searchable):
     # from them. Or we could start adding Labels that aren't associated with
     # classes based on the type of rep. This would allow us to use the same
     # types of queries and easily get all the types of representatives.
-    senators = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
-                              'HAS_SENATOR')
-    house_rep = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
-                               'HAS_HOUSE_REPRESENTATIVE')
-    president = RelationshipTo('sb_public_official.neo_models.PublicOfficial',
-                               'HAS_PRESIDENT')
-    flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
-    beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
-    url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
+    senators = RelationshipTo(
+        'sagebrew.sb_public_official.neo_models.PublicOfficial',
+        'HAS_SENATOR')
+    house_rep = RelationshipTo(
+        'sagebrew.sb_public_official.neo_models.PublicOfficial',
+        'HAS_HOUSE_REPRESENTATIVE')
+    president = RelationshipTo(
+        'sagebrew.sb_public_official.neo_models.PublicOfficial',
+        'HAS_PRESIDENT')
+    flags = RelationshipTo('sagebrew.sb_flags.neo_models.Flag', "FLAGS")
+    beta_user = RelationshipTo(
+        'sagebrew.plebs.neo_models.BetaUser', "BETA_USER")
+    url_content = RelationshipTo('sagebrew.sb_uploads.neo_models.URLContent',
                                  'URL_CONTENT')
-    address = RelationshipTo("sb_address.neo_models.Address", 'LIVES_AT')
+    address = RelationshipTo(
+        "sagebrew.sb_address.neo_models.Address", 'LIVES_AT')
 
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
@@ -234,22 +253,22 @@ class Pleb(Searchable):
     # Quest
     # Access if this Pleb is waging a Quest
     # Neomodel: quest Cypher IS_WAGING
-    # RelationshipFrom('sb_quests.neo_models.Quest')
+    # RelationshipFrom('sagebrew.sb_quests.neo_models.Quest')
 
     # Edits
     # Access if this Pleb can edit a Quest through:
     # Neomodel: editors Cypher: EDITOR_OF
-    # RelationshipTo('sb_quests.neo_models.Quest')
+    # RelationshipTo('sagebrew.sb_quests.neo_models.Quest')
 
     # Moderator
     # Access if this Pleb can view financial data of a Quest through:
     # Neomodel: moderators Cypher: MODERATOR_OF
-    # RelationshipTo('sb_quests.neo_models.Quest')
+    # RelationshipTo('sagebrew.sb_quests.neo_models.Quest')
 
     # Volunteer
     # Access what this Pleb has volunteered to do through:
     # Neomodel: volunteer Cypher: WANTS_TO
-    # RelationshipFrom('sb_volunteers.neo_models.Volunteer')
+    # RelationshipFrom('sagebrew.sb_volunteers.neo_models.Volunteer')
 
     # Use stripe_account on quest instead
     stripe_account = StringProperty()
@@ -258,14 +277,15 @@ class Pleb(Searchable):
     # utilize a different serializer that only enables up/off votes rather than
     # also allowing down votes to be cast. Then we can utilize the different
     # relationship to track any special items.
-    donations = RelationshipTo('sb_donations.neo_models.Donation',
+    donations = RelationshipTo('sagebrew.sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
-    following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
+    following = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'FOLLOWING',
                                model=FollowRelationship)
-    party_affiliations = RelationshipTo('plebs.neo_models.PoliticalParty',
-                                        'AFFILIATES_WITH')
-    activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
-                                        'WILL_PARTICIPATE')
+    party_affiliations = RelationshipTo(
+        'sagebrew.plebs.neo_models.PoliticalParty',
+        'AFFILIATES_WITH')
+    activity_interests = RelationshipTo(
+        'sagebrew.plebs.neo_models.ActivityInterest', 'WILL_PARTICIPATE')
 
     @property
     def customer_token(self):
@@ -283,9 +303,9 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            if res.one:
-                res.one.pull()
-                profile = cls.inflate(res.one)
+            res = neo_node(res)
+            if res:
+                profile = cls.inflate(res)
             else:
                 raise DoesNotExist('Profile with username: %s '
                                    'does not exist' % username)
@@ -343,7 +363,8 @@ class Pleb(Searchable):
                     'RETURN sum(d.amount)' \
                     % (username, mission_id, beg_year, end_year)
             res, col = db.cypher_query(query)
-            donation_amount = res.one if res.one is not None else 0
+            res = neo_node(res)
+            donation_amount = res if res is not None else 0
             cache.set('%s_%s_donation_amount' %
                       (username, mission_id), donation_amount)
         return donation_amount
@@ -352,13 +373,13 @@ class Pleb(Searchable):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
                 'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def get_official_phone(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
                 '(o:PublicOfficial) RETURN o.gov_phone' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def deactivate(self):
         pass
@@ -368,7 +389,7 @@ class Pleb(Searchable):
                 'RETURN a' % self.username
         res, _ = db.cypher_query(query)
         try:
-            return Address.inflate(res.one)
+            return Address.inflate(neo_node(res))
         except AttributeError:
             return None
 
@@ -416,7 +437,7 @@ class Pleb(Searchable):
             return rel.weight
 
     def get_votable_content(self):
-        from sb_base.neo_models import VotableContent
+        from sagebrew.sb_base.neo_models import VotableContent
         query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
                 'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
                 '' % self.username
@@ -465,25 +486,25 @@ class Pleb(Searchable):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(question:Question) RETURN COUNT(question)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def get_solution_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(solution:Solution) RETURN COUNT(solution)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def get_post_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(post:Post) RETURN COUNT(post)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def get_comment_count(self):
         query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
                 '(comment:Comment) RETURN COUNT(comment)' % self.username
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def get_friends(self):
         return self.friends.all()
@@ -496,7 +517,7 @@ class Pleb(Searchable):
         if len(res) == 0:
             return False
         try:
-            return res[0][0]
+            return neo_node(res)
         except IndexError:
             return False
 
@@ -507,14 +528,14 @@ class Pleb(Searchable):
         handle the exceptions on their own if they end up occurring.
         :return:
         """
-        from sb_wall.neo_models import Wall
+        from sagebrew.sb_wall.neo_models import Wall
         wall = cache.get("%s_wall" % self.username)
         if wall is None:
             query = "MATCH (a:Pleb {username:'%s'})-" \
                     "[:OWNS_WALL]->(b:Wall) RETURN b" % self.username
             res, col = db.cypher_query(query)
             try:
-                wall = Wall.inflate(res[0][0])
+                wall = Wall.inflate(neo_node(res))
                 cache.set("%s_wall" % self.username, wall)
             except IndexError:
                 # This may not be needed as the only way to get here is if
@@ -528,7 +549,7 @@ class Pleb(Searchable):
         return wall
 
     def determine_reps(self):
-        from sb_public_official.utils import determine_reps
+        from sagebrew.sb_public_official.utils import determine_reps
         return determine_reps(self)
 
     def get_donations(self):
@@ -547,7 +568,7 @@ class Pleb(Searchable):
         return [row[0] for row in res]
 
     def is_authorized_as(self):
-        from sb_public_official.neo_models import PublicOfficial
+        from sagebrew.sb_public_official.neo_models import PublicOfficial
         official = cache.get("%s_official" % self.username)
         if official is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[r:IS_AUTHORIZED_AS]->' \
@@ -555,7 +576,7 @@ class Pleb(Searchable):
                     % self.username
             res, _ = db.cypher_query(query)
             try:
-                official = PublicOfficial.inflate(res[0][0])
+                official = PublicOfficial.inflate(neo_node(res))
                 cache.set("%s_official" % self.username, official)
             except IndexError:
                 official = None
@@ -566,7 +587,7 @@ class Pleb(Searchable):
                 '(p2:Pleb {username:"%s"}) RETURN r.active' % \
                 (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def follow(self, username):
         """
@@ -580,7 +601,7 @@ class Pleb(Searchable):
                 'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
                 'r.active=true RETURN r.active' % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     def unfollow(self, username):
         """
@@ -592,7 +613,7 @@ class Pleb(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return neo_node(res)
 
     @property
     def reputation_change(self):
@@ -613,7 +634,7 @@ class Pleb(Searchable):
                 return 0
             # Have to cast to dict because pickle cannot handle the object
             # returned from cypher_query
-            res = res[0].__dict__
+            res = neo_node(res).__dict__
             cache.set("%s_reputation_change" % self.username, res)
         reputation_change = res['rep_change']
         last_seen = res['last_created']
@@ -639,11 +660,11 @@ class Pleb(Searchable):
 
     """
     def update_tag_rep(self, base_tags, tags):
-        from sb_tags.neo_models import Tag
+        from sagebrew.sb_tags.neo_models import Tag
         for item in tags:
             try:
                 tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
+            except (Tag.DoesNotExist, DoesNotExist, CypherError, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -656,7 +677,7 @@ class Pleb(Searchable):
         for item in base_tags:
             try:
                 tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
+            except (Tag.DoesNotExist, DoesNotExist, CypherError, IOError):
                 continue
             if self.tags.is_connected(tag):
                 rel = self.tags.relationship(tag)
@@ -677,8 +698,9 @@ class FriendRequest(SBObject):
     response = StringProperty(default=None)
 
     # relationships
-    request_from = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_FROM')
-    request_to = RelationshipTo('plebs.neo_models.Pleb', 'REQUEST_TO')
+    request_from = RelationshipTo(
+        'sagebrew.plebs.neo_models.Pleb', 'REQUEST_FROM')
+    request_to = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'REQUEST_TO')
 
     @classmethod
     def unseen(cls, username):
@@ -691,7 +713,7 @@ class FriendRequest(SBObject):
             '(n:FriendRequest) WHERE n.seen=False ' \
             'RETURN count(n)' % username
         res, col = db.cypher_query(query)
-        return res[0][0]
+        return neo_node(res)
 
 
 class PoliticalParty(SBObject):

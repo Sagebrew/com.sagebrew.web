@@ -4,8 +4,8 @@ from django.utils.text import slugify
 
 from neomodel import db
 
-from sb_updates.neo_models import Update
-from sb_updates.serializers import UpdateSerializer
+from sagebrew.sb_updates.neo_models import Update
+from sagebrew.sb_updates.serializers import UpdateSerializer
 
 from .neo_models import Mission
 

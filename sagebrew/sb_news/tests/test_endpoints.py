@@ -11,15 +11,15 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_news.neo_models import NewsArticle
+from sagebrew.sb_news.neo_models import NewsArticle
 
 
 class QuestEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)

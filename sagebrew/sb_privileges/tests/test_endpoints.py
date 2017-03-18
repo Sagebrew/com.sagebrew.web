@@ -8,10 +8,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
-from sb_privileges.neo_models import Privilege
-from sb_requirements.neo_models import Requirement
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_privileges.neo_models import Privilege
+from sagebrew.sb_requirements.neo_models import Requirement
 
 
 class TestPrivilegeViews(APITestCase):

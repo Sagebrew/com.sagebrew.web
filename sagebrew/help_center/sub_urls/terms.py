@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
-urlpatterns = patterns(
-    'help_center.views',
+urlpatterns = [
     url(r'^trust-and-safety/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -48,4 +47,4 @@ urlpatterns = patterns(
     url(r'^quest_terms/$', RedirectView.as_view(
         url='/help/terms/quest-terms/', permanent=True),
         name='quest_terms_redirect'),
-)
+]

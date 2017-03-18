@@ -2,7 +2,7 @@ from celery import shared_task
 
 from neomodel import db
 
-from sb_base.serializers import IntercomEventSerializer
+from sagebrew.sb_base.serializers import IntercomEventSerializer
 
 from .neo_models import Mission
 
@@ -13,11 +13,12 @@ def send_reengage_message(mission_uuid, mission_type):
             'WHERE mission.submitted_for_review=FALSE ' \
             'RETURN mission' % mission_uuid
     res, _ = db.cypher_query(query)
-    if res.one is not None:
+    res = res[0] if res else None
+    if res is not None:
         # Trigger an event rather than send an email because intercom
         # only allows us to send personal or plain emails through the
         # api.
-        mission = Mission.inflate(res.one)
+        mission = Mission.inflate(res[0])
         event_name = 'fifteen-minute-reengage'
         if mission_type == "advocacy":
             event_name = "fifteen-minute-reengage-advocacy"

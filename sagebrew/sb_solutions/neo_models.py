@@ -4,7 +4,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, IntegerProperty)
 
-from sb_base.neo_models import SBPublicContent
+from sagebrew.sb_base.neo_models import SBPublicContent
 
 
 class Solution(SBPublicContent):
@@ -17,7 +17,7 @@ class Solution(SBPublicContent):
     down_vote_cost = IntegerProperty(default=-2)
 
     def get_url(self, request=None):
-        from sb_questions.neo_models import Question
+        from sagebrew.sb_questions.neo_models import Question
         question = Question.get(object_uuid=self.parent_id)
         return reverse('question_detail_page',
                        kwargs={'question_uuid': self.parent_id,
@@ -26,8 +26,8 @@ class Solution(SBPublicContent):
 
     @classmethod
     def get_mission(cls, object_uuid, request=None):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
         mission = cache.get("%s_mission" % object_uuid)
         if mission is None:
             query = 'MATCH (solution:Solution {object_uuid:"%s"})<-' \
@@ -35,8 +35,9 @@ class Solution(SBPublicContent):
                     '<-[:ASSOCIATED_WITH]-' \
                     '(mission:Mission) RETURN mission' % object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
+            if res[0] if res else None:
                 mission = MissionSerializer(
-                    Mission.inflate(res.one), context={"request": request}).data
+                    Mission.inflate(res[0][0]),
+                    context={"request": request}).data
                 cache.set("%s_mission" % object_uuid, mission)
         return mission

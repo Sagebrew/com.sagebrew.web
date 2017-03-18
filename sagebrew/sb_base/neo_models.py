@@ -9,19 +9,19 @@ from django.core.cache import cache
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
 
-from py2neo.cypher.error.statement import ClientError
+from neo4j.v1 import CypherError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException,
+                      BooleanProperty, FloatProperty,
                       RelationshipFrom, db)
 
 
-from sb_notifications.neo_models import NotificationCapable
-from sb_docstore.utils import get_vote_count as doc_vote_count
-from sb_votes.utils import determine_vote_type
-from sb_tags.neo_models import TagRelevanceModel
+from sagebrew.sb_notifications.neo_models import NotificationCapable
+from sagebrew.sb_docstore.utils import get_vote_count as doc_vote_count
+from sagebrew.sb_votes.utils import determine_vote_type
+from sagebrew.sb_tags.neo_models import TagRelevanceModel
 
-from .decorators import apply_defense
+from sagebrew.sb_base.decorators import apply_defense
 
 logger = logging.getLogger('loggly_logs')
 
@@ -59,8 +59,8 @@ class VoteRelationship(StructuredRel):
 
 class CouncilVote(VoteRelationship):
     """
-    This model is here because if we moved it to sb_council.neo_models it
-    would cause circular dependencies.
+    This model is here because if we moved it to
+    sagebrew.sb_council.neo_models it would cause circular dependencies.
     """
     reasoning = StringProperty()
 
@@ -93,15 +93,17 @@ class VotableContent(NotificationCapable):
     # the last time the task that checks for reputation recalculation has run.
 
     # relationships
-    owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
+    owned_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
-    votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
+    votes = RelationshipFrom('sagebrew.plebs.neo_models.Pleb', 'PLEB_VOTES',
                              model=VoteRelationship)
-    last_votes = RelationshipTo('sb_votes.neo_models.Vote', 'LAST_VOTES')
-    first_votes = RelationshipTo('sb_votes.neo_models.Vote', 'FIRST_VOTES')
-    # counsel_vote = RelationshipTo('sb_council.neo_models.SBCounselVote',
-    #                              'VOTE')
-    # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
+    last_votes = RelationshipTo(
+        'sagebrew.sb_votes.neo_models.Vote', 'LAST_VOTES')
+    first_votes = RelationshipTo(
+        'sagebrew.sb_votes.neo_models.Vote', 'FIRST_VOTES')
+    # counsel_vote = RelationshipTo(
+    # 'sagebrew.sb_council.neo_models.SBCounselVote', 'VOTE')
+    # views = RelationshipTo('sagebrew.sb_views.neo_models.SBView', 'VIEWS')
 
     # methods
     def vote_content(self, vote_type, pleb):
@@ -138,7 +140,7 @@ class VotableContent(NotificationCapable):
             try:
                 res, _ = db.cypher_query(query)
                 return len(res)
-            except(CypherException, IOError, ClientError) as e:
+            except(CypherError, IOError) as e:
                 logger.exception("Cypher Error: ")
                 return e
 
@@ -164,7 +166,7 @@ class VotableContent(NotificationCapable):
             try:
                 res, _ = db.cypher_query(query)
                 return len(res)
-            except (CypherException, IOError, ClientError) as e:
+            except (CypherError, IOError) as e:
                 logger.exception("Cypher Error: ")
                 return e
 
@@ -191,7 +193,7 @@ class VotableContent(NotificationCapable):
                     'WHEN False THEN NULL ' \
                     'ELSE rel.vote_type END' % (username, self.object_uuid)
             res, _ = db.cypher_query(query)
-            return res.one
+            return res[0][0] if res else None
 
     @apply_defense
     def get_rep_breakout(self):
@@ -233,12 +235,12 @@ class VotableContent(NotificationCapable):
         }
 
     def get_last_user_vote(self, username):
-        from sb_votes.neo_models import Vote
+        from sagebrew.sb_votes.neo_models import Vote
         query = 'MATCH (a:VotableContent {object_uuid:"%s"})-[:LAST_VOTES]->' \
                 '(v:Vote)-[:MADE_VOTE]->(p:Pleb {username:"%s"}) RETURN v' % \
                 (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        vote = res.one
+        vote = res[0][0] if res else None
         if vote:
             return Vote.inflate(vote)
         return vote
@@ -264,21 +266,24 @@ class SBContent(VotableContent):
     vote_count = IntegerProperty(default=0)
 
     # relationships
-    flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
-    flags = RelationshipTo('sb_flags.neo_models.Flag', 'HAS_FLAG')
-    comments = RelationshipTo('sb_comments.neo_models.Comment', 'HAS_A',
-                              model=PostedOnRel)
-    auto_tags = RelationshipTo('sb_tags.neo_models.Tag',
+    flagged_by = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'FLAGGED_BY')
+    flags = RelationshipTo('sagebrew.sb_flags.neo_models.Flag', 'HAS_FLAG')
+    comments = RelationshipTo(
+        'sagebrew.sb_comments.neo_models.Comment', 'HAS_A',
+        model=PostedOnRel)
+    auto_tags = RelationshipTo('sagebrew.sb_tags.neo_models.Tag',
                                'AUTO_TAGGED_AS', model=TagRelevanceModel)
-    rel_weight = RelationshipTo('plebs.neo_models.Pleb', 'HAS_WEIGHT',
+    rel_weight = RelationshipTo('sagebrew.plebs.neo_models.Pleb', 'HAS_WEIGHT',
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
-        'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
-    council_votes = RelationshipFrom('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
-                                     model=CouncilVote)
-    uploaded_objects = RelationshipTo('sb_uploads.neo_models.UploadedObject',
-                                      'UPLOADED_WITH')
-    url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
+        'sagebrew.sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
+    council_votes = RelationshipFrom(
+        'sagebrew.plebs.neo_models.Pleb', 'COUNCIL_VOTE',
+        model=CouncilVote)
+    uploaded_objects = RelationshipTo(
+        'sagebrew.sb_uploads.neo_models.UploadedObject',
+        'UPLOADED_WITH')
+    url_content = RelationshipTo('sagebrew.sb_uploads.neo_models.URLContent',
                                  'INCLUDED_URL_CONTENT')
 
     @classmethod
@@ -306,12 +311,14 @@ class SBContent(VotableContent):
                 'CREATE UNIQUE (a)-[rel:COUNCIL_VOTE]->(content) ' \
                 'RETURN rel' % (pleb.username, self.object_uuid)
         res, _ = db.cypher_query(query)
-        council_vote_rel = VoteRelationship.inflate(res.one)
-        if vote_type == council_vote_rel.vote_type and \
-                council_vote_rel.active is True:
-            council_vote_rel.active = False
-        council_vote_rel.vote_type = vote_type
-        council_vote_rel.save()
+        res = res[0][0] if res else None
+        if res is not None:
+            council_vote_rel = VoteRelationship.inflate(res)
+            if vote_type == council_vote_rel.vote_type and \
+                    council_vote_rel.active is True:
+                council_vote_rel.active = False
+            council_vote_rel.vote_type = vote_type
+            council_vote_rel.save()
         return self
 
     def get_council_vote(self, username):
@@ -319,7 +326,7 @@ class SBContent(VotableContent):
                 '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
                 'RETURN r.vote_type' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        return res.one
+        return res[0][0] if res else None
 
     def get_council_decision(self):
         # True denotes that the vote is for the content to be removed, while
@@ -333,7 +340,8 @@ class SBContent(VotableContent):
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            percentage = float(res[0].remove_vote) / float(res[0].total_votes)
+            percentage = float(
+                res[0][0].remove_vote) / float(res[0][0].total_votes)
         except ZeroDivisionError:
             percentage = 0
         if percentage >= .66:
@@ -342,17 +350,18 @@ class SBContent(VotableContent):
 
     @classmethod
     def get_mission(cls, object_uuid, request=None):
-        from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
+        from sagebrew.sb_missions.neo_models import Mission
+        from sagebrew.sb_missions.serializers import MissionSerializer
         mission = cache.get("%s_mission" % object_uuid)
         if mission is None:
             query = 'MATCH (content:SBContent {object_uuid:"%s"})' \
                     '<-[:ASSOCIATED_WITH]-' \
                     '(mission:Mission) RETURN mission' % object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
+            res = res[0][0] if res else None
+            if res:
                 mission = MissionSerializer(
-                    Mission.inflate(res.one),
+                    Mission.inflate(res),
                     context={"request": request}).data
                 cache.set("%s_mission" % object_uuid, mission)
         return mission
@@ -361,8 +370,8 @@ class SBContent(VotableContent):
         return None
 
     def get_uploaded_objects(self):
-        from sb_uploads.neo_models import UploadedObject
-        from sb_uploads.serializers import UploadSerializer
+        from sagebrew.sb_uploads.neo_models import UploadedObject
+        from sagebrew.sb_uploads.serializers import UploadSerializer
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
                 '[:UPLOADED_WITH]->(u:UploadedObject) RETURN u' % \
                 self.object_uuid
@@ -371,15 +380,16 @@ class SBContent(VotableContent):
                 for row in res]
 
     def get_url_content(self, single=False):
-        from sb_uploads.neo_models import URLContent
-        from sb_uploads.serializers import URLContentSerializer
+        from sagebrew.sb_uploads.neo_models import URLContent
+        from sagebrew.sb_uploads.serializers import URLContentSerializer
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
                 '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN u' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         if single:
             try:
-                return URLContentSerializer(URLContent.inflate(res.one)).data
+                return URLContentSerializer(
+                    URLContent.inflate(res[0][0] if res else None)).data
             except AttributeError:
                 return []
         return [URLContentSerializer(URLContent.inflate(row[0])).data
@@ -402,11 +412,11 @@ class SBContent(VotableContent):
 class TaggableContent(SBContent):
     added_to_search_index = BooleanProperty(default=False)
     # relationships
-    tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
+    tags = RelationshipTo('sagebrew.sb_tags.neo_models.Tag', 'TAGGED_AS')
 
     # methods
     def add_auto_tags(self, tag_list):
-        from sb_tags.neo_models import AutoTag
+        from sagebrew.sb_tags.neo_models import AutoTag
         auto_tag_list = []
         for tag in tag_list:
             name = slugify(tag['tags']['text'])
@@ -414,7 +424,7 @@ class TaggableContent(SBContent):
                 name
             )
             res, _ = db.cypher_query(query)
-            if res.one is None:
+            if res[0][0] if res else None is None:
                 AutoTag(name=name).save()
             res, _ = db.cypher_query(
                 'MATCH (autotag:AutoTag {name: "%s"}),'
@@ -423,7 +433,9 @@ class TaggableContent(SBContent):
                 'SET rel.relevance=%f '
                 'RETURN autotag' % (name, self.object_uuid,
                                     tag['tags']['relevance']))
-            auto_tag_list.append(AutoTag.inflate(res.one))
+            res = res[0][0] if res else None
+            if res is not None:
+                auto_tag_list.append(AutoTag.inflate(res if res else None))
         return auto_tag_list
 
 
@@ -457,11 +469,11 @@ def get_parent_titled_content(object_uuid):
                 % object_uuid
         res, _ = db.cypher_query(query)
         try:
-            content = TitledContent.inflate(res.one)
+            content = TitledContent.inflate(res[0][0] if res else None)
         except AttributeError as e:
             return e
         return content
-    except (CypherException, ClientError, IOError, IndexError) as e:
+    except (CypherError, IOError, IndexError) as e:
         return e
 
 
@@ -481,5 +493,5 @@ def get_parent_votable_content(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(CypherException, ClientError, IOError, IndexError) as e:
+    except(CypherError, IOError, IndexError) as e:
         return e

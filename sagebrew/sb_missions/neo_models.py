@@ -2,14 +2,12 @@ from django.core.cache import cache
 from django.conf import settings
 from django.templatetags.static import static
 
-from py2neo.cypher.error.statement import ArithmeticError \
-    as CypherArithmeticError
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty, RelationshipFrom, DateTimeProperty,
                       ArrayProperty)
 
-from sb_search.neo_models import Searchable
-from sb_base.neo_models import VoteRelationship, get_current_time
+from sagebrew.sb_search.neo_models import Searchable
+from sagebrew.sb_base.neo_models import VoteRelationship, get_current_time
 
 
 def get_default_wallpaper_pic():
@@ -107,26 +105,28 @@ class Mission(Searchable):
     # Donations
     # Access Donations that are related to this Mission through:
     # Neomodel: mission Cypher: CONTRIBUTED_TO
-    # RelationshipTo('sb_donations.neo_models.Donation')
+    # RelationshipTo('sagebrew.sb_donations.neo_models.Donation')
 
     # Updates
     # Access Updates that are related to this Mission through:
     # Neomodel: mission Cypher: ABOUT
-    # RelationshipFrom('sb_updates.neo_models.Update')
+    # RelationshipFrom('sagebrew.sb_updates.neo_models.Update')
 
     # Quest - Owner
     # Access the Quest that manages this Mission:
     # Neomodel: missions Cypher: EMBARKS_ON
-    # RelationshipFrom('sb_updates.neo_models.Campaign')
+    # RelationshipFrom('sagebrew.sb_updates.neo_models.Campaign')
 
     # Each mission must be focused on achieving something. Whether it be to
     # obtain a position, advocate/help with an issue in an area (tag), or
     # solve a question. A mission should only ever have one of the following.
     # Since we create our own queries this shouldn't be an issue and is why
     # we use "FOCUSED_ON" for each of the items.
-    position = RelationshipTo('sb_quests.neo_models.Position', 'FOCUSED_ON')
-    tag = RelationshipTo('sb_tags.neo_models.Tag', 'FOCUSED_ON')
-    question = RelationshipTo('sb_questions.neo_models.Question', 'FOCUSED_ON')
+    position = RelationshipTo(
+        'sagebrew.sb_quests.neo_models.Position', 'FOCUSED_ON')
+    tag = RelationshipTo('sagebrew.sb_tags.neo_models.Tag', 'FOCUSED_ON')
+    question = RelationshipTo(
+        'sagebrew.sb_questions.neo_models.Question', 'FOCUSED_ON')
 
     # Helper function that can be associated with on the serializer and gets
     # a focused on object.
@@ -137,7 +137,7 @@ class Mission(Searchable):
     # currently possible. One is that a parent Quest provides a solution or
     # Question and indicates that it would like the given Mission to
     # be linked to that piece of content.
-    associated_with = RelationshipTo('sb_base.neo_models.SBContent',
+    associated_with = RelationshipTo('sagebrew.sb_base.neo_models.SBContent',
                                      'ASSOCIATED_WITH')
     # The place where this Mission is taking place. If it is of type position
     # then the location can also be queried through the position but since
@@ -146,20 +146,22 @@ class Mission(Searchable):
     # we could standardize verbage between tags, questions, and positions
     # in relation to locations but tags might be associated with multiple
     # locations.
-    location = RelationshipTo('sb_locations.neo_models.Location', "WITHIN")
+    location = RelationshipTo('sagebrew.sb_locations.neo_models.Location',
+                              "WITHIN")
 
-    profile_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
-    quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
-                                          "ENDORSES")
+    profile_endorsements = RelationshipFrom(
+        'sagebrew.plebs.neo_models.Pleb', "ENDORSES")
+    quest_endorsements = RelationshipFrom(
+        'sagebrew.sb_quests.neo_models.Quest', "ENDORSES")
     onboarding_tasks = RelationshipTo(
-        'sb_registration.neo_models.OnboardingTask', 'MUST_COMPLETE')
+        'sagebrew.sb_registration.neo_models.OnboardingTask', 'MUST_COMPLETE')
 
     # DEPRECATED
     # Pledge votes are from old campaigns. We're working on a new process
     # for this
-    pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
-                                  'RECEIVED_PLEDGED_VOTE',
-                                  model=VoteRelationship)
+    pledge_votes = RelationshipTo(
+        'sagebrew.plebs.neo_models.Pleb', 'RECEIVED_PLEDGED_VOTE',
+        model=VoteRelationship)
 
     @classmethod
     def get(cls, object_uuid):
@@ -168,9 +170,9 @@ class Mission(Searchable):
             query = 'MATCH (c:`Mission` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
             res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                mission = cls.inflate(res.one)
+            res = res[0][0] if res else None
+            if res:
+                mission = cls.inflate(res)
                 cache.set("%s_mission" % object_uuid, mission)
             else:
                 raise DoesNotExist("Mission does not exist")
@@ -178,57 +180,60 @@ class Mission(Searchable):
 
     @classmethod
     def get_quest(cls, object_uuid):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         return Quest.get(owner_username=Mission.get(
             object_uuid=object_uuid).owner_username)
 
     def get_focused_on(self, request=None):
-        from api.neo_models import SBObject
-        from sb_quests.neo_models import Position
-        from sb_quests.serializers import PositionSerializer
-        from sb_tags.neo_models import Tag
-        from sb_tags.serializers import TagSerializer
-        from sb_questions.neo_models import Question
-        from sb_questions.serializers import QuestionSerializerNeo
+        from sagebrew.api.neo_models import SBObject
+        from sagebrew.sb_quests.neo_models import Position
+        from sagebrew.sb_quests.serializers import PositionSerializer
+        from sagebrew.sb_tags.neo_models import Tag
+        from sagebrew.sb_tags.serializers import TagSerializer
+        from sagebrew.sb_questions.neo_models import Question
+        from sagebrew.sb_questions.serializers import QuestionSerializerNeo
         query = 'MATCH (a:Mission {object_uuid: "%s"})-[:FOCUSED_ON]->(b)' \
                 'RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            child_label = SBObject.inflate(res.one).get_child_label()
+        res = res[0][0] if res else None
+        if res:
+            child_label = SBObject.inflate(res).get_child_label()
             if child_label == "Position":
-                return PositionSerializer(Position.inflate(res.one),
+                return PositionSerializer(Position.inflate(res),
                                           context={'request': request}).data
             elif child_label == "Tag":
-                return TagSerializer(Tag.inflate(res.one),
+                return TagSerializer(Tag.inflate(res),
                                      context={'request': request}).data
             elif child_label == "Question":
-                return QuestionSerializerNeo(Question.inflate(res.one),
+                return QuestionSerializerNeo(Question.inflate(res),
                                              context={'request': request}).data
         else:
             return None
 
     def get_location(self):
-        from sb_locations.neo_models import Location
+        from sagebrew.sb_locations.neo_models import Location
         query = 'MATCH (a:Mission {object_uuid: "%s"})' \
                 '-[:WITHIN]->(b:Location) RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            return Location.inflate(res.one)
+        res = res[0][0] if res else None
+        if res:
+            return Location.inflate(res)
         else:
             return None
 
     def get_giftlist(self):
-        from sb_gifts.neo_models import Giftlist
+        from sagebrew.sb_gifts.neo_models import Giftlist
         query = 'MATCH (a:Mission {object_uuid:"%s"})' \
                 '<-[:LIST_FOR]-(b:Giftlist) RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
-        if res.one:
-            return Giftlist.inflate(res.one)
+        res = res[0][0] if res else None
+        if res:
+            return Giftlist.inflate(res)
         return None
 
     @classmethod
     def get_editors(cls, owner_username):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         quest = Quest.get(owner_username)
         editors = cache.get("%s_editors" % quest.owner_username)
         if editors is None:
@@ -242,7 +247,7 @@ class Mission(Searchable):
 
     @classmethod
     def get_moderators(cls, owner_username):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         quest = Quest.get(owner_username)
         moderators = cache.get("%s_moderators" % quest.owner_username)
         if moderators is None:
@@ -280,7 +285,7 @@ class Mission(Searchable):
 
     @classmethod
     def get_donations(cls, object_uuid):
-        from sb_donations.neo_models import Donation
+        from sagebrew.sb_donations.neo_models import Donation
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % object_uuid
         res, _ = db.cypher_query(query)
@@ -336,7 +341,7 @@ class Mission(Searchable):
         return title
 
     def get_total_donation_amount(self):
-        from sb_quests.neo_models import Quest
+        from sagebrew.sb_quests.neo_models import Quest
         quest = Quest.get(owner_username=self.owner_username)
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) ' \
@@ -345,8 +350,9 @@ class Mission(Searchable):
                 % (self.object_uuid, quest.application_fee,
                    settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        if res.one:
-            return '{:,.2f}'.format(float(res.one) / 100)
+        res = res[0][0] if res else None
+        if res:
+            return '{:,.2f}'.format(float(res) / 100)
         else:
             return "0.00"
 
@@ -359,12 +365,13 @@ class Mission(Searchable):
                     % self.object_uuid
             try:
                 res, _ = db.cypher_query(query)
-            except CypherArithmeticError:
+            except Exception:
                 cache.set("%s_average_donation_amount" % self.object_uuid,
                           "0.00")
                 return "0.00"
-            if res.one:
-                res = '{:,.2f}'.format(float(res.one) / 100)
+            res = res[0][0] if res else None
+            if res:
+                res = '{:,.2f}'.format(float(res) / 100)
             cache.set("%s_average_donation_amount" % self.object_uuid, res)
         return res
 

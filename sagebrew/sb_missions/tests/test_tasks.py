@@ -9,20 +9,20 @@ from django.test import TestCase
 
 from neomodel import db
 
-from sb_address.neo_models import Address
-from sb_registration.utils import create_user_util_test
-from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
-from sb_missions.tasks import send_reengage_message
+from sagebrew.sb_missions.tasks import send_reengage_message
 
 
 class TestReengageTask(TestCase):
 
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'quest'

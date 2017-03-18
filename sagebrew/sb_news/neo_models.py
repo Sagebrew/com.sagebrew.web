@@ -2,7 +2,7 @@ from neomodel import (StringProperty, DateTimeProperty,
                       IntegerProperty, FloatProperty, ArrayProperty,
                       RelationshipTo)
 
-from sb_base.neo_models import TitledContent
+from sagebrew.sb_base.neo_models import TitledContent
 
 
 class NewsArticle(TitledContent):
@@ -54,5 +54,5 @@ class NewsArticle(TitledContent):
     organizations = ArrayProperty()
     author = StringProperty()
 
-    images = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+    images = RelationshipTo('sagebrew.sb_uploads.neo_models.UploadedObject',
                             'IMAGE_ON_PAGE')

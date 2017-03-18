@@ -7,14 +7,15 @@ from django.core.cache import cache
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
-from py2neo.cypher.error import ClientError
-from neomodel import DoesNotExist, CypherException, db
+
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConflictError, RequestError)
 
-from api.utils import spawn_task
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
+from sagebrew.api.utils import spawn_task
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
 
 from .neo_models import SearchQuery, KeyWord
 
@@ -35,15 +36,14 @@ def update_search_query(username, query_param, keywords):
     try:
         res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  username)
-        if res.one:
-            res.one.pull()
-            pleb = Pleb.inflate(res.one)
+        if res[0] if res else None:
+            pleb = Pleb.inflate(res[0][0])
         else:
             raise update_search_query.retry(
                 exc=DoesNotExist("Profile with username: "
                                  "%s does not exist" % username), countdown=3,
                 max_retries=None)
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
     try:
         search_query = SearchQuery.nodes.get(search_query=query_param)
@@ -70,7 +70,7 @@ def update_search_query(username, query_param, keywords):
             if isinstance(spawned, Exception) is True:
                 return spawned
         return True
-    except (CypherException, IOError) as e:
+    except (CypherError, IOError) as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
     except Exception as e:
         raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
@@ -109,7 +109,7 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherError, IOError) as e:
         logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
 
@@ -117,13 +117,13 @@ def create_keyword(text, relevance, query_param):
 @shared_task()
 def update_search_object(object_uuid, label=None, object_data=None,
                          index="full-search-base"):
-    from plebs.serializers import PlebSerializerNeo
-    from sb_quests.serializers import QuestSerializer
-    from sb_quests.neo_models import Quest
-    from sb_missions.serializers import MissionSerializer
-    from sb_missions.neo_models import Mission
-    from sb_questions.serializers import QuestionSerializerNeo
-    from sb_base.neo_models import get_parent_votable_content
+    from sagebrew.plebs.serializers import PlebSerializerNeo
+    from sagebrew.sb_quests.serializers import QuestSerializer
+    from sagebrew.sb_quests.neo_models import Quest
+    from sagebrew.sb_missions.serializers import MissionSerializer
+    from sagebrew.sb_missions.neo_models import Mission
+    from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+    from sagebrew.sb_base.neo_models import get_parent_votable_content
     if label is None:
         label = get_parent_votable_content(
             object_uuid).get_child_label().lower()
@@ -132,15 +132,15 @@ def update_search_object(object_uuid, label=None, object_data=None,
     query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
             (label.title(), object_uuid)
     res, _ = db.cypher_query(query)
-    if res.one:
-        res.one.pull()
+    if res[0] if res else None:
+        res = [0][0]
     else:
         raise update_search_object.retry(
             exc=DoesNotExist('Object with uuid: %s '
                              'does not exist' % object_uuid), countdown=3,
             max_retries=None)
     if label == "question":
-        instance = Question.inflate(res.one)
+        instance = Question.inflate(res)
         object_data = QuestionSerializerNeo(instance).data
         if 'mission' in object_data:
             object_data.pop('mission')
@@ -148,11 +148,11 @@ def update_search_object(object_uuid, label=None, object_data=None,
             object_data.pop('profile')
         logger.critical(object_data)
     elif label == "quest":
-        instance = Quest.inflate(res.one)
+        instance = Quest.inflate(res)
         object_data = QuestSerializer(instance).data
         logger.critical(object_data)
     elif label == "mission":
-        instance = Mission.inflate(res.one)
+        instance = Mission.inflate(res)
         object_data = MissionSerializer(instance).data
         # Need to pop review_feedback because ES's serializer cannot parse
         # set types.
@@ -170,7 +170,7 @@ def update_search_object(object_uuid, label=None, object_data=None,
             object_data.pop('quest')
         logger.critical(object_data)
     elif label == "pleb":
-        instance = Pleb.inflate(res.one)
+        instance = Pleb.inflate(res)
         object_data = PlebSerializerNeo(instance).data
         if 'quest' in object_data:
             object_data.pop('quest')

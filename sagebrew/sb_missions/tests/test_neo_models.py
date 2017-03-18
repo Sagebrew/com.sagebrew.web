@@ -4,17 +4,17 @@ from django.test import TestCase
 from django.core.cache import cache
 from neomodel import DoesNotExist
 
-from plebs.neo_models import Pleb
-from sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_orders.neo_models import Order
-from sb_donations.neo_models import Donation
-from sb_locations.neo_models import Location
-from sb_quests.neo_models import Position, Quest
-from sb_tags.neo_models import Tag
-from sb_questions.neo_models import Question
+from sagebrew.sb_orders.neo_models import Order
+from sagebrew.sb_donations.neo_models import Donation
+from sagebrew.sb_locations.neo_models import Location
+from sagebrew.sb_quests.neo_models import Position, Quest
+from sagebrew.sb_tags.neo_models import Tag
+from sagebrew.sb_questions.neo_models import Question
 
-from sb_missions.neo_models import Mission
+from sagebrew.sb_missions.neo_models import Mission
 
 
 class TestMission(TestCase):
@@ -91,7 +91,7 @@ class TestMission(TestCase):
         donation = Donation(amount=500).save()
         donation.mission.connect(self.mission)
         res = Mission.get_donations(self.mission.object_uuid)
-        self.assertEqual(res[0].object_uuid, donation.object_uuid)
+        self.assertEqual(res[0][0].object_uuid, donation.object_uuid)
 
     def test_get_donors(self):
         donation = Donation(amount=500, completed=True,
@@ -100,7 +100,7 @@ class TestMission(TestCase):
         donation.mission.connect(self.mission)
         cache.clear()
         res = Mission.get_donors(self.mission.object_uuid)
-        self.assertEqual(res[0], self.owner.username)
+        self.assertEqual(res[0][0], self.owner.username)
 
     def test_get_donors_order(self):
         order = Order(completed=True,
@@ -108,7 +108,7 @@ class TestMission(TestCase):
         order.mission.connect(self.mission)
         cache.clear()
         res = Mission.get_donors(self.mission.object_uuid)
-        self.assertEqual(res[0], self.owner.username)
+        self.assertEqual(res[0][0], self.owner.username)
 
     def test_get_mission_title(self):
         res = self.mission.get_mission_title()

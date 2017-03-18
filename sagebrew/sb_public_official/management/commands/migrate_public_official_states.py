@@ -2,7 +2,7 @@ from localflavor.us.us_states import US_STATES
 
 from django.core.management.base import BaseCommand
 
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 
 class Command(BaseCommand):

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from sb_quests.neo_models import Position
+from sagebrew.sb_quests.neo_models import Position
 
 
 class Command(BaseCommand):

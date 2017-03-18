@@ -5,14 +5,16 @@ from django.core.cache import cache
 
 from celery import shared_task
 
-from py2neo.cypher.error.transaction import ClientError
-from neomodel import DoesNotExist, CypherException, db
+from neomodel import DoesNotExist, db
+from neo4j.v1 import CypherError
 
-from api.utils import spawn_task, generate_oauth_user
-from sb_search.tasks import update_search_object
-from sb_privileges.tasks import check_privileges
+from config.utils import neo_node
 
-from .neo_models import Pleb, OauthUser
+from sagebrew.api.utils import spawn_task, generate_oauth_user
+from sagebrew.sb_search.tasks import update_search_object
+from sagebrew.sb_privileges.tasks import check_privileges
+
+from sagebrew.plebs.neo_models import Pleb, OauthUser
 
 
 @shared_task()
@@ -41,12 +43,12 @@ def finalize_citizen_creation(username):
 
 @shared_task()
 def create_wall_task(username=None):
-    from sb_wall.neo_models import Wall
+    from sagebrew.sb_wall.neo_models import Wall
     try:
         query = 'MATCH (pleb:Pleb {username: "%s"})' \
                 '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
         res, _ = db.cypher_query(query)
-        if res.one is None:
+        if neo_node(res):
             wall = Wall(wall_id=str(uuid1())).save()
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \
@@ -58,7 +60,7 @@ def create_wall_task(username=None):
         if isinstance(spawned, Exception) is True:
             raise create_wall_task.retry(exc=spawned, countdown=3,
                                          max_retries=None)
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherError, IOError) as e:
         raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     return spawned
 
@@ -67,7 +69,7 @@ def create_wall_task(username=None):
 def generate_oauth_info(username, password, web_address=None):
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
-    except (DoesNotExist, CypherException, IOError) as e:
+    except (DoesNotExist, CypherError, IOError) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
     creds = generate_oauth_user(pleb, password, web_address)
 
@@ -81,12 +83,12 @@ def generate_oauth_info(username, password, web_address=None):
                               refresh_token=signing.dumps(
                                   creds['refresh_token']))
         oauth_obj.save()
-    except(CypherException, IOError) as e:
+    except(CypherError, IOError) as e:
         return e
 
     try:
         pleb.oauth.connect(oauth_obj)
-    except(CypherException, IOError) as e:
+    except(CypherError, IOError) as e:
         return e
 
     return True
@@ -96,7 +98,7 @@ def generate_oauth_info(username, password, web_address=None):
 def update_reputation(username):
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+    except (Pleb.DoesNotExist, DoesNotExist, CypherError, IOError) as e:
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 
     res = pleb.get_total_rep()

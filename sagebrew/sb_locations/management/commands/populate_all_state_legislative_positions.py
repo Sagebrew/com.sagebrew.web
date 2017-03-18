@@ -4,8 +4,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from sb_quests.neo_models import Position
-from sb_locations.neo_models import Location
+from sagebrew.sb_quests.neo_models import Position
+from sagebrew.sb_locations.neo_models import Location
 
 
 class Command(BaseCommand):
@@ -16,7 +16,11 @@ class Command(BaseCommand):
             query = 'MATCH (l:Location {name:"%s", sector:"federal"}) ' \
                     'RETURN l' % state.name
             res, _ = db.cypher_query(query)
-            state_node = Location.inflate(res.one)
+            res = res[0][0] if res else None
+            if res is not None:
+                state_node = Location.inflate(res)
+            else:
+                continue
             abbr = state.abbr.lower()
             with open('sb_locations/management/'
                       'commands/state_legislature/'
@@ -31,12 +35,12 @@ class Command(BaseCommand):
                             (state_node.object_uuid, district['name'])
                     res, _ = db.cypher_query(query)
                     try:
-                        location = Location.inflate(res[0].l2)
+                        location = Location.inflate(res[0][0].l2)
                     except (IndexError, AttributeError):
                         location = Location(
                             name=district['name'], sector='state_upper').save()
                     try:
-                        position = Position.inflate(res[0].p)
+                        position = Position.inflate(res[0][0].p)
                     except (IndexError, AttributeError):
                         position = Position(
                             name="State Senator", level="state_upper").save()
@@ -65,12 +69,12 @@ class Command(BaseCommand):
                             (state_node.object_uuid, district['name'])
                     res, _ = db.cypher_query(query)
                     try:
-                        location = Location.inflate(res[0].l2)
+                        location = Location.inflate(res[0][0].l2)
                     except (IndexError, AttributeError):
                         location = Location(
                             name=district["name"], sector="state_lower").save()
                     try:
-                        position = Position.inflate(res[0].p)
+                        position = Position.inflate(res[0][0].p)
                     except (IndexError, AttributeError):
                         position = Position(
                             name="State House Representative",

@@ -12,18 +12,18 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Address
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
-from sb_gifts.neo_models import Product, Giftlist
-from sb_orders.neo_models import Order
+from sagebrew.plebs.neo_models import Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_gifts.neo_models import Product, Giftlist
+from sagebrew.sb_orders.neo_models import Order
 
 
 class OrderEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'quest'

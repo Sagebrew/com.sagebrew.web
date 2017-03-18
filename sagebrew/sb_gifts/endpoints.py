@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from neomodel import db
 
-from .neo_models import Giftlist
-from .serializers import GiftlistSerializer
+from sagebrew.sb_gifts.neo_models import Giftlist
+from sagebrew.sb_gifts.serializers import GiftlistSerializer
 
 
 class GiftListViewSet(generics.RetrieveUpdateDestroyAPIView):
@@ -17,4 +17,8 @@ class GiftListViewSet(generics.RetrieveUpdateDestroyAPIView):
                 '(g:Giftlist) RETURN g' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
-        return Giftlist.inflate(res.one)
+        res = res[0][0] if res else None
+        if res is not None:
+            return Giftlist.inflate(res)
+        else:
+            return None

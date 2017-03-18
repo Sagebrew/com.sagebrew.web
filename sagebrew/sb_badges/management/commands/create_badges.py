@@ -2,10 +2,10 @@ from json import loads
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from neomodel import CypherException
+from neo4j.v1 import CypherError
 
-from sb_badges.neo_models import Badge
-from sb_requirements.neo_models import Requirement
+from sagebrew.sb_badges.neo_models import Badge
+from sagebrew.sb_requirements.neo_models import Requirement
 
 
 class Command(BaseCommand):
@@ -24,7 +24,7 @@ class Command(BaseCommand):
                     try:
                         req = Requirement(**requirement).save()
                         badge.requirements.connect(req)
-                    except (CypherException, IOError):
+                    except (CypherError, IOError):
                         continue
 
     def handle(self, *args, **options):

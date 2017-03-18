@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.cache import cache
 
-from sb_posts.neo_models import Post
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
-from sb_comments.neo_models import Comment
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class TestCommentsNeoModels(TestCase):

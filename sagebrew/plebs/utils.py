@@ -1,11 +1,10 @@
 from django.core.cache import cache
 
-from neomodel import DoesNotExist, CypherException, db
-from py2neo.cypher.error.transaction import ClientError
+from neomodel import DoesNotExist, db
+from neo4j.v1 import CypherError
+from sagebrew.sb_base.decorators import apply_defense
 
-from sb_base.decorators import apply_defense
-
-from .neo_models import Pleb, FriendRequest
+from sagebrew.plebs.neo_models import Pleb, FriendRequest
 
 
 @apply_defense
@@ -24,7 +23,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
             to_citizen = Pleb.get(username=to_username, cache_buster=True)
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
-        except(CypherException, IOError, ClientError) as e:
+        except(CypherError, IOError) as e:
             return e
 
         query = 'match (p:Pleb) where p.username="%s" ' \
@@ -35,7 +34,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
                 'return p2' % (from_username, to_username)
         try:
             pleb2, _ = db.cypher_query(query)
-        except(CypherException, IOError, ClientError) as e:
+        except(CypherError, IOError) as e:
             return e
 
         if pleb2:
@@ -51,7 +50,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         cache.delete(from_citizen.username)
         cache.delete(to_citizen.username)
         return True
-    except(CypherException, KeyError) as e:
+    except(CypherError, KeyError) as e:
         return e
 
 

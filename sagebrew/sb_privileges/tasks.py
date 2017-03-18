@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .utils import manage_privilege_relation
+from sagebrew.sb_privileges.utils import manage_privilege_relation
 
 
 @shared_task()

@@ -9,9 +9,9 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import db
 
-from api.utils import generate_summary, cleanup_title, only_roman_chars
-from sb_uploads.serializers import UploadSerializer
-from sb_base.serializers import VotableContentSerializer
+from sagebrew.api.utils import generate_summary, cleanup_title, only_roman_chars
+from sagebrew.sb_uploads.serializers import UploadSerializer
+from sagebrew.sb_base.serializers import VotableContentSerializer
 
 from .neo_models import NewsArticle
 
@@ -58,7 +58,7 @@ class NewsArticleSerializer(VotableContentSerializer):
         query = 'MATCH (news:NewsArticle {external_id: "%s"}) ' \
                 'RETURN news' % value
         res, _ = db.cypher_query(query)
-        if res.one:
+        if res[0] if res else None:
             raise ValidationError("This field must be unique")
         return value
 
@@ -81,7 +81,7 @@ class NewsArticleSerializer(VotableContentSerializer):
         query = 'MATCH (news:NewsArticle {title: "%s"}) ' \
                 'RETURN news' % value
         res, _ = db.cypher_query(query)
-        if res.one is not None:
+        if res[0] if res else None is not None:
             raise ValidationError("This field must be unique")
         return value
 
@@ -97,7 +97,7 @@ class NewsArticleSerializer(VotableContentSerializer):
                     'SKIP %s LIMIT 25' % (then, skip)
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for row in res:
                 content_closeness = SequenceMatcher(
@@ -138,7 +138,7 @@ class NewsArticleSerializer(VotableContentSerializer):
         query = 'MATCH (news:NewsArticle {url: "%s"}) ' \
                 'RETURN news' % value
         res, _ = db.cypher_query(query)
-        if res.one is not None:
+        if res[0] if res else None is not None:
             raise ValidationError("This field must be unique")
         return value
 

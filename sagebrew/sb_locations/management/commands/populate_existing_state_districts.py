@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from api.utils import spawn_task
-from sb_address.neo_models import Address
-from sb_address.tasks import connect_to_state_districts
+from sagebrew.api.utils import spawn_task
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_address.tasks import connect_to_state_districts
 
 
 class Command(BaseCommand):

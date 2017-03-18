@@ -5,10 +5,9 @@ from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
 from neomodel import db
-from py2neo.cypher.error.schema import ConstraintViolation
 
-from sb_quests.neo_models import Quest
-from sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_public_official.neo_models import PublicOfficial
 
 logger = getLogger('loggly_logs')
 
@@ -26,13 +25,13 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for official in [PublicOfficial.inflate(row[0]) for row in res]:
                 new_query = 'MATCH (a:Quest {owner_username: "%s"}) ' \
                             'RETURN a' % official.object_uuid
                 new_res, _ = db.cypher_query(new_query)
-                if not new_res.one:
+                if not new_res[0] if new_res else None:
                     quest = Quest(
                         about=official.bio, youtube=official.youtube,
                         twitter=official.twitter, website=official.website,
@@ -65,7 +64,7 @@ class Command(BaseCommand):
                                              'type(r) as type' \
                                              % dup.object_uuid
                         rel_res, _ = db.cypher_query(relationship_query)
-                        if rel_res.one:
+                        if rel_res[0] if rel_res else None:
                             for row in rel_res:
                                 try:
                                     re_query = 'MATCH (a:Quest ' \
@@ -75,7 +74,7 @@ class Command(BaseCommand):
                                                % (official.object_uuid,
                                                   row.username, row.type)
                                     db.cypher_query(re_query)
-                                except ConstraintViolation:
+                                except Exception:
                                     # handle potential constraint violations
                                     pass
                         query = 'MATCH (a:Quest {object_uuid: "%s"}) ' \

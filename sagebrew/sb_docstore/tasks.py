@@ -2,14 +2,14 @@ from celery import shared_task
 from boto.dynamodb2.exceptions import (JSONResponseError)
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 
-from api.utils import spawn_task
+from sagebrew.api.utils import spawn_task
 
-from .utils import (add_object_to_table, get_user_updates)
+from sagebrew.sb_docstore.utils import (add_object_to_table, get_user_updates)
 
 
 @shared_task()
 def spawn_user_updates(username, object_uuid):
-    from sb_votes.tasks import vote_object_task
+    from sagebrew.sb_votes.tasks import vote_object_task
     vote_res = []
     try:
         vote_res.append(get_user_updates(username=username,

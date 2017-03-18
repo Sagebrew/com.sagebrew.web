@@ -8,10 +8,10 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_quests.neo_models import Quest
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_missions.utils import setup_onboarding, order_tasks
+from sagebrew.sb_quests.neo_models import Quest
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.utils import setup_onboarding, order_tasks
 
 
 class TestSetupOnboarding(TestCase):
@@ -45,7 +45,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.QUEST_WALLPAPER_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
     def test_set_bank_setup(self):
         self.quest.account_verified = "verified"
@@ -55,7 +55,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.BANK_SETUP_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
     def test_set_quest_about(self):
         self.quest.about = "some short summary"
@@ -65,7 +65,7 @@ class TestSetupOnboarding(TestCase):
                 '(task:OnboardingTask {title: "%s"}) RETURN task' % (
                     self.mission.object_uuid, settings.QUEST_ABOUT_TITLE)
         res, _ = db.cypher_query(query)
-        self.assertTrue(res.one['completed'])
+        self.assertTrue(res[0][0]['completed'])
 
 
 class TestOrderTasks(TestCase):

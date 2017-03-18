@@ -9,8 +9,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from sb_quests.neo_models import Position
-from sb_quests.serializers import PositionSerializer
+from sagebrew.sb_quests.neo_models import Position
+from sagebrew.sb_quests.serializers import PositionSerializer
 
 from .utils import get_positions, get_districts
 from .serializers import (LocationSerializer, LocationManagerSerializer,
@@ -41,8 +41,9 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         query = 'MATCH (location:Location {%s: "%s"}) RETURN location' % (
             lookup_value, query_id)
         res, _ = db.cypher_query(query)
-        if res.one:
-            return Location.inflate(res.one)
+        res = res[0][0] if res else None
+        if res:
+            return Location.inflate(res)
         else:
             return None
 

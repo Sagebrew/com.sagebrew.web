@@ -1,14 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from sb_comments.endpoints import (ObjectCommentsListCreate,
-                                   ObjectCommentsRetrieveUpdateDestroy)
+from sagebrew.sb_comments.endpoints import (
+    ObjectCommentsListCreate, ObjectCommentsRetrieveUpdateDestroy)
 
 
-urlpatterns = patterns(
-    'sb_comments.endpoints',
+urlpatterns = [
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/comments/$',
         ObjectCommentsListCreate.as_view()),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/comments/'
         r'(?P<comment_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         ObjectCommentsRetrieveUpdateDestroy.as_view()),
-)
+]

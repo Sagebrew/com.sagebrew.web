@@ -7,11 +7,11 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_questions.neo_models import Question
-from sb_tags.tasks import update_tags, add_auto_tags
-from sb_tags.neo_models import Tag
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_tags.tasks import update_tags, add_auto_tags
+from sagebrew.sb_tags.neo_models import Tag
 
 
 class TestAddAutoTagTasks(APITestCase):
@@ -50,13 +50,13 @@ class TestAddAutoTagTasks(APITestCase):
         self.assertEqual(len(res), 3)
         query = 'MATCH (b:AutoTag {name: "political"}) RETURN b'
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0][0])
         query = 'MATCH (b:AutoTag {name: "settings"}) RETURN b'
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0][0])
         query = 'MATCH (b:AutoTag {name: "go"}) RETURN b'
         res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
+        self.assertIsNotNone(res[0][0])
 
     def test_add_auto_tags_no_input(self):
         query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
@@ -96,11 +96,11 @@ class TestUpdateTagsTask(APITestCase):
         query = 'MATCH (a:Tag {object_uuid: "%s"}) RETURN a' % (
             econ_tag.object_uuid)
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['tag_used'], 1)
+        self.assertEqual(res[0][0]['tag_used'], 1)
         query = 'MATCH (a:Tag {object_uuid: "%s"}) RETURN a' % (
             space_tag.object_uuid)
         res, _ = db.cypher_query(query)
-        self.assertEqual(res.one['tag_used'], 1)
+        self.assertEqual(res[0][0]['tag_used'], 1)
 
     def test_update_tags_no_input(self):
         query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \

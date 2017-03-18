@@ -5,10 +5,10 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_questions.neo_models import Question
-from sb_registration.utils import create_user_util_test
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_registration.utils import create_user_util_test
 
-from sb_stats.tasks import update_view_count_task
+from sagebrew.sb_stats.tasks import update_view_count_task
 
 
 class TestUpdateViewCountTask(TestCase):

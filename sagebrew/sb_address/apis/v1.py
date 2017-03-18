@@ -1,14 +1,13 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 
 from rest_framework import routers
 
-from sb_address.endpoints import AddressViewSet
+from sagebrew.sb_address.endpoints import AddressViewSet
 
 router = routers.SimpleRouter()
 router.register(r'addresses', AddressViewSet, base_name="address")
 
 
-urlpatterns = patterns(
-    'sb_address.endpoints',
+urlpatterns = [
     url(r'^', include(router.urls)),
-)
+]

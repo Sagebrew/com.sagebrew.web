@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 from neomodel import DoesNotExist, db
 
-from sb_locations.neo_models import Location
+from sagebrew.sb_locations.neo_models import Location
 
 
 class Command(BaseCommand):
@@ -16,7 +16,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             for location in [Location.inflate(row[0]) for row in res]:
                 if not location.sector:

@@ -10,20 +10,20 @@ from rest_framework.permissions import IsAuthenticated
 
 from neomodel import db
 
-from sb_base.neo_models import SBContent
-from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
-from sb_solutions.neo_models import Solution
-from sb_posts.neo_models import Post
-from sb_comments.neo_models import Comment
-from sb_questions.serializers import QuestionSerializerNeo
-from sb_solutions.serializers import SolutionSerializerNeo
-from sb_comments.serializers import CommentSerializer
-from sb_posts.serializers import PostSerializerNeo
-from sb_quests.neo_models import Position
-from sb_quests.serializers import PositionSerializer
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_questions.neo_models import Question
+from sagebrew.sb_solutions.neo_models import Solution
+from sagebrew.sb_posts.neo_models import Post
+from sagebrew.sb_comments.neo_models import Comment
+from sagebrew.sb_questions.serializers import QuestionSerializerNeo
+from sagebrew.sb_solutions.serializers import SolutionSerializerNeo
+from sagebrew.sb_comments.serializers import CommentSerializer
+from sagebrew.sb_posts.serializers import PostSerializerNeo
+from sagebrew.sb_quests.neo_models import Position
+from sagebrew.sb_quests.serializers import PositionSerializer
 
-from .serializers import CouncilVoteSerializer
+from sagebrew.sb_council.serializers import CouncilVoteSerializer
 
 
 class CouncilObjectEndpoint(viewsets.ModelViewSet):

@@ -10,25 +10,27 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_quests.neo_models import Quest
 
-from plebs.context_processors import request_profile
+from sagebrew.plebs.context_processors import request_profile
 
 
 class RequestProfileTests(TestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) DETACH DELETE n"
         db.cypher_query(query)
         cache.clear()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email, task=True)
+        print "here9"
         while not res['task_id'].ready():
             time.sleep(.1)
+        print "here10"
         self.pleb = res['pleb']
         self.user = res['user']
         self.username = self.pleb.username
@@ -36,6 +38,7 @@ class RequestProfileTests(TestCase):
         self.pleb.save()
 
     def test_authenticated(self):
+        print "here1"
         request = self.factory.get(
             reverse('profile_page',
                     kwargs={"pleb_username": self.pleb.username}))
@@ -44,14 +47,22 @@ class RequestProfileTests(TestCase):
                           title=str(uuid1()),
                           focus_name="advocacy",
                           location_name="11").save()
+        print "here2"
         quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
+        print "here3"
         quest.missions.connect(mission)
+        print "here4"
         quest.owner.connect(self.pleb)
+        print "here5"
         quest.editors.connect(self.pleb)
+        print "here6"
         quest.moderators.connect(self.pleb)
+        print "here7"
         res = request_profile(request)
-        self.assertEqual(res['request_profile']['username'], self.user.username)
+        print "here8"
+        self.assertEqual(res['request_profile']['username'],
+                         self.user.username)
 
     def test_mission_in_path(self):
         request = self.factory.get("missions/select/")

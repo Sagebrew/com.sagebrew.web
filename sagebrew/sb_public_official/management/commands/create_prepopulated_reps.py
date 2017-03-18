@@ -5,15 +5,16 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 
-from neomodel import CypherException, DoesNotExist, db
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist, db
 
-from api.utils import spawn_task
-from govtrack.neo_models import GTRole, GTPerson
-from govtrack.utils import populate_term_data
-from sb_search.tasks import update_search_object
+from sagebrew.api.utils import spawn_task
+from sagebrew.govtrack.neo_models import GTRole, GTPerson
+from sagebrew.govtrack.utils import populate_term_data
+from sagebrew.sb_search.tasks import update_search_object
 
-from sb_public_official.neo_models import PublicOfficial
-from sb_quests.neo_models import Quest
+from sagebrew.sb_public_official.neo_models import PublicOfficial
+from sagebrew.sb_quests.neo_models import Quest
 
 logger = getLogger('loggly_logs')
 
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             query = 'MATCH (role:GTRole) ' \
                     'RETURN role SKIP %s LIMIT 25' % count
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if not res[0] if res else None:
                 break
             count += 24
             for role in [GTRole.inflate(row[0]) for row in res]:
@@ -36,10 +37,10 @@ class Command(BaseCommand):
                             '-[:IS]->(person:GTPerson) ' \
                             'RETURN person' % role.role_id
                     res, _ = db.cypher_query(query)
-                    if res.one is None:
+                    if res[0] if res else None is None:
                         continue
                     else:
-                        person = GTPerson.inflate(res.one)
+                        person = GTPerson.inflate(res[0][0])
 
                     try:
                         rep = PublicOfficial.nodes.get(gt_id=person.gt_id)
@@ -61,7 +62,7 @@ class Command(BaseCommand):
                             gt_id=person.gt_id, gov_phone=role.phone,
                             bioguideid=person.bioguideid)
                         rep.save()
-                    except (CypherException, IOError) as e:
+                    except (CypherError, IOError) as e:
                         logger.exception(e)
                         continue
                     quest = rep.get_quest()

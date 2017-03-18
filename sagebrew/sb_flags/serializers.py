@@ -2,11 +2,11 @@ from rest_framework.reverse import reverse
 from rest_framework import serializers
 from neomodel import db
 
-from api.utils import request_to_api
-from sb_base.neo_models import SBContent
-from sb_base.serializers import VotableContentSerializer
+from sagebrew.api.utils import request_to_api
+from sagebrew.sb_base.neo_models import SBContent
+from sagebrew.sb_base.serializers import VotableContentSerializer
 
-from .neo_models import Flag
+from sagebrew.sb_flags.neo_models import Flag
 
 
 class FlagSerializer(VotableContentSerializer):
@@ -72,7 +72,7 @@ class FlagSerializer(VotableContentSerializer):
 def get_flag_parent(object_uuid):
     try:
         query = "MATCH (a:Flag {object_uuid:'%s'})-[:FLAG_ON]->" \
-                "(b:SBContent) RETURN b" % (object_uuid)
+                "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
         try:
             content = SBContent.inflate(res[0][0])
@@ -85,5 +85,5 @@ def get_flag_parent(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = SBContent.inflate(res[0][0][0])
         return content
-    except(IndexError):
+    except IndexError:
         return None

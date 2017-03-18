@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
+from config.utils import neo_node
+from sagebrew.plebs.neo_models import Pleb
 
 
 class Command(BaseCommand):
@@ -14,7 +15,7 @@ class Command(BaseCommand):
                     'SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
-            if not res.one:
+            if neo_node(res):
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 if profile.last_counted_vote_node is not None:
@@ -26,8 +27,9 @@ class Command(BaseCommand):
                             'WITH v ORDER BY v.created DESC ' \
                             'RETURN v LIMIT 1' % profile.username
                     res, _ = db.cypher_query(query)
-                    if res.one is not None:
-                        profile.last_counted_vote_node = res.one['object_uuid']
+                    res = neo_node(res)
+                    if res is not None:
+                        profile.last_counted_vote_node = res['object_uuid']
                         profile.save()
 
         self.stdout.write("completed vote population\n", ending='')

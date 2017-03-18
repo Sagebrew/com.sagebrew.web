@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from neomodel import UniqueProperty
 
-from plebs.neo_models import ActivityInterest
+from sagebrew.plebs.neo_models import ActivityInterest
 
 
 class Command(BaseCommand):

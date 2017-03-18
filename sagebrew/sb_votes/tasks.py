@@ -6,16 +6,16 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException, DoesNotExist
-from py2neo.cypher.error.statement import ClientError
+from neo4j.v1 import CypherError
+from neomodel import DoesNotExist
 
-from api.utils import spawn_task, smart_truncate
-from plebs.tasks import update_reputation
-from plebs.neo_models import Pleb
-from sb_base.neo_models import (get_parent_votable_content, VotableContent,
-                                get_parent_titled_content)
-from sb_notifications.tasks import spawn_notifications
-from sb_comments.neo_models import Comment
+from sagebrew.api.utils import spawn_task, smart_truncate
+from sagebrew.plebs.tasks import update_reputation
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_base.neo_models import (
+    get_parent_votable_content, VotableContent, get_parent_titled_content)
+from sagebrew.sb_notifications.tasks import spawn_notifications
+from sagebrew.sb_comments.neo_models import Comment
 
 from .neo_models import Vote
 from .utils import create_vote_relationship
@@ -36,7 +36,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     """
     try:
         current_pleb = Pleb.get(username=current_pleb)
-    except (DoesNotExist, Pleb.DoesNotExist, CypherException, IOError) as e:
+    except (DoesNotExist, Pleb.DoesNotExist, CypherError, IOError) as e:
         raise vote_object_task.retry(exc=e, countdown=10, max_retries=None)
     vote_active_string = "true"
     if vote_type:
@@ -49,7 +49,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     res = create_vote_relationship(object_uuid, current_pleb.username,
                                    vote_active_string, vote_type_string)
 
-    sb_object = VotableContent.inflate(res.one)
+    sb_object = VotableContent.inflate(res[0][0])
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 
@@ -97,8 +97,7 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
     sb_object = get_parent_votable_content(object_uuid)
     try:
         current_pleb = Pleb.get(username=voting_pleb)
-    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
-            IOError) as e:
+    except (DoesNotExist, Pleb.DoesNotExist, CypherError, IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
     if new_vote_type != 2 and previous_vote_type != new_vote_type:
@@ -178,13 +177,11 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
     sb_object = get_parent_votable_content(parent_object)
     try:
         current_pleb = Pleb.get(username=voter)
-    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
-            IOError) as e:
+    except (DoesNotExist, Pleb.DoesNotExist, CypherError, IOError) as e:
         raise create_vote_node.retry(exc=e, countdown=10, max_retries=None)
     try:
         owner = Pleb.get(username=sb_object.owner_username)
-    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
-            IOError) as e:
+    except (DoesNotExist, Pleb.DoesNotExist, CypherError, IOError) as e:
         raise create_vote_node.retry(exc=e, countdown=10, max_retries=None)
     last_vote = sb_object.get_last_user_vote(current_pleb.username)
     if sb_object.visibility == 'public':

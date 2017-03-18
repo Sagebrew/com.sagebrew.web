@@ -10,13 +10,13 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from sb_address.neo_models import Address
-from sb_registration.utils import create_user_util_test
-from plebs.neo_models import Pleb
-from sb_missions.neo_models import Mission
-from sb_missions.utils import setup_onboarding
+from sagebrew.sb_address.neo_models import Address
+from sagebrew.sb_registration.utils import create_user_util_test
+from sagebrew.plebs.neo_models import Pleb
+from sagebrew.sb_missions.neo_models import Mission
+from sagebrew.sb_missions.utils import setup_onboarding
 
-from sb_quests.neo_models import Quest
+from sagebrew.sb_quests.neo_models import Quest
 
 
 class QuestViewTests(TestCase):
